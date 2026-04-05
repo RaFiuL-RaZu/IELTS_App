@@ -5,7 +5,8 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:justtsham/core/utils/app_icons.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
-import 'package:justtsham/featcher/view/authentication/login_screen.dart';
+import 'package:justtsham/featcher/view/authentication/create_account.dart';
+import 'package:justtsham/routes/routes.dart';
 
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_image.dart';
@@ -50,7 +51,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeIn,
       );
     } else {
-      Get.to(() =>LoginScreen());
+      Get.toNamed(AppRoutes.signup);
     }
   }
 

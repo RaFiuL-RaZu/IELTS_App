@@ -2,13 +2,32 @@
 class Assets {
   Assets._();
 
+  static const String iconActiveAudio = 'assets/icon/activeAudio.png';
+  static const String iconActiveHome = 'assets/icon/activeHome.png';
+  static const String iconActiveScript = 'assets/icon/activeScript.png';
+  static const String iconActiveSet = 'assets/icon/activeSet.png';
+  static const String iconActiveprofile = 'assets/icon/activeprofile.png';
+  static const String iconApple = 'assets/icon/apple.png';
+  static const String iconAudioIcon = 'assets/icon/audioIcon.png';
+  static const String iconCamera = 'assets/icon/camera.png';
+  static const String iconFav = 'assets/icon/fav.png';
+  static const String iconGoogle = 'assets/icon/google.png';
+  static const String iconHome = 'assets/icon/home.png';
   static const String iconIcon1 = 'assets/icon/icon1.png';
   static const String iconIcon2 = 'assets/icon/icon2.png';
   static const String iconIcon3 = 'assets/icon/icon3.png';
+  static const String iconLove = 'assets/icon/love.png';
+  static const String iconMessage = 'assets/icon/message.png';
+  static const String iconProfileIcon = 'assets/icon/profileIcon.png';
+  static const String iconScript = 'assets/icon/script.png';
+  static const String iconSetIcon = 'assets/icon/setIcon.png';
+  static const String iconTrophy = 'assets/icon/trophy.png';
+  static const String iconVideo = 'assets/icon/video.png';
   static const String imageBanner1 = 'assets/image/banner1.png';
   static const String imageBanner2 = 'assets/image/banner2.png';
   static const String imageBanner3 = 'assets/image/banner3.png';
   static const String imageGiphy = 'assets/image/giphy.gif';
+  static const String imagePerson = 'assets/image/person.jpg';
   static const String imageSplashImage = 'assets/image/splashImage.png';
 
 }

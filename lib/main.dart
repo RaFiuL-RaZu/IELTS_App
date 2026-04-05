@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget{
           fallbackLocale: const Locale('en', 'US'),
           transitionDuration: Duration(milliseconds: 300),
           debugShowCheckedModeBanner: false,
-          initialRoute: AppRoutes.splashScreen,
+          initialRoute: AppRoutes.splash,
           getPages: AppRoutes.routes,
           builder: (context,child){
             return child!;
