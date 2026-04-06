@@ -14,5 +14,15 @@ class AppIcons{
   static const message="$baseIcons/message.png";
   static const love="$baseIcons/love.png";
   static const fav="$baseIcons/fav.png";
+  static const notify="$baseIcons/notify.png";
+  static const play="$baseIcons/play.png";
+  static const book="$baseIcons/book.png";
+  static const star="$baseIcons/star.png";
+  static const search ="$baseIcons/search.png";
+  static const logout ="$baseIcons/logout.png";
+  static const flag ="$baseIcons/flag.png";
+  static const faq ="$baseIcons/faq.png";
+  static const crown ="$baseIcons/crown.png";
+  static const man ="$baseIcons/man.png";
 
 }

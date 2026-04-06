@@ -1,17 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:justtsham/core/utils/app_icons.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
-import 'package:justtsham/featcher/view/authentication/create_account.dart';
 import 'package:justtsham/routes/routes.dart';
 
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_image.dart';
 
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends StatefulWidget{
   const OnboardingScreen({super.key});
 
   @override
