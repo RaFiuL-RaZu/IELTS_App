@@ -24,5 +24,7 @@ class AppIcons{
   static const faq ="$baseIcons/faq.png";
   static const crown ="$baseIcons/crown.png";
   static const man ="$baseIcons/man.png";
+  static const music ="$baseIcons/music.png";
+  static const redBox ="$baseIcons/redbox.png";
 
 }

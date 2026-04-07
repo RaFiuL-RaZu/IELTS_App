@@ -6,7 +6,10 @@ import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/utils/app_icons.dart';
 import 'package:justtsham/core/utils/app_image.dart';
 import 'package:justtsham/core/widgets/commom_image.dart';
+import 'package:justtsham/core/widgets/coomon_button.dart';
 import 'package:justtsham/featcher/view/SettingScreen/privacy_screen.dart';
+import 'package:justtsham/featcher/view/SettingScreen/subscription_page.dart';
+import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
 import '../../../core/widgets/common_text.dart';
 import 'edit_profile.dart';
 import 'help_screen.dart';
@@ -31,7 +34,7 @@ class SettingScreen extends StatelessWidget {
                 fWeight: FontWeight.w800,
                 color: AppColor.primary,
               ),
-              SizedBox(height: 12.h,),
+              SizedBox(height: 12.h),
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -90,23 +93,44 @@ class SettingScreen extends StatelessWidget {
                               spreadRadius: -6,
                             ),
                           ],
-                        ),child:ClipOval(child: CommonImage(imageSrc: AppImage.person,imageType: ImageType.png,)),
+                        ),
+                        child: ClipOval(
+                          child: CommonImage(
+                            imageSrc: AppImage.person,
+                            imageType: ImageType.png,
+                          ),
+                        ),
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         spacing: 5,
                         children: [
-                          CommonText(title: "Jhon Doe",fSize: 20,fWeight: FontWeight.w700,color: Colors.white,),
-                          CommonText(title: "jhondoe@gmail.com",fSize: 14,fWeight: FontWeight.w500,color: AppColor.secondary,),
+                          CommonText(
+                            title: "Jhon Doe",
+                            fSize: 20,
+                            fWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                          CommonText(
+                            title: "jhondoe@gmail.com",
+                            fSize: 14,
+                            fWeight: FontWeight.w500,
+                            color: AppColor.secondary,
+                          ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: 20.h,),
-              CommonText(title: "Account",fSize: 14,fWeight: FontWeight.w700,color: AppColor.secondary,),
-              SizedBox(height: 12.h,),
+              SizedBox(height: 20.h),
+              CommonText(
+                title: "Account",
+                fSize: 14,
+                fWeight: FontWeight.w700,
+                color: AppColor.secondary,
+              ),
+              SizedBox(height: 12.h),
               Container(
                 margin: EdgeInsets.only(bottom: 16),
                 width: double.infinity,
@@ -124,30 +148,46 @@ class SettingScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       GestureDetector(
-                        onTap: (){
-                          Get.to(()=>EditProfile());
+                        onTap: () {
+                          Get.to(() => EditProfile());
                         },
-                          child: ProfileBox(title: 'Edit Profile', icon: AppIcons.man)),
-                      Divider(color: Colors.grey.shade200,),
+                        child: ProfileBox(
+                          title: 'Edit Profile',
+                          icon: AppIcons.man,
+                        ),
+                      ),
+                      Divider(color: Colors.grey.shade200),
                       GestureDetector(
-                        onTap: (){
-                          Get.to(()=>HelpScreen());
+                        onTap: () {
+                          Get.to(() => SubscriptionPage());
                         },
-                          child: ProfileBox(title: 'Subscription', icon: AppIcons.crown)),
-                      Divider(color: Colors.grey.shade200,),
+                        child: ProfileBox(
+                          title: 'Subscription',
+                          icon: AppIcons.crown,
+                        ),
+                      ),
+                      Divider(color: Colors.grey.shade200),
                       GestureDetector(
-                        onTap: (){
-                          Get.to(()=>PrivacyScreen());
+                        onTap: () {
+                          Get.to(() => PrivacyScreen());
                         },
-                          child: ProfileBox(title: 'Privacy & Security', icon: AppIcons.flag)),
-
+                        child: ProfileBox(
+                          title: 'Privacy & Security',
+                          icon: AppIcons.flag,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: 20.h,),
-              CommonText(title: "Support",fSize: 14,fWeight: FontWeight.w700,color: AppColor.secondary,),
-              SizedBox(height: 12.h,),
+              SizedBox(height: 20.h),
+              CommonText(
+                title: "Support",
+                fSize: 14,
+                fWeight: FontWeight.w700,
+                color: AppColor.secondary,
+              ),
+              SizedBox(height: 12.h),
               Container(
                 margin: EdgeInsets.only(bottom: 16),
                 width: double.infinity,
@@ -165,42 +205,160 @@ class SettingScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       GestureDetector(
-                        onTap: (){
-                          Get.to(()=>HelpScreen());
+                        onTap: () {
+                          Get.to(() => HelpScreen());
                         },
-                          child: ProfileBox(title: 'Help Center', icon: AppIcons.faq)),
-
+                        child: ProfileBox(
+                          title: 'Help Center',
+                          icon: AppIcons.faq,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: 108.h,),
-              Container(
-                margin: EdgeInsets.only(bottom: 16),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.white,
-                  border: Border.all(color: Colors.red.shade200)
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
+              SizedBox(height: 108.h),
+              GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Container(
+                          height: 278.h,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.white,
+                            border: Border.all(color: Color(0xFFFFE2E2)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 20,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Center(
+                                  child: Container(
+                                    height: 55.h,
+                                    width: 55.w,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFFEF2F2),
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 3,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(10.0),
+                                      child: Center(
+                                        child: Image.asset(
+                                          AppIcons.logout,
+                                          height: 24.h,
+                                          width: 24.w,
+                                          color: Colors.red,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 12.h),
+                                CommonText(
+                                  title: "Ready to leave?",
+                                  fSize: 20,
+                                  fWeight: FontWeight.w800,
+                                  color: Colors.black,
+                                ),
+                                SizedBox(height: 12.h),
+                                CommonText(
+                                  align: TextAlign.center,
+                                  title:
+                                      "Are you sure you want to log out of your VO Vault account? You'll need to sign back in to access your auditions.",
+                                  fSize: 14,
+                                  fWeight: FontWeight.w500,
+                                  color: AppColor.secondary,
+                                ),
+                                SizedBox(height: 12.h,),
+                                Row(
+                                  spacing: 10,
+                                  children: [
+                                    Expanded(
+                                      child: CommonButton(
+                                        onTap: (){
+                                          Get.back();
+                                        },
+                                        buttonHeight: 50.h,
+                                        titleText: "Cancel",
+                                        backgroundColor: Colors.white,
+                                        borderColor: Colors.grey.shade400,
+                                        useGradient: false,
+                                        titleSize: 16,
+                                        titleWeight: FontWeight.w700,
+                                        titleColor: Color(0XFF4A5565),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: CommonButton(
+                                        onTap: (){
+                                          Get.offAll(()=>LoginScreen());
+                                        },
+                                        buttonHeight: 50.h,
+                                        titleText: "Log Out",
+                                        backgroundColor: Color(0XFFE7000B),
+                                        useGradient: false,
+                                        titleSize: 16,
+                                        titleWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: Container(
+                  margin: EdgeInsets.only(bottom: 16),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                    border: Border.all(color: Colors.red.shade200),
                   ),
-                  child: Row(
-                    spacing: 10,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(AppIcons.logout,height: 20.h,width: 20.w,),
-                      CommonText(title: "Log Out",fSize: 16,fWeight: FontWeight.w700,color: Colors.red,)
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    child: Row(
+                      spacing: 10,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(AppIcons.logout, height: 20.h, width: 20.w),
+                        CommonText(
+                          title: "Log Out",
+                          fSize: 16,
+                          fWeight: FontWeight.w700,
+                          color: Colors.red,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              )
-
-
-
+              ),
             ],
           ),
         ),
@@ -210,34 +368,47 @@ class SettingScreen extends StatelessWidget {
 
   Row ProfileBox({required String title, required String icon}) {
     return Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            height: 40.h,
-                            width: 40.w,
-                            decoration: BoxDecoration(
-                                color: AppColor.background,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 3,
-                                  ),
-                                ]
-                            ),child:Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Center(child: Image.asset(icon,color: AppColor.primary,height: 20.h,width: 20.w,)),
-                          ),
-                          ),
-                          SizedBox(width: 15.w,),
-                          CommonText(title: title,fSize: 14,fWeight: FontWeight.w700,color: AppColor.primary,),
-                        ],
-                      ),
-                      Icon(Icons.arrow_forward_ios,size: 16,color: AppColor.secondary,),
-                    ],
-                  );
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Container(
+              height: 40.h,
+              width: 40.w,
+              decoration: BoxDecoration(
+                color: AppColor.background,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 3,
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Center(
+                  child: Image.asset(
+                    icon,
+                    color: AppColor.primary,
+                    height: 20.h,
+                    width: 20.w,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 15.w),
+            CommonText(
+              title: title,
+              fSize: 14,
+              fWeight: FontWeight.w700,
+              color: AppColor.primary,
+            ),
+          ],
+        ),
+        Icon(Icons.arrow_forward_ios, size: 16, color: AppColor.secondary),
+      ],
+    );
   }
 }

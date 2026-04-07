@@ -24,9 +24,11 @@ class Assets {
   static const String iconLove = 'assets/icon/love.png';
   static const String iconMan = 'assets/icon/man.png';
   static const String iconMessage = 'assets/icon/message.png';
+  static const String iconMusic = 'assets/icon/music.png';
   static const String iconNotify = 'assets/icon/notify.png';
   static const String iconPlay = 'assets/icon/play.png';
   static const String iconProfileIcon = 'assets/icon/profileIcon.png';
+  static const String iconRedbox = 'assets/icon/redbox.png';
   static const String iconScript = 'assets/icon/script.png';
   static const String iconSearch = 'assets/icon/search.png';
   static const String iconSetIcon = 'assets/icon/setIcon.png';

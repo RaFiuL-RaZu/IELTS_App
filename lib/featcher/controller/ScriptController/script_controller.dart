@@ -6,10 +6,13 @@ import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 class ScriptController extends GetxController{
 
   RxInt selectedIndex = 0.obs;
+  RxInt selectedTime = 0.obs;
 
   void changeTab(int index) {
     selectedIndex.value = index;
+    selectedTime.value = index;
   }
+
 
   RxInt selectedTab = (-1).obs;
 
@@ -26,5 +29,11 @@ class ScriptController extends GetxController{
     "Commercial",
     "Animation",
     "Narration",
+  ];
+
+  List<String> timeList = [
+    "15 sec",
+    "30 sec",
+    "45 sec",
   ];
   }

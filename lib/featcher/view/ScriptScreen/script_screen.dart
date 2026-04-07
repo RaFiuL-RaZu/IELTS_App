@@ -173,7 +173,214 @@ class ScriptScreen extends StatelessWidget {
                           }),
                         ],
                       )
-                    : SizedBox();
+                    : Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 10,horizontal: 16),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF6C4DFF).withOpacity(0.20),
+                            offset: Offset(0, 20),
+                            blurRadius: 25,
+                            spreadRadius: -5,
+                          ),
+                          BoxShadow(
+                            color: Color(0xFF6C4DFF).withOpacity(0.20),
+                            offset: Offset(0, 8),
+                            blurRadius: 10,
+                            spreadRadius: -6,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                         ListTile(
+                           contentPadding: EdgeInsets.zero,
+                           leading: Container(
+                             height: 40.h,
+                             width: 40.w,
+                             decoration: BoxDecoration(
+                               borderRadius: BorderRadius.circular(14),
+                               color: Color(0xFFE5E2FD),
+                             ),
+                             child: Center(
+                               child: Image.asset(AppIcons.star,height: 24,width: 24,fit: BoxFit.fill,),
+                             ),
+                           ),
+                           title: CommonText(title: "Script Writer",fSize: 18,fWeight: FontWeight.w800,color:AppColor.primary,),
+                           subtitle: CommonText(title: "Generate custom practice copy",fSize: 12,fWeight: FontWeight.w500,color:AppColor.secondary,),
+                         ),
+                          SizedBox(height: 7.h),
+                          CommonText(
+                            title: "Category",
+                            fSize: 16,
+                            fWeight: FontWeight.w600,
+                            color: AppColor.primary,
+                          ),
+                          SizedBox(height: 10.h),
+                          CommonTextField(title: "Enter your category",sIcon:Icon(Icons.arrow_drop_down),),
+                          SizedBox(height: 10.h),
+                          CommonText(
+                            title: "Tone / Style",
+                            fSize: 16,
+                            fWeight: FontWeight.w600,
+                            color: AppColor.primary,
+                          ),
+                          SizedBox(height: 10.h),
+                          CommonTextField(title: "Select tone / style",sIcon:Icon(Icons.arrow_drop_down),),
+                          SizedBox(height: 10.h),
+                          CommonText(
+                            title: "Length",
+                            fSize: 16,
+                            fWeight: FontWeight.w600,
+                            color: AppColor.primary,
+                          ),
+                          SizedBox(height: 10.h),
+                          Obx(
+                                () => SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                spacing: 10,
+                                children: [
+                                  ...List.generate(controller.timeList.length, (
+                                      index,
+                                      ) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        controller.selectItem(index);
+                                      },
+                                      child: voiceBox(
+                                        title: controller.timeList[index],
+                                        isSelected:
+                                        controller.selectedTab.value == index,
+                                      ),
+                                    );
+                                  }),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 20.h,),
+                          CommonButton(titleText: " Generate Script",),
+
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20.h,),
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      margin: EdgeInsets.only(bottom: 16),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF6C4DFF).withOpacity(0.20),
+                            offset: Offset(0, 20),
+                            blurRadius: 25,
+                            spreadRadius: -5,
+                          ),
+                          BoxShadow(
+                            color: Color(0xFF6C4DFF).withOpacity(0.20),
+                            offset: Offset(0, 8),
+                            blurRadius: 10,
+                            spreadRadius: -6,
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                           Row(
+                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                             children: [
+                               Container(
+                                 height: 24.h,
+                                 width: 93.w,
+                                 decoration: BoxDecoration(
+                                   borderRadius: BorderRadius.circular(20),
+                                   color: Color(0xFFE5E2FD),
+                                 ),
+                                 child: Center(
+                                   child: CommonText(
+                                     title: "Generated!",
+                                     fSize: 12,
+                                     fWeight: FontWeight.w500,
+                                     color: AppColor.primary,
+                                   ),
+                                 ),
+                               ),
+                               CommonText(title: "15 sec",fSize: 12,fWeight: FontWeight.w500,color: AppColor.primary,),
+                             ],
+                           ),
+                            SizedBox(height: 7.h),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 0,vertical: 10),
+                              child: Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Color(0xFFF1EFFE),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 16,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      CommonText(
+                                        title:
+                                        "Narrator : Some people say the sky is the limit. But what if you don't even believe in the sky?\nWhat if every time they told you to slow down, you just found a new gear?\nIntroducing the all-new experience. Designed for those who don't just follow the path... they create it.\nGet yours today.",
+                                        fSize: 16,
+                                        color: AppColor.secondary,
+                                        fWeight: FontWeight.w500,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                            Row(
+                              spacing: 10,
+                              children: [
+                                Expanded(child: CommonButton(titleText: " Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),)),
+                                Container(
+                                  height: 48.h,
+                                  width: 48.w,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    color: Colors.white,
+                                    border: Border.all(color: Colors.grey.shade300)
+                                  ),
+                                  child: Center(
+                                    child: Icon(Icons.copy,color: Colors.grey.shade400,),
+                                  ),
+                                )
+
+                              ],
+                            )
+
+                          ],
+                        ),
+                      ),
+                    )
+
+                  ],
+                );
               }),
             ],
           ),
@@ -236,6 +443,7 @@ class ScriptScreen extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
+        border: isSelected ? Border.all(color:Colors.white) :Border.all(color:  Colors.grey.shade300),
         gradient: LinearGradient(
           colors: isSelected
               ? [Color(0xFF180E27), Color(0xFF56397C)]
@@ -250,6 +458,7 @@ class ScriptScreen extends StatelessWidget {
                 : Color(0xFF8A79D6),
             offset: Offset(0, 0),
           ),
+
         ],
       ),
       child: Padding(

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
+import 'package:justtsham/featcher/view/SettingScreen/change_password.dart';
 import '../../../core/widgets/common_text.dart';
+import 'delete_account.dart';
 
 class PrivacyScreen extends StatelessWidget {
   const PrivacyScreen({super.key});
@@ -43,15 +47,25 @@ class PrivacyScreen extends StatelessWidget {
                     spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ProfileBox(
-                        title: 'Change Password',
-                        icon: Icons.lock,
+                      GestureDetector(
+                        onTap: (){
+                          Get.to(()=>ChangePassword());
+                        },
+                        child: ProfileBox(
+                          title: 'Change Password',
+                          icon: Icons.lock,
+                        ),
                       ),
                       Divider(color: Colors.grey.shade200,),
-                      ProfileBox(
-                        title: 'Delete Account',
-                        icon: Icons.delete,
-                        color: Colors.red,
+                      GestureDetector(
+                        onTap: (){
+                          Get.to(()=>DeleteAccount());
+                        },
+                        child: ProfileBox(
+                          title: 'Delete Account',
+                          icon: Icons.delete,
+                          color: Colors.red,
+                        ),
                       ),
 
                     ],
