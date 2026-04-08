@@ -1,3 +1,4 @@
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -6,15 +7,14 @@ import 'package:waveform_flutter/waveform_flutter.dart';
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_icons.dart';
 import '../../../core/widgets/common_text.dart';
-import '../../controller/CommunityController/community_controller.dart';
+import '../../controller/CommunityController/commercial_controller.dart';
 
 class CommercialScreen extends StatelessWidget {
-  CommercialScreen({super.key});
-
-  final CommunityController controller = Get.put(CommunityController());
+  const CommercialScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(CommercialController());
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(
@@ -50,7 +50,6 @@ class CommercialScreen extends StatelessWidget {
 
       body: Column(
         children: [
-          SizedBox(height: 40.h),
           Expanded(
             child: Stack(
               children: [
@@ -94,7 +93,7 @@ class CommercialScreen extends StatelessWidget {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
-                    height: 328.h,
+                    height: 348.h,
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
@@ -111,63 +110,199 @@ class CommercialScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 40.h),
-                        Obx(
-                          () => CommonText(
-                            title: controller.formattedTime,
-                            fSize: 40.h,
-                            fWeight: FontWeight.w700,
-                          ),
-                        ),
-
-                        SizedBox(height: 20.h),
-
-                        Obx(() {
-                          return Wave(
-                            stream: controller.isRecording.value
-                                ? controller.micStream
-                                : Stream.empty(),
-                          );
-                        }),
-
-                        SizedBox(height: 40.h),
-
-                        Obx(
-                          () => GestureDetector(
-                            onTap: controller.toggleRecording,
-                            child: Container(
-                              height: 95.h,
-                              width: 95.w,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: controller.isRecording.value
-                                    ? Colors.white
-                                    : const Color(0xFFFB2C36),
-                                border: Border.all(
-                                  color: controller.isRecording.value
-                                      ? Colors.red.shade200
-                                      : Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 20.h),
+                          Obx(() {
+                            if (controller.isRecorded.value) {
+                              return Text(
+                                controller.remainingTime(),
+                                style: const TextStyle(
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0x4DFB2C36),
-                                    offset: Offset(0, 15),
-                                    blurRadius: 12.8,
+                              );
+                            } else {
+                              return Text(
+                                controller.formattedTime,
+                                style: const TextStyle(
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            }
+                          }),
+
+                          const SizedBox(height: 20),
+                          Obx(() {
+                            if (controller.isRecording.value) {
+                              return AudioWaveforms(
+                                enableGesture: false,
+                                size: Size(double.infinity, 60),
+                                recorderController: controller.recorderController,
+                                waveStyle: const WaveStyle(
+                                  waveColor: Colors.black,
+                                  showMiddleLine: false,
+                                  extendWaveform: true,
+                                  spacing: 4,
+                                  waveThickness: 3,
+                                ),
+                              );
+                            }
+
+                            else if (controller.isRecorded.value) {
+                              return AudioFileWaveforms(
+                                backgroundColor: AppColor.primary,
+                                size: Size(double.infinity, 60),
+                                playerController: controller.playerController,
+                                waveformType: WaveformType.fitWidth,
+                               playerWaveStyle: PlayerWaveStyle(
+                                 liveWaveColor: AppColor.primary
+                               ),
+                              );
+                            }
+
+                            else {
+                              return const SizedBox();
+                            }
+                          }),
+
+                          const Spacer(),
+                          Obx(() {
+                            if (controller.isRecorded.value) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                spacing: 30,
+                                children: [
+                                  Container(
+                                    height: 48.h,
+                                    width: 48.w,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFFFE2E2),
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 3,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Center(
+                                        child: Image.asset(
+                                          AppIcons.drive,
+                                          color: Colors.red,
+                                          height: 20.h,
+                                          width: 20.w,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      if (controller.recordedPath == null)
+                                        return;
+
+                                      await controller.playPause();
+                                    },
+                                    child: Container(
+                                      height: 95.h,
+                                      width: 95.w,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: AppColor.primary,
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Icon(
+                                          controller.playerController.playerState == PlayerState.playing
+                                              ? Icons.pause
+                                              : Icons.play_arrow,
+                                          color: Colors.white,
+                                        )
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 48.h,
+                                    width: 48.w,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFC1FFD6),
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 3,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Center(
+                                        child: Image.asset(
+                                          AppIcons.delete,
+                                          color: Colors.green,
+                                          height: 20.h,
+                                          width: 20.w,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ],
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(30.0),
-                                child: controller.isRecording.value
-                                    ? Image.asset(AppIcons.redBox)
-                                    : Image.asset(AppIcons.music),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                              );
+                            } else {
+                              return GestureDetector(
+                                onTapDown: (_) async {
+                                  debugPrint("TAP DOWN");
+                                  await controller.startRecording();
+                                },
+                                onTapUp: (_) async {
+                                  debugPrint("TAP UP");
+                                  await controller.stopRecording();
+                                },
+                                onTapCancel: () async {
+                                  await controller.stopRecording();
+                                },
+                                child: Obx(() {
+                                  return Container(
+                                    height: 95.h,
+                                    width: 95.w,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: controller.isRecording.value
+                                          ? Colors.white
+                                          : Colors.red,
+                                      border: controller.isRecording.value
+                                          ? Border.all(color: Colors.red)
+                                          : Border.all(
+                                              color: AppColor.background,
+                                            ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(25.0),
+                                      child: Image.asset(
+                                        controller.isRecording.value
+                                            ? AppIcons.redBox
+                                            : AppIcons.music,
+                                        color: controller.isRecording.value
+                                            ? Colors.red
+                                            : Colors.white,
+                                        height: 24,
+                                        width: 24,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              );
+                            }
+                          }),
+                          SizedBox(height: 25.h),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -177,33 +312,5 @@ class CommercialScreen extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class Wave extends StatelessWidget {
-  final Stream<Amplitude> stream;
-
-  const Wave({super.key, required this.stream});
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      final controller = Get.find<CommunityController>();
-
-      return SizedBox(
-        height: 20,
-        width: 240.w,
-        child: AnimatedWaveList(
-          stream: controller.isRecording.value
-              ? stream
-              : createRandomAmplitudeStream(),
-          barBuilder: (animation, amplitude) => WaveFormBar(
-            animation: animation,
-            amplitude: amplitude,
-            color: Colors.black,
-          ),
-        ),
-      );
-    });
   }
 }

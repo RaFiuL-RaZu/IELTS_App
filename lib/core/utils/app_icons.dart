@@ -26,5 +26,12 @@ class AppIcons{
   static const man ="$baseIcons/man.png";
   static const music ="$baseIcons/music.png";
   static const redBox ="$baseIcons/redbox.png";
+  static const progress ="$baseIcons/progress.png";
+  static const docs ="$baseIcons/docs.png";
+  static const round ="$baseIcons/round.png";
+  static const history ="$baseIcons/history.png";
+  static const upload ="$baseIcons/upload.png";
+  static const delete ="$baseIcons/deleteIcon.png";
+  static const drive ="$baseIcons/drive.png";
 
 }
