@@ -123,7 +123,7 @@ class HelpScreen extends StatelessWidget {
         height: 76.h,
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
         decoration: BoxDecoration(
-          color: Color(0xFFF3F4F6),
+          color: Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(

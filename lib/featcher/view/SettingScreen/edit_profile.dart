@@ -147,7 +147,7 @@ class EditProfile extends StatelessWidget {
   }) {
     return Container(
       height: 34.h,
-      width: 115.w,
+      width: 110.w,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),

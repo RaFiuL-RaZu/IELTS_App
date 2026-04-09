@@ -2,7 +2,6 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:waveform_flutter/waveform_flutter.dart';
 
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_icons.dart';
@@ -50,6 +49,7 @@ class CommercialScreen extends StatelessWidget {
 
       body: Column(
         children: [
+          SizedBox(height: 30),
           Expanded(
             child: Stack(
               children: [
@@ -93,7 +93,7 @@ class CommercialScreen extends StatelessWidget {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
-                    height: 348.h,
+                    height: 328.h,
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
@@ -116,7 +116,12 @@ class CommercialScreen extends StatelessWidget {
                         children: [
                           SizedBox(height: 20.h),
                           Obx(() {
-                            if (controller.isRecorded.value) {
+                            final isRecorded = controller.isRecorded.value;
+
+                            final current = controller.currentPosition.value;
+                            final total = controller.totalDuration.value;
+
+                            if (isRecorded) {
                               return Text(
                                 controller.remainingTime(),
                                 style: const TextStyle(
@@ -141,7 +146,8 @@ class CommercialScreen extends StatelessWidget {
                               return AudioWaveforms(
                                 enableGesture: false,
                                 size: Size(double.infinity, 60),
-                                recorderController: controller.recorderController,
+                                recorderController:
+                                    controller.recorderController,
                                 waveStyle: const WaveStyle(
                                   waveColor: Colors.black,
                                   showMiddleLine: false,
@@ -150,21 +156,17 @@ class CommercialScreen extends StatelessWidget {
                                   waveThickness: 3,
                                 ),
                               );
-                            }
-
-                            else if (controller.isRecorded.value) {
+                            } else if (controller.isRecorded.value) {
                               return AudioFileWaveforms(
                                 backgroundColor: AppColor.primary,
                                 size: Size(double.infinity, 60),
                                 playerController: controller.playerController,
                                 waveformType: WaveformType.fitWidth,
-                               playerWaveStyle: PlayerWaveStyle(
-                                 liveWaveColor: AppColor.primary
-                               ),
+                                playerWaveStyle: PlayerWaveStyle(
+                                  liveWaveColor: AppColor.primary,
+                                ),
                               );
-                            }
-
-                            else {
+                            } else {
                               return const SizedBox();
                             }
                           }),
@@ -176,27 +178,34 @@ class CommercialScreen extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 spacing: 30,
                                 children: [
-                                  Container(
-                                    height: 48.h,
-                                    width: 48.w,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFFFE2E2),
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          blurRadius: 3,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: Center(
-                                        child: Image.asset(
-                                          AppIcons.drive,
-                                          color: Colors.red,
-                                          height: 20.h,
-                                          width: 20.w,
+                                  GestureDetector(
+                                    onTap: () {
+                                      controller.deleteRecording();
+                                    },
+                                    child: Container(
+                                      height: 48.h,
+                                      width: 48.w,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFE2E2),
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.1,
+                                            ),
+                                            blurRadius: 3,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: Center(
+                                          child: Image.asset(
+                                            AppIcons.drive,
+                                            color: Colors.red,
+                                            height: 20.h,
+                                            width: 20.w,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -216,37 +225,171 @@ class CommercialScreen extends StatelessWidget {
                                         color: AppColor.primary,
                                       ),
                                       child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Icon(
-                                          controller.playerController.playerState == PlayerState.playing
-                                              ? Icons.pause
-                                              : Icons.play_arrow,
-                                          color: Colors.white,
-                                        )
+                                        padding: EdgeInsets.all(0.0),
+                                        child: Center(
+                                          child: Obx(
+                                            () => Icon(
+                                              controller.playerState.value ==
+                                                      PlayerState.playing
+                                                  ? Icons.pause
+                                                  : Icons.play_arrow,
+                                              color: Colors.white,
+                                              size: 50,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                  Container(
-                                    height: 48.h,
-                                    width: 48.w,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFC1FFD6),
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          blurRadius: 3,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: Center(
-                                        child: Image.asset(
-                                          AppIcons.delete,
-                                          color: Colors.green,
-                                          height: 20.h,
-                                          width: 20.w,
+                                  GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return Dialog(
+                                            insetPadding: EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: Container(
+                                              width: double.infinity,
+                                              height: 460.h,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                color: Colors.white,
+                                              ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    height: 100,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
+                                                      color:
+                                                          AppColor.background,
+                                                    ),
+                                                    child: ListTile(
+                                                      contentPadding:
+                                                          EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                                                      leading: Container(
+                                                        height: 63.h,
+                                                        width: 63.w,
+                                                        decoration: BoxDecoration(
+                                                          color: Color(
+                                                            0xFFD2CBFA,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                16,
+                                                              ),
+                                                        ),
+                                                        child: Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                10.0,
+                                                              ),
+                                                          child: Center(
+                                                            child: Image.asset(
+                                                              AppIcons.faq,
+                                                              height: 31.h,
+                                                              width: 31.w,
+                                                              color: AppColor
+                                                                  .primary,
+                                                              fit: BoxFit.fill,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      title: CommonText(
+                                                        title: "Upload Audio",
+                                                        fSize: 20,
+                                                        fWeight:
+                                                            FontWeight.w800,
+                                                        color: AppColor.primary,
+                                                      ),
+                                                      subtitle: CommonText(
+                                                        title:
+                                                            "Add your recordings to this script",
+                                                        fSize: 14,
+                                                        fWeight:
+                                                            FontWeight.w500,
+                                                        color:
+                                                            AppColor.secondary,
+                                                      ),
+                                                      trailing: IconButton(
+                                                        onPressed: () {},
+                                                        icon: Icon(Icons.close),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 16.h),
+                                                Padding(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      CommonText(title: "From Device",fSize: 12,fWeight: FontWeight.w700,color: AppColor.secondary,),
+                                                      SizedBox(height: 10.h),
+                                                      ProfileBox(
+                                                        title: 'Browse Files',
+                                                        text: 'MP3, WAV, M4A, or OGG',
+                                                        icon: AppIcons.tablet,
+                                                        boxColor: Color(0xFFF3F4F6)
+                                                      ),
+                                                      SizedBox(height: 23.h),
+                                                      CommonText(title: "From Cloud Storage",fSize: 12,fWeight: FontWeight.w700,color: AppColor.secondary,),
+                                                      SizedBox(height: 10.h),
+                                                      ProfileBox(
+                                                        title: 'Google Drive',
+                                                        icon: AppIcons.drop,
+                                                          boxColor: Color(0xFFFFFFFF)
+                                                      ),
+                                                      SizedBox(height: 12.h,),
+                                                      ProfileBox(
+                                                        title: 'Cloud Drive',
+                                                        icon: AppIcons.drop,
+                                                          boxColor: Color(0xFFFFFFFF)
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Container(
+                                      height: 48.h,
+                                      width: 48.w,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFC1FFD6),
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.1,
+                                            ),
+                                            blurRadius: 3,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: Center(
+                                          child: Image.asset(
+                                            AppIcons.delete,
+                                            color: Colors.green,
+                                            height: 20.h,
+                                            width: 20.w,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -310,6 +453,82 @@ class CommercialScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget ProfileBox({
+    required String title,
+    String  ? text,
+    required String icon,
+    Color? color,
+    Color? boxColor,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 76.h,
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        decoration: BoxDecoration(
+          color: Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(12),
+          // border: Border.all(color: Color(0xFFE5E7EB))
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+           Row(
+             children: [
+               Row(
+                 children: [
+                   Container(
+                     height: 40.h,
+                     width: 40.w,
+                     decoration: BoxDecoration(
+                       color: Colors.white,
+                       borderRadius: BorderRadius.circular(14),
+                       boxShadow: [
+                         BoxShadow(
+                           color: Colors.black.withOpacity(0.1),
+                           blurRadius: 1,
+                           spreadRadius: 1,
+                           offset: const Offset(0, 2),
+                         ),
+                       ],
+                     ),child: Padding(
+                       padding: const EdgeInsets.all(8.0),
+                       child: Image.asset(icon,height: 20.h,width: 20.w,color: AppColor.secondary,),
+                     ),
+                   )
+                 ],
+               ),
+               SizedBox(width: 15.w),
+               Column(
+                 mainAxisAlignment: MainAxisAlignment.center,
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                   CommonText(
+                     title: title,
+                     fSize: 16,
+                     fWeight: FontWeight.w700,
+                     color: Colors.black,
+                   ),
+                   if (text != null)
+                     CommonText(
+                       title: text,
+                       fSize: 12,
+                       fWeight: FontWeight.w500,
+                       color: color ?? AppColor.secondary,
+                     ),
+                 ],
+               ),
+             ],
+           ),
+            Image.asset(AppIcons.download,height: 18,width: 18,color: AppColor.secondary,),
+          ],
+        ),
       ),
     );
   }

@@ -224,6 +224,7 @@ class SettingScreen extends StatelessWidget {
                     context: context,
                     builder: (context) {
                       return Dialog(
+                        insetPadding: EdgeInsets.symmetric(horizontal: 10),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),

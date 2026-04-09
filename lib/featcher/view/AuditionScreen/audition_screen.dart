@@ -58,11 +58,12 @@ class AuditionScreen extends StatelessWidget {
                       context: context,
                       builder: (context) {
                         return Dialog(
+                          insetPadding: EdgeInsets.symmetric(horizontal: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Container(
-                            height: 620.h,
+                            height: 660.h,
                             width: double.infinity,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
@@ -74,116 +75,164 @@ class AuditionScreen extends StatelessWidget {
                                 horizontal: 16,
                                 vertical: 10,
                               ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                 Row(
-                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                   children: [
-                                     CommonText(title: "New Audition",fSize: 18,fWeight: FontWeight.w700,color: AppColor.primary,),
-                                     IconButton(onPressed: (){
-                                       Get.back();
-                                     }, icon: Icon(Icons.close,color: AppColor.primary,size: 24,)),
-                                   ],
-                                 ),
-                                  SizedBox(height: 12.h),
-                                  SizedBox(height: 7.h),
-                                  CommonText(
-                                    title: "Project Name",
-                                    fSize: 16,
-                                    fWeight: FontWeight.w600,
-                                    color: AppColor.primary,
-                                  ),
-                                  SizedBox(height: 10.h),
-                                  CommonTextField(title: "e.g. Disney Animation",),
-                                  SizedBox(height: 10.h),
-                                  CommonText(
-                                    title: "Role Name",
-                                    fSize: 16,
-                                    fWeight: FontWeight.w600,
-                                    color: AppColor.primary,
-                                  ),
-                                  SizedBox(height: 10.h),
-                                  CommonTextField(title: "e.g. Hero Character",),
-                                  SizedBox(height: 10.h),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    spacing: 10,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            CommonText(
-                                              title: "Date",
-                                              fSize: 16,
-                                              fWeight: FontWeight.w600,
-                                              color: AppColor.primary,
-                                            ),
-                                            SizedBox(height: 10.h),
-                                            CommonTextField(title: "Jun 15, 2026",prefixIcon:Icon(Icons.calendar_month,color:Color(0xFF99A1AF),),),
-                                          ],
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                   Row(
+                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                     children: [
+                                       CommonText(title: "New Audition",fSize: 18,fWeight: FontWeight.w700,color: AppColor.primary,),
+                                       IconButton(onPressed: (){
+                                         Get.back();
+                                       }, icon: Icon(Icons.close,color: AppColor.primary,size: 24,)),
+                                     ],
+                                   ),
+                                    SizedBox(height: 12.h),
+                                    SizedBox(height: 7.h),
+                                    CommonText(
+                                      title: "Project Name",
+                                      fSize: 16,
+                                      fWeight: FontWeight.w600,
+                                      color: AppColor.primary,
+                                    ),
+                                    SizedBox(height: 10.h),
+                                    CommonTextField(title: "e.g. Disney Animation",),
+                                    SizedBox(height: 10.h),
+                                    CommonText(
+                                      title: "Role Name",
+                                      fSize: 16,
+                                      fWeight: FontWeight.w600,
+                                      color: AppColor.primary,
+                                    ),
+                                    SizedBox(height: 10.h),
+                                    CommonTextField(title: "e.g. Hero Character",),
+                                    SizedBox(height: 10.h),
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      spacing: 10,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              CommonText(
+                                                title: "Date",
+                                                fSize: 16,
+                                                fWeight: FontWeight.w600,
+                                                color: AppColor.primary,
+                                              ),
+                                              SizedBox(height: 10.h),
+                                              Obx(() => CommonTextField(
+                                                readOnly: true,
+                                                onTap: () => controller.pickDate(context),
+                                                title: controller.selectedDate.value,
+                                                prefixIcon: const Icon(
+                                                  Icons.calendar_month,
+                                                  color: Color(0xFF99A1AF),
+                                                ),
+                                              ))
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            CommonText(
-                                              title: "Status",
-                                              fSize: 16,
-                                              fWeight: FontWeight.w600,
-                                              color: AppColor.primary,
-                                            ),
-                                            SizedBox(height: 10.h),
-                                            CommonTextField(title: "Call back",sIcon:Icon(Icons.arrow_drop_down,color:Color(0xFF99A1AF)),),
-                                          ],
-                                        ),
-                                      ),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              CommonText(
+                                                title: "Status",
+                                                fSize: 16,
+                                                fWeight: FontWeight.w600,
+                                                color: AppColor.primary,
+                                              ),
+                                              SizedBox(height: 10.h),
+                                              Obx(() => Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  CommonTextField(
+                                                      readOnly: true,
+                                                      onTap: controller.toggleCallbackDropdown,
+                                                      title: controller.selectedCallback.value.isEmpty
+                                                          ? "Call back"
+                                                          : controller.selectedCallback.value,
+                                                      sIcon: const Icon(
+                                                        Icons.arrow_drop_down,
+                                                        color: Color(0xFF99A1AF),
+                                                      ),
+                                                    ),
+                                                  if (controller.isCallbackDropdownOpen.value)
+                                                    Container(
+                                                      margin: const EdgeInsets.only(top: 5),
+                                                      padding: const EdgeInsets.all(10),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius: BorderRadius.circular(12),
+                                                        border: Border.all(color: Colors.grey.shade300),
+                                                      ),
+                                                      child: Column(
+                                                        children: controller.callbackList.map((item) {
+                                                          return GestureDetector(
+                                                            onTap: () => controller.selectCallback(item),
+                                                            child: Container(
+                                                              width: double.infinity,
+                                                              padding: const EdgeInsets.symmetric(vertical: 12),
+                                                              child: Text(item),
+                                                            ),
+                                                          );
+                                                        }).toList(),
+                                                      ),
+                                                    ),
 
-                                    ],
-                                  ),
-                                  SizedBox(height: 10.h),
-                                  CommonText(
-                                    title: "Audio File",
-                                    fSize: 16,
-                                    fWeight: FontWeight.w600,
-                                    color: AppColor.primary,
-                                  ),
-                                  SizedBox(height: 10.h,),
-                                  Container(
-                                    height: 153.h,
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Color(0xFF99A1AF)),
-                                      borderRadius: BorderRadius.circular(16)
-                                    ),child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    spacing: 5,
-                                    children: [
-
-                                      Container(
-                                        height: 48.h,
-                                        width: 48.w,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(50),
-                                          color: Color(0xFFE5E2FD),
+                                                ],
+                                              ))
+                                            ],
+                                          ),
                                         ),
-                                        child: Center(
-                                          child: Image.asset(AppIcons.upload,height: 24,width: 24,fit: BoxFit.fill,),
-                                        ),
-                                      ),
-                                      CommonText(title: "Select Audio File",fSize: 14,fWeight: FontWeight.w500,color: AppColor.primary,),
-                                      CommonText(title: "MP3, WAV up to 10MB",fSize: 12,fWeight: FontWeight.w400,color: Color(0xFF99A1AF),),
-                                    ],
-                                  ),
-                                  ),
-                                  SizedBox(height: 16.h,),
-                                  CommonButton(titleText: "Save Audition"),
 
-                                ],
+                                      ],
+                                    ),
+                                    SizedBox(height: 10.h),
+                                    CommonText(
+                                      title: "Audio File",
+                                      fSize: 16,
+                                      fWeight: FontWeight.w600,
+                                      color: AppColor.primary,
+                                    ),
+                                    SizedBox(height: 10.h,),
+                                    Container(
+                                      height: 153.h,
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Color(0xFF99A1AF)),
+                                        borderRadius: BorderRadius.circular(16)
+                                      ),child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      spacing: 5,
+                                      children: [
+
+                                        Container(
+                                          height: 48.h,
+                                          width: 48.w,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(50),
+                                            color: Color(0xFFE5E2FD),
+                                          ),
+                                          child: Center(
+                                            child: Image.asset(AppIcons.upload,height: 24,width: 24,fit: BoxFit.fill,),
+                                          ),
+                                        ),
+                                        CommonText(title: "Select Audio File",fSize: 14,fWeight: FontWeight.w500,color: AppColor.primary,),
+                                        CommonText(title: "MP3, WAV up to 10MB",fSize: 12,fWeight: FontWeight.w400,color: Color(0xFF99A1AF),),
+                                      ],
+                                    ),
+                                    ),
+                                    SizedBox(height: 16.h,),
+                                    CommonButton(titleText: "Save Audition"),
+
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -205,7 +254,7 @@ class AuditionScreen extends StatelessWidget {
                         ]
                     ),child:Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Icon(Icons.add,color: Colors.white,size: 24,),
+                    child: Center(child: Icon(Icons.add,color: Colors.white,size: 18,)),
                   ),
                   ),
                 ),

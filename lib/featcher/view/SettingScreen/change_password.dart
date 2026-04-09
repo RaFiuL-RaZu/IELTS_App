@@ -43,6 +43,8 @@ class ChangePassword extends StatelessWidget {
             CommonText(title: "Confirm New Password",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
             SizedBox(height: 6.h,),
             CommonTextField(title: "Confirm password",sIcon: Icon(Icons.visibility_off,color: AppColor.secondary,),),
+            SizedBox(height: 10.h,),
+            CommonText(title: "Your password must be at least 8 characters long and contain a mix of letters, numbers, and symbols.",fSize: 12,fWeight: FontWeight.w500,color: AppColor.secondary,),
             Spacer(),
             CommonButton(titleText: "Update Password",onTap: (){
               Get.offAll(()=>LoginScreen());

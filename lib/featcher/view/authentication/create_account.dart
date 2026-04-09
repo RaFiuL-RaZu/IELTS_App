@@ -9,6 +9,7 @@ import 'package:justtsham/core/widgets/common_text.dart';
 import 'package:justtsham/core/widgets/common_text_field.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
 import 'package:justtsham/featcher/controller/AuthController/login_controller.dart';
+import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
 import 'package:justtsham/featcher/view/authentication/verify_otp.dart';
 import 'package:justtsham/routes/routes.dart';
 
@@ -158,6 +159,33 @@ class CreateAccount extends StatelessWidget {
                   ],
                 ),
               ),
+              ),
+              SizedBox(height: 30,),
+              Center(
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: AppColor.secondary,
+                    ),
+                    children: [
+                      TextSpan(text: "Already have an account? "),
+                      TextSpan(
+                        text: " Sign In",
+                        style: TextStyle(
+                          color: AppColor.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          decoration: TextDecoration.underline,
+                        ),
+                        recognizer: TapGestureRecognizer()..onTap = () {
+                          Get.to(()=>LoginScreen());
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
               SizedBox(height: 50,),
 

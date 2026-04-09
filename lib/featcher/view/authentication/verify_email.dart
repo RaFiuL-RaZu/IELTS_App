@@ -68,9 +68,9 @@ class VerifyEmail extends StatelessWidget {
                   color: AppColor.secondary,
                 ),
                 children: [
-                  TextSpan(text: "Didn't receive the code? "),
+                  TextSpan(text: "Didn't receive the code?  "),
                   TextSpan(
-                    text: "Resend",
+                    text: " Resend",
                     style: TextStyle(
                       color: AppColor.primary,
                       fontSize: 14,

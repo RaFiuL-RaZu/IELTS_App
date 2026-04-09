@@ -70,7 +70,7 @@ class VerifyOtp extends StatelessWidget {
                   color: AppColor.secondary,
                 ),
                 children: [
-                  TextSpan(text: "Didn't receive the code?"),
+                  TextSpan(text: "Didn't receive the code? "),
                   TextSpan(
                     text: "Resend",
                     style: TextStyle(

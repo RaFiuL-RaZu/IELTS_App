@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AuditionController extends GetxController {
@@ -38,6 +40,43 @@ class AuditionController extends GetxController {
       "action": "Submitted",
     },
   ];
+
+  RxBool isCallbackDropdownOpen = false.obs;
+
+  List<String> callbackList = [
+    "Submitted",
+    "Call Backed",
+    "Booked",
+    "Rejected",
+  ];
+
+  RxString selectedCallback = "".obs;
+
+  void toggleCallbackDropdown() {
+    isCallbackDropdownOpen.value = !isCallbackDropdownOpen.value;
+  }
+
+  void selectCallback(String value) {
+    selectedCallback.value = value;
+    isCallbackDropdownOpen.value = false;
+  }
+
+
+  RxString selectedDate = "Jun 15, 2026".obs;
+
+  Future<void> pickDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      selectedDate.value =
+      "${pickedDate.month}/${pickedDate.day}/${pickedDate.year}";
+    }
+  }
 }
 
 class ChartData {

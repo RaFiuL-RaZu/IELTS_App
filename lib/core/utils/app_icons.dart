@@ -33,5 +33,8 @@ class AppIcons{
   static const upload ="$baseIcons/upload.png";
   static const delete ="$baseIcons/deleteIcon.png";
   static const drive ="$baseIcons/drive.png";
+  static const download ="$baseIcons/download.png";
+  static const drop ="$baseIcons/drop.png";
+  static const tablet ="$baseIcons/tablet.png";
 
 }

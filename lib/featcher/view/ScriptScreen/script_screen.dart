@@ -10,6 +10,7 @@ import 'package:justtsham/featcher/controller/ScriptController/script_controller
 
 import '../../../core/utils/app_image.dart';
 import '../../../core/widgets/commom_image.dart';
+import '../CummunityScreen/commercial_screen.dart';
 
 class ScriptScreen extends StatelessWidget {
   ScriptScreen({super.key});
@@ -103,70 +104,75 @@ class ScriptScreen extends StatelessWidget {
                             physics: ScrollPhysics(),
                             itemCount: 3,
                               itemBuilder: (context,index){
-                            return Container(
-                              padding: EdgeInsets.symmetric(vertical: 20),
-                              margin: EdgeInsets.only(bottom: 16),
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Color(0xFF6C4DFF).withOpacity(0.20),
-                                    offset: Offset(0, 20),
-                                    blurRadius: 25,
-                                    spreadRadius: -5,
-                                  ),
-                                  BoxShadow(
-                                    color: Color(0xFF6C4DFF).withOpacity(0.20),
-                                    offset: Offset(0, 8),
-                                    blurRadius: 10,
-                                    spreadRadius: -6,
-                                  ),
-                                ],
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
+                            return GestureDetector(
+                              onTap: (){
+                                Get.to(()=>CommercialScreen());
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 20),
+                                margin: EdgeInsets.only(bottom: 16),
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Color(0xFF6C4DFF).withOpacity(0.20),
+                                      offset: Offset(0, 20),
+                                      blurRadius: 25,
+                                      spreadRadius: -5,
+                                    ),
+                                    BoxShadow(
+                                      color: Color(0xFF6C4DFF).withOpacity(0.20),
+                                      offset: Offset(0, 8),
+                                      blurRadius: 10,
+                                      spreadRadius: -6,
+                                    ),
+                                  ],
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      height: 24.h,
-                                      width: 93.w,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        color: Color(0xFFE5E2FD),
-                                      ),
-                                      child: Center(
-                                        child: CommonText(
-                                          title: "Commercial",
-                                          fSize: 12,
-                                          fWeight: FontWeight.w500,
-                                          color: AppColor.primary,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 16,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        height: 24.h,
+                                        width: 93.w,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(20),
+                                          color: Color(0xFFE5E2FD),
+                                        ),
+                                        child: Center(
+                                          child: CommonText(
+                                            title: "Commercial",
+                                            fSize: 12,
+                                            fWeight: FontWeight.w500,
+                                            color: AppColor.primary,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    SizedBox(height: 7.h),
-                                    CommonText(
-                                      title: "Nike - Limitless",
-                                      fSize: 16,
-                                      fWeight: FontWeight.w600,
-                                      color: AppColor.primary,
-                                    ),
-                                    SizedBox(height: 10.h),
-                                    CommonText(
-                                      title: "Some people say the sky is the limit. But what if you don't even believe in the sky? What if...",
-                                      fSize: 14,
-                                      fWeight: FontWeight.w400,
-                                      color: AppColor.secondary,
-                                    ),
-                                    SizedBox(height: 10.h),
-                                    CommonButton(titleText: " Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),)
+                                      SizedBox(height: 7.h),
+                                      CommonText(
+                                        title: "Nike - Limitless",
+                                        fSize: 16,
+                                        fWeight: FontWeight.w600,
+                                        color: AppColor.primary,
+                                      ),
+                                      SizedBox(height: 10.h),
+                                      CommonText(
+                                        title: "Some people say the sky is the limit. But what if you don't even believe in the sky? What if...",
+                                        fSize: 14,
+                                        fWeight: FontWeight.w400,
+                                        color: AppColor.secondary,
+                                      ),
+                                      SizedBox(height: 10.h),
+                                      CommonButton(titleText: " Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),)
 
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
@@ -223,7 +229,44 @@ class ScriptScreen extends StatelessWidget {
                             color: AppColor.primary,
                           ),
                           SizedBox(height: 10.h),
-                          CommonTextField(title: "Enter your category",sIcon:Icon(Icons.arrow_drop_down),),
+                          Obx(() => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                             CommonTextField(
+                                  readOnly: true,
+                                  onTap:controller.toggleDropdown,
+                                  title: controller.selectedCategory.value.isEmpty
+                                      ? "Enter your category"
+                                      : controller.selectedCategory.value,
+                                  sIcon: const Icon(Icons.arrow_drop_down),
+                                ),
+
+                              if (controller.isDropdownOpen.value)
+                                Container(
+                                  margin: const EdgeInsets.only(top: 5),
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: Colors.grey.shade300),
+                                  ),
+                                  child: Column(
+                                    children: controller.categories.map((item) {
+                                      return GestureDetector(
+                                        onTap: () => controller.selectCategory(item),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 10,
+                                          ),
+                                          width: double.infinity,
+                                          child: Text(item),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                            ],
+                          )),
                           SizedBox(height: 10.h),
                           CommonText(
                             title: "Tone / Style",
@@ -232,7 +275,46 @@ class ScriptScreen extends StatelessWidget {
                             color: AppColor.primary,
                           ),
                           SizedBox(height: 10.h),
-                          CommonTextField(title: "Select tone / style",sIcon:Icon(Icons.arrow_drop_down),),
+                          Obx(() => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CommonTextField(
+                                  readOnly: true,
+                                  onTap: controller.toggleToneDropdown,
+                                  title: controller.selectedTone.value.isEmpty
+                                      ? "Select tone / style"
+                                      : controller.selectedTone.value,
+                                  sIcon: const Icon(Icons.arrow_drop_down),
+                                ),
+
+                              if (controller.isToneDropdownOpen.value)
+                                Container(
+                                  margin: const EdgeInsets.only(top: 5),
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Colors.grey.shade300),
+                                  ),
+                                  child: Column(
+                                    children: controller.toneList.map((tone) {
+                                      return GestureDetector(
+                                        onTap: () => controller.selectTone(tone),
+                                        child: Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          child: Text(
+                                            tone,
+                                            style: const TextStyle(fontSize: 14),
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+
+                            ],
+                          )),
                           SizedBox(height: 10.h),
                           CommonText(
                             title: "Length",
@@ -252,12 +334,12 @@ class ScriptScreen extends StatelessWidget {
                                       ) {
                                     return GestureDetector(
                                       onTap: () {
-                                        controller.selectItem(index);
+                                        controller.selectTimeItem(index);
                                       },
                                       child: voiceBox(
                                         title: controller.timeList[index],
                                         isSelected:
-                                        controller.selectedTab.value == index,
+                                        controller.selectedTime.value == index,
                                       ),
                                     );
                                   }),

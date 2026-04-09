@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/featcher/view/SettingScreen/change_password.dart';
 import '../../../core/widgets/common_text.dart';
@@ -106,7 +105,7 @@ class PrivacyScreen extends StatelessWidget {
               ),
               child: Padding(
                 padding: EdgeInsets.all(10.0),
-                child: Icon(icon, size: 24,color: color,),
+                child: Center(child: Icon(icon, size: 18,color: color,)),
               ),
             ),
             SizedBox(width: 15.w),

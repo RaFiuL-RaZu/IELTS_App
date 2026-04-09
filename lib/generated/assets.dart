@@ -14,7 +14,9 @@ class Assets {
   static const String iconCrown = 'assets/icon/crown.png';
   static const String iconDeleteIcon = 'assets/icon/deleteIcon.png';
   static const String iconDocs = 'assets/icon/docs.png';
+  static const String iconDownload = 'assets/icon/download.png';
   static const String iconDrive = 'assets/icon/drive.png';
+  static const String iconDrop = 'assets/icon/drop.png';
   static const String iconFaq = 'assets/icon/faq.png';
   static const String iconFav = 'assets/icon/fav.png';
   static const String iconFlag = 'assets/icon/flag.png';
@@ -39,6 +41,7 @@ class Assets {
   static const String iconSearch = 'assets/icon/search.png';
   static const String iconSetIcon = 'assets/icon/setIcon.png';
   static const String iconStar = 'assets/icon/star.png';
+  static const String iconTablet = 'assets/icon/tablet.png';
   static const String iconTrophy = 'assets/icon/trophy.png';
   static const String iconUpload = 'assets/icon/upload.png';
   static const String iconVideo = 'assets/icon/video.png';
