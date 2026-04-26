@@ -2,6 +2,7 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:justtsham/core/widgets/coomon_button.dart';
 
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_icons.dart';
@@ -114,7 +115,6 @@ class CommercialScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
-                          SizedBox(height: 20.h),
                           Obx(() {
                             final isRecorded = controller.isRecorded.value;
 
@@ -139,13 +139,12 @@ class CommercialScreen extends StatelessWidget {
                               );
                             }
                           }),
-
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 5),
                           Obx(() {
                             if (controller.isRecording.value) {
                               return AudioWaveforms(
                                 enableGesture: false,
-                                size: Size(double.infinity, 60),
+                                size: Size(double.infinity, 20),
                                 recorderController:
                                     controller.recorderController,
                                 waveStyle: const WaveStyle(
@@ -170,8 +169,7 @@ class CommercialScreen extends StatelessWidget {
                               return const SizedBox();
                             }
                           }),
-
-                          const Spacer(),
+                          SizedBox(height: 5,),
                           Obx(() {
                             if (controller.isRecorded.value) {
                               return Row(
@@ -443,7 +441,9 @@ class CommercialScreen extends StatelessWidget {
                               );
                             }
                           }),
-                          SizedBox(height: 25.h),
+                          SizedBox(height: 10,),
+                          CommonButton(titleText: "Upload Audio",prefixIcon: Image.asset(AppIcons.download,height: 24.h,width: 24.w,color: AppColor.primary,),titleColor: AppColor.primary,backgroundColor: Color(0xFFFFFFFF),useGradient: false,buttonWidth: 216.w,buttonHeight: 43.h,titleSize: 14,),
+                          SizedBox(height: 5.h),
                         ],
                       ),
                     ),
