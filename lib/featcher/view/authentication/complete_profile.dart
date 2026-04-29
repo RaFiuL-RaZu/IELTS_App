@@ -1,20 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/utils/app_icons.dart';
 import 'package:justtsham/core/widgets/common_text_field.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
 import 'package:justtsham/featcher/controller/AuthController/signup_controller.dart';
+import 'package:justtsham/featcher/controller/AuthController/verify_email_controller.dart';
 import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
-import 'package:justtsham/featcher/view/authentication/verify_email.dart';
 import '../../../core/widgets/common_text.dart';
 
 class CompleteProfile extends StatelessWidget {
    CompleteProfile({super.key});
 
-  final SignUpController controller=Get.put(SignUpController());
+  final VerifyEmailController controller=Get.put(VerifyEmailController());
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +51,7 @@ class CompleteProfile extends StatelessWidget {
             Center(
               child: Stack(
                 children: [
-                  Container(
+                  Obx(() => Container(
                     height: 112.h,
                     width: 112.w,
                     decoration: BoxDecoration(
@@ -60,6 +61,14 @@ class CompleteProfile extends StatelessWidget {
                         color: Colors.white,
                         width: 4,
                       ),
+                      image: controller.selectedImage.value.isNotEmpty
+                          ? DecorationImage(
+                        image: FileImage(
+                          File(controller.selectedImage.value),
+                        ),
+                        fit: BoxFit.cover,
+                      )
+                          : null,
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.0),
@@ -74,37 +83,53 @@ class CompleteProfile extends StatelessWidget {
                           spreadRadius: -6,
                         ),
                       ],
-                    ),child: Center(child: Image.asset(AppIcons.camera,height: 32.h,width: 32.w,fit: BoxFit.cover,)),
-                  ),
+                    ),
+
+                    child: controller.selectedImage.value.isEmpty
+                        ? Center(
+                      child: Image.asset(
+                        AppIcons.camera,
+                        height: 32.h,
+                        width: 32.w,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                        : null,
+                  )),
                   
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: Container(
-                      height: 40.h,
-                      width: 40.w,
-                      decoration: BoxDecoration(
-                        color: AppColor.primary,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 4,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.0),
-                            offset: Offset(0, 20),
-                            blurRadius: 25,
-                            spreadRadius: -5,
+                    child: GestureDetector(
+                      onTap: (){
+                        controller.pickImageFromGallery();
+                      },
+                      child: Container(
+                        height: 40.h,
+                        width: 40.w,
+                        decoration: BoxDecoration(
+                          color: AppColor.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 4,
                           ),
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.10),
-                            offset: Offset(0, 8),
-                            blurRadius: 10,
-                            spreadRadius: -6,
-                          ),
-                        ],
-                      ),child: Icon(Icons.add,color: Colors.white,),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.0),
+                              offset: Offset(0, 20),
+                              blurRadius: 25,
+                              spreadRadius: -5,
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.10),
+                              offset: Offset(0, 8),
+                              blurRadius: 10,
+                              spreadRadius: -6,
+                            ),
+                          ],
+                        ),child: Icon(Icons.add,color: Colors.white,),
+                      ),
                     ),
                   ),
                 ],
@@ -113,7 +138,7 @@ class CompleteProfile extends StatelessWidget {
             SizedBox(height: 4.h,),
             CommonText(title: "Bio",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
             SizedBox(height: 6.h,),
-            CommonTextField(title: "Tell us about your voice...",maxLines: 3,),
+            CommonTextField(title: "Tell us about your voice...",maxLines: 3,controller: controller.bioController,),
             SizedBox(height: 10.h,),
             CommonText(title: "Voice Specialties",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
             SizedBox(height: 6.h,),
@@ -137,7 +162,7 @@ class CompleteProfile extends StatelessWidget {
             ),
             Spacer(),
             CommonButton(titleText: "Complete Setup",onTap: (){
-              Get.to(()=>LoginScreen());
+             controller.completeProfile();
             },),
             SizedBox(height: 50,),
           ],

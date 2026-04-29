@@ -4,67 +4,80 @@ import 'package:justtsham/core/services/api_services.dart';
 import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/core/utils/validator.dart';
 
+import '../../../core/constant/prefs_helper.dart';
+import '../../../core/widgets/common_snackber.dart';
+import '../../model/login_profile_model.dart';
+import '../../view/authentication/navber_screen.dart';
+
 class LoginController extends GetxController {
-  RxBool isChecked = false.obs;
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
   RxBool isLoading = false.obs;
+  RxBool isCheck = false.obs;
 
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  LoginProfileModel loginProfileModel = LoginProfileModel.fromJson({});
 
-  // Form key for validation
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
-  Future<void> login() async {
-    // Validate form using Validator class
-    final emailError = Validator.validateEmail(emailController.text);
-    if (emailError != null) {
-      Get.snackbar('Validation Error', emailError,
-          snackPosition: SnackPosition.TOP);
-      return;
-    }
-
-    final passwordError = Validator.validatePassword(passwordController.text);
-    if (passwordError != null) {
-      Get.snackbar('Validation Error', passwordError,
-          snackPosition: SnackPosition.TOP);
-      return;
-    }
-
-    isLoading(true);
-
+  Future<void> signIn() async {
     try {
-      Map<String, String> header = {};
-      Map<String, dynamic> body = {
-        "email": emailController.text.trim(),
+      isLoading(true);
+
+      Map<String, String> body = {
+        "email": usernameController.text.trim(),
         "password": passwordController.text.trim(),
       };
-      
-      final response =
-          await ApiService.postApi('${AppUrl.baseUrl}/login', header: header, body);
-      
+
+      final response = await ApiService.postApi(AppUrl.login, body);
       if (response.statusCode == 200 || response.statusCode == 201) {
-        Get.snackbar('Success', response.message,
-            snackPosition: SnackPosition.TOP);
-        // Handle successful login - save token, navigate to home, etc.
-        // Get.offAll(() => NavBarScreen());
+        debugPrint("response${response.body}");
+        final data = response.body['data'];
+        loginProfileModel = LoginProfileModel.fromJson(data);
+
+        await initPrefsValue(userData: loginProfileModel);
+
+        if (isCheck.value) {
+          await PrefsHelper.getAllPrefData();
+        }
+
+        debugPrint("loginToken:${PrefsHelper.token}");
+        CommonSnackBar.show(
+          title: "Success",
+          message: "Login successfully",
+          isSuccess: true,
+        );
+        Get.offAll(() => NavBarScreen());
       } else {
-        Get.snackbar('Error', response.message,
-            snackPosition: SnackPosition.TOP);
+        CommonSnackBar.show(
+          title: "Error",
+          message: response.message,
+          isSuccess: false,
+        );
       }
     } catch (e, s) {
-      debugPrint("Login Error: $e");
-      debugPrint("Stack trace: $s");
-      Get.snackbar('Error', 'Something went wrong',
-          snackPosition: SnackPosition.TOP);
+      debugPrint("Error: $e");
+      debugPrint("Stack: $s");
     } finally {
       isLoading(false);
     }
   }
 
-  @override
-  void onClose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.onClose();
+
+  Future<void> initPrefsValue({required LoginProfileModel userData}) async {
+    PrefsHelper.token = userData.accessToken;
+    PrefsHelper.userId = userData.user.id;
+    PrefsHelper.myName = userData.user.fullName;
+    PrefsHelper.myEmail = userData.user.email;
+    PrefsHelper.myImage = userData.user.profileImage;
+    PrefsHelper.isLogIn = true;
+
+    if (isCheck.value) {
+      await PrefsHelper.setString('token', PrefsHelper.token);
+      await PrefsHelper.setString("userId", PrefsHelper.userId);
+      await PrefsHelper.setString("myImage", PrefsHelper.myImage);
+      await PrefsHelper.setString("myName", PrefsHelper.myName);
+      await PrefsHelper.setString("myEmail", PrefsHelper.myEmail);
+      await PrefsHelper.setBool("isLogIn", PrefsHelper.isLogIn);
+    }
   }
+
 }

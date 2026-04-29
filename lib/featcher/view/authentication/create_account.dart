@@ -156,7 +156,6 @@ class CreateAccount extends StatelessWidget {
                       titleText: "Create Account",
                       isLoading: controller.isLoading.value,
                       onTap: () async {
-                        // Check terms first
                         if (!controller.isChecked.value) {
                           Get.snackbar(
                             'Validation Error',

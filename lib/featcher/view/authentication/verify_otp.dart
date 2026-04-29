@@ -2,18 +2,18 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
-import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
+import 'package:justtsham/featcher/controller/AuthController/forgot_password_controller.dart';
 import 'package:justtsham/featcher/view/authentication/complete_profile.dart';
-import 'package:justtsham/routes/routes.dart';
 import 'package:pinput/pinput.dart';
 
 import '../../../core/widgets/common_text.dart';
 
 class VerifyOtp extends StatelessWidget {
-  const VerifyOtp({super.key});
+ VerifyOtp({super.key});
+
+  final ForgotPasswordController controller=Get.put(ForgotPasswordController());
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +47,7 @@ class VerifyOtp extends StatelessWidget {
             SizedBox(height: 40.h),
             Pinput(
               length: 6,
+              controller: controller.otpController,
               defaultPinTheme: PinTheme(
                 width: 54.w,
                 height: 60.h,
@@ -86,7 +87,7 @@ class VerifyOtp extends StatelessWidget {
             ),
             Spacer(),
             CommonButton(titleText: "Verify & Continue",onTap: (){
-              Get.to(()=>CompleteProfile());
+             controller.otpVerify();
             },),
             SizedBox(height: 50,),
           ],

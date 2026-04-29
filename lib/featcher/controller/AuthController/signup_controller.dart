@@ -1,10 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:justtsham/core/services/api_services.dart';
+import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/core/utils/validator.dart';
+import 'package:justtsham/featcher/view/authentication/verify_email.dart';
 
 class SignUpController extends GetxController {
+
+  static SignUpController get instance=>Get.find<SignUpController>();
   RxList<int> selectedIndexes = <int>[].obs;
   RxList<String> selectedValues = <String>[].obs;
 
@@ -17,6 +22,18 @@ class SignUpController extends GetxController {
     } else {
       selectedIndexes.add(index);
       selectedValues.add(value);
+    }
+  }
+
+  final ImagePicker picker = ImagePicker();
+
+  RxString selectedImage = "".obs;
+
+  Future pickImageFromGallery() async {
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      selectedImage.value = image.path;
     }
   }
 
@@ -38,6 +55,8 @@ class SignUpController extends GetxController {
 
   // Form key for validation
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  var accountToken="";
 
   Future<void> createAccount() async {
     // Validate form using Validator class
@@ -82,17 +101,21 @@ class SignUpController extends GetxController {
     isLoading(true);
 
     try {
-      Map<String, String> header = {};
+      Map<String, String> header = {
+        "Content-Type": "application/json"
+      };
       Map<String, dynamic> body = {
         "email": emailController.text.trim(),
-        "name": nameController.text.trim(),
+        "fullName": nameController.text.trim(),
         "password": passwordController.text.trim(),
       };
       final response =
-          await ApiService.postApi(AppUrl.baseUrl, header: header, body);
+          await ApiService.postApi(AppUrl.createAccount, header: header, body);
       if (response.statusCode == 200 || response.statusCode == 201) {
+        accountToken=response.body['data'];
         Get.snackbar('Success', response.message,
-            snackPosition: SnackPosition.TOP);
+            snackPosition: SnackPosition.TOP,backgroundColor: AppColor.primary);
+        Get.to(()=>VerifyEmail());
       } else {
         Get.snackbar('Error', response.message, snackPosition: SnackPosition.TOP);
       }

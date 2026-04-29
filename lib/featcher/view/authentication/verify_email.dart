@@ -44,28 +44,28 @@ class VerifyEmail extends StatelessWidget {
               ),
             ),
             SizedBox(height: 40.h),
-            Obx(() => Pinput(
-                  length: 6,
-                  defaultPinTheme: PinTheme(
-                    width: 54.w,
-                    height: 60.h,
-                    textStyle: TextStyle(
-                      fontSize: 22,
-                      color: Color.fromRGBO(30, 60, 87, 1),
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    controller.updateOtp(value);
-                  },
-                  onCompleted: (value) {
-                    controller.updateOtp(value);
-                  },
-                )),
+            Pinput(
+              length: 6,
+              defaultPinTheme: PinTheme(
+                width: 54.w,
+                height: 60.h,
+                textStyle: TextStyle(
+                  fontSize: 22,
+                  color: Color.fromRGBO(30, 60, 87, 1),
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+              ),
+              onChanged: (value) {
+                controller.updateOtp(value);
+              },
+              onCompleted: (value) {
+                controller.updateOtp(value);
+              },
+            ),
             SizedBox(height: 22.h),
             Obx(() => RichText(
                   text: TextSpan(

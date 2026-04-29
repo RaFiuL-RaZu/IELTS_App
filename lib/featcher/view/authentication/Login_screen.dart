@@ -61,7 +61,7 @@ class LoginScreen extends StatelessWidget {
                 SizedBox(height: 6.h),
                 CommonTextField(
                   title: "Enter email",
-                  controller: controller.emailController,
+                  controller: controller.usernameController,
                   validator: (value) => Validator.validateEmail(value),
                 ),
                 SizedBox(height: 10.h),
@@ -90,13 +90,13 @@ class LoginScreen extends StatelessWidget {
                               height: 14.h,
                               width: 14.h,
                               child: Checkbox(
-                                value: controller.isChecked.value,
+                                value: controller.isCheck.value,
                                 activeColor: AppColor.primary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                                 onChanged: (value) {
-                                  controller.isChecked.value = value!;
+                                  controller.isCheck.value = value!;
                                 },
                               ),
                             ),
@@ -130,7 +130,7 @@ class LoginScreen extends StatelessWidget {
                       isLoading: controller.isLoading.value,
                       onTap: () async {
                         if (formKey.currentState!.validate()) {
-                          await controller.login();
+                          await controller.signIn();
                         }
                       },
                     )),

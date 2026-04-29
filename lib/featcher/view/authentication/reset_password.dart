@@ -5,11 +5,14 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/widgets/common_text_field.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
+import 'package:justtsham/featcher/controller/AuthController/forgot_password_controller.dart';
 import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
 import '../../../core/widgets/common_text.dart';
 
 class ResetPassword extends StatelessWidget {
-  const ResetPassword({super.key});
+ ResetPassword({super.key});
+
+  final ForgotPasswordController controller=Get.put(ForgotPasswordController());
 
   @override
   Widget build(BuildContext context) {
@@ -44,14 +47,14 @@ class ResetPassword extends StatelessWidget {
             SizedBox(height: 20.h),
             CommonText(title: "New Password",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
             SizedBox(height: 6.h,),
-            CommonTextField(title: "Password",sIcon: Icon(Icons.visibility_off,color: AppColor.secondary,),),
+            CommonTextField(title: "Password",sIcon: Icon(Icons.visibility_off,color: AppColor.secondary,),controller:controller.passwordController,),
             SizedBox(height: 10.h,),
             CommonText(title: "Confirm New Password",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
             SizedBox(height: 6.h,),
-            CommonTextField(title: "Confirm password",sIcon: Icon(Icons.visibility_off,color: AppColor.secondary,),),
+            CommonTextField(title: "Confirm password",sIcon: Icon(Icons.visibility_off,color: AppColor.secondary,),controller: controller.confirmPassController,),
             Spacer(),
             CommonButton(titleText: "Get Verification Code",onTap: (){
-              Get.offAll(()=>LoginScreen());
+            controller.resetPassword();
             },),
             SizedBox(height: 50,),
           ],

@@ -5,6 +5,7 @@ import 'package:justtsham/featcher/view/authentication/verify_email.dart';
 import 'package:justtsham/featcher/view/authentication/verify_otp.dart';
 import '../featcher/view/authentication/Login_screen.dart';
 import '../featcher/view/authentication/forgot_password.dart';
+import '../featcher/view/authentication/navber_screen.dart';
 import '../featcher/view/authentication/onboard_screen.dart';
 import '../featcher/view/authentication/splash_screeen.dart';
 import '../test_screen.dart';
@@ -18,6 +19,7 @@ class AppRoutes {
   static const String forgotPass = "/forgot-password";
   static const String verifyEmail = "/verify-email";
   static const String login = "/login";
+  static const String navBer = "/navBer";
 
   static List<GetPage> routes = [
     GetPage(
@@ -58,6 +60,11 @@ class AppRoutes {
     GetPage(
       name: login,
       page: () => LoginScreen(),
+      transition: Transition.fade,
+    ),
+    GetPage(
+      name: navBer,
+      page: () => NavBarScreen(),
       transition: Transition.fade,
     ),
   ];

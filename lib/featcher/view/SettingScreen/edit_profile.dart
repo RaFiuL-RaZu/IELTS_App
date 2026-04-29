@@ -1,18 +1,36 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
-import 'package:justtsham/core/utils/app_image.dart';
+import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/core/widgets/commom_image.dart';
 import 'package:justtsham/core/widgets/common_text_field.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
-import 'package:justtsham/featcher/controller/AuthController/signup_controller.dart';
+import 'package:justtsham/featcher/controller/ProfileController/profile_controller.dart';
+import '../../../core/utils/app_icons.dart';
 import '../../../core/widgets/common_text.dart';
 
-class EditProfile extends StatelessWidget {
+class EditProfile extends StatefulWidget {
   EditProfile({super.key});
 
-  final SignUpController controller=Get.put(SignUpController());
+  @override
+  State<EditProfile> createState() => _EditProfileState();
+}
+
+class _EditProfileState extends State<EditProfile> {
+  final ProfileController controller=Get.put(ProfileController());
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+
+      controller.nameController.text = controller.profileModel.value.fullName.toString();
+      controller.bioController.text = controller.profileModel.value.about.toString();
+
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +55,7 @@ class EditProfile extends StatelessWidget {
             Center(
               child: Stack(
                 children: [
-                  Container(
+                  Obx(() => Container(
                     height: 112.h,
                     width: 112.w,
                     decoration: BoxDecoration(
@@ -61,13 +79,44 @@ class EditProfile extends StatelessWidget {
                           spreadRadius: -6,
                         ),
                       ],
-                    ),child: ClipOval(child: CommonImage(imageSrc: AppImage.person,imageType: ImageType.png,)),
-                  ),
+                    ),
+                    child: ClipOval(
+                      child: controller.selectedImage.value.isNotEmpty
+                          ? CommonImage(
+                        imageSrc: controller.selectedImage.value,
+                        imageType: ImageType.file,
+                        height: 112.h,
+                        width: 112.w,
+                        fill: BoxFit.cover,
+                      )
+
+                          : controller.profileModel.value.profileImage.toString().isNotEmpty
+                          ? CommonImage(
+                        imageSrc: AppUrl.imageUrl +
+                            controller.profileModel.value.profileImage.toString(),
+                        imageType: ImageType.network,
+                        height: 112.h,
+                        width: 112.w,
+                        fill: BoxFit.cover,
+                      )
+
+                          : Center(
+                        child: Image.asset(
+                          AppIcons.camera,
+                          height: 32.h,
+                          width: 32.w,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  )),
                   Positioned(
                     bottom: 0,
                     right: 0,
                     child: GestureDetector(
-                      onTap: (){},
+                      onTap: (){
+                        controller.pickImageFromGallery();
+                      },
 
                       child: Container(
                         height: 40.h,
@@ -103,12 +152,12 @@ class EditProfile extends StatelessWidget {
             SizedBox(height: 10.h,),
             CommonText(title: "Full  Name",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
             SizedBox(height: 6.h,),
-            CommonTextField(title: "Full Name",),
+            CommonTextField(title: "Full Name",controller: controller.nameController,),
             SizedBox(height: 10.h,),
             SizedBox(height: 4.h,),
             CommonText(title: "Bio",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
             SizedBox(height: 6.h,),
-            CommonTextField(title: "Tell us about your voice...",maxLines: 3,),
+            CommonTextField(title: "Tell us about your voice...",maxLines: 3,controller: controller.bioController,),
             SizedBox(height: 10.h,),
             CommonText(title: "Voice Specialties",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
             SizedBox(height: 6.h,),
@@ -117,14 +166,16 @@ class EditProfile extends StatelessWidget {
                 spacing: 5,
                 runSpacing: 10,
                 children: List.generate(controller.items.length, (index) {
+                  final item = controller.items[index];
+                  final isSelected = controller.selectedValues.contains(item);
+
                   return GestureDetector(
                     onTap: () {
-                      controller.toggleItem(index, controller.items[index]);
-                      debugPrint(">>>>>>>${controller.selectedValues}");
+                      controller.toggleItem(item);
                     },
                     child: voiceBox(
-                      title: controller.items[index],
-                      isSelected: controller.selectedIndexes.contains(index),
+                      title: item,
+                      isSelected: isSelected,
                     ),
                   );
                 }),
@@ -132,7 +183,7 @@ class EditProfile extends StatelessWidget {
             ),
             Spacer(),
             CommonButton(titleText: "Save Changes",onTap: (){
-              Get.back();
+             controller.updateProfile();
             },),
             SizedBox(height: 50,),
           ],
@@ -152,18 +203,18 @@ class EditProfile extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected ? Colors.white : Color(0xFF180E27),
-          width: 1.224,
+          color: isSelected ? Color(0xFF56397C) : Colors.grey.shade400,
+          width: 1.2,
         ),
         gradient: LinearGradient(
           colors: isSelected
               ? [
-            Colors.white,
-            Colors.white
+            Color(0xFF180E27),   // ✅ primary gradient
+            Color(0xFF56397C),
           ]
               : [
-            Color(0xFF180E27),
-            Color(0xFF56397C),
+            Colors.white,        // ✅ unselected = white
+            Colors.white,
           ],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
@@ -171,21 +222,20 @@ class EditProfile extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: isSelected
-                ? Colors.white.withOpacity(0.3)
-                : Color(0xFF8A79D6),
-            offset: Offset(1, 1),
-            blurRadius: 1,
-            spreadRadius: 1,
+                ? Color(0xFF8A79D6).withOpacity(0.4)
+                : Colors.grey.withOpacity(0.2),
+            offset: Offset(0, 2),
+            blurRadius: 6,
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: CommonText(
           title: title,
           fSize: 14,
           fWeight: FontWeight.w500,
-          color: isSelected ? Colors.black : Colors.white,
+          color: isSelected ? Colors.white : Colors.black, // ✅ text color fix
         ),
       ),
     );

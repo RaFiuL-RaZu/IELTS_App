@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/utils/app_icons.dart';
-import 'package:justtsham/core/utils/app_image.dart';
+import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/core/widgets/commom_image.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
+import 'package:justtsham/featcher/controller/ProfileController/profile_controller.dart';
 import 'package:justtsham/featcher/view/SettingScreen/privacy_screen.dart';
 import 'package:justtsham/featcher/view/SettingScreen/subscription_page.dart';
 import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
@@ -14,9 +14,23 @@ import '../../../core/widgets/common_text.dart';
 import 'edit_profile.dart';
 import 'help_screen.dart';
 
-class SettingScreen extends StatelessWidget {
+class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
 
+  @override
+  State<SettingScreen> createState() => _SettingScreenState();
+}
+
+class _SettingScreenState extends State<SettingScreen> {
+
+  final ProfileController controller=Get.put(ProfileController());
+
+  @override
+  void initState() {
+    controller.getMyProfile();
+
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,94 +49,105 @@ class SettingScreen extends StatelessWidget {
                 color: AppColor.primary,
               ),
               SizedBox(height: 12.h),
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF180E27), Color(0xFF56397C)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
+             Obx((){
+               if(controller.isLoading.value){
+                 return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
+               }else if(controller.profileModel==""){
+                 return Center(child: CommonText(title: "No Data Found"),);
 
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0xFF6C4DFF).withOpacity(0.20),
-                      offset: Offset(0, 20),
-                      blurRadius: 25,
-                      spreadRadius: -5,
-                    ),
-                    BoxShadow(
-                      color: Color(0xFF6C4DFF).withOpacity(0.20),
-                      offset: Offset(0, 8),
-                      blurRadius: 10,
-                      spreadRadius: -6,
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 10,
-                    children: [
-                      Container(
-                        height: 70.h,
-                        width: 70.w,
-                        decoration: BoxDecoration(
-                          color: AppColor.background,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Color(0xFFB8ABF6),
-                            width: 4,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.0),
-                              offset: Offset(0, 20),
-                              blurRadius: 25,
-                              spreadRadius: -5,
-                            ),
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.10),
-                              offset: Offset(0, 8),
-                              blurRadius: 10,
-                              spreadRadius: -6,
-                            ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: CommonImage(
-                            imageSrc: AppImage.person,
-                            imageType: ImageType.png,
-                          ),
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 5,
-                        children: [
-                          CommonText(
-                            title: "Jhon Doe",
-                            fSize: 20,
-                            fWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                          CommonText(
-                            title: "jhondoe@gmail.com",
-                            fSize: 14,
-                            fWeight: FontWeight.w500,
-                            color: AppColor.secondary,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+               }else{
+                 final profile=controller.profileModel;
+                 return  Container(
+                   width: double.infinity,
+                   decoration: BoxDecoration(
+                     borderRadius: BorderRadius.circular(20),
+                     gradient: LinearGradient(
+                       colors: [Color(0xFF180E27), Color(0xFF56397C)],
+                       begin: Alignment.centerLeft,
+                       end: Alignment.centerRight,
+                     ),
+
+                     boxShadow: [
+                       BoxShadow(
+                         color: Color(0xFF6C4DFF).withOpacity(0.20),
+                         offset: Offset(0, 20),
+                         blurRadius: 25,
+                         spreadRadius: -5,
+                       ),
+                       BoxShadow(
+                         color: Color(0xFF6C4DFF).withOpacity(0.20),
+                         offset: Offset(0, 8),
+                         blurRadius: 10,
+                         spreadRadius: -6,
+                       ),
+                     ],
+                   ),
+                   child: Padding(
+                     padding: const EdgeInsets.symmetric(
+                       horizontal: 16,
+                       vertical: 16,
+                     ),
+                     child: Row(
+                       mainAxisAlignment: MainAxisAlignment.center,
+                       spacing: 10,
+                       children: [
+                         Container(
+                           height: 70.h,
+                           width: 70.w,
+                           decoration: BoxDecoration(
+                             color: AppColor.background,
+                             shape: BoxShape.circle,
+                             border: Border.all(
+                               color: Color(0xFFB8ABF6),
+                               width: 4,
+                             ),
+                             boxShadow: [
+                               BoxShadow(
+                                 color: Colors.black.withOpacity(0.0),
+                                 offset: Offset(0, 20),
+                                 blurRadius: 25,
+                                 spreadRadius: -5,
+                               ),
+                               BoxShadow(
+                                 color: Colors.black.withOpacity(0.10),
+                                 offset: Offset(0, 8),
+                                 blurRadius: 10,
+                                 spreadRadius: -6,
+                               ),
+                             ],
+                           ),
+                           child: ClipOval(
+                             clipBehavior: Clip.antiAlias,
+                             child: CommonImage(
+                               imageSrc: AppUrl.imageUrl + profile.value.profileImage.toString(),
+                               imageType: ImageType.network,
+                             ),
+                           ),
+                         ),
+                         Column(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           spacing: 5,
+                           children: [
+                             CommonText(
+                               title: profile.value.fullName.toString(),
+                               fSize: 20,
+                               fWeight: FontWeight.w700,
+                               color: Colors.white,
+                             ),
+                             CommonText(
+                               title: profile.value.email.toString(),
+                               fSize: 14,
+                               fWeight: FontWeight.w500,
+                               color: AppColor.secondary,
+                             ),
+                           ],
+                         ),
+                       ],
+                     ),
+                   ),
+                 );
+               }
+             }),
               SizedBox(height: 20.h),
               CommonText(
                 title: "Account",
