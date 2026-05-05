@@ -19,6 +19,12 @@ class AppUrl{
   static const String forgotPassword ="$baseUrl/auth/forgot-password-otpByEmail";
   static const String verifyOtp ="$baseUrl/auth/forgot-password-otp-match";
   static const String resetPassword ="$baseUrl/auth/forgot-password-reset";
+  static  String getHomeAudition ="$baseUrl/auditions/home-auditions";
+  static  String getActivity ="$baseUrl/auditions/activity";
+  static  String createAudition ="$baseUrl/auditions/create";
+  static  String getMyHistory ="$baseUrl/auditions/my-auditions";
+  static  String postComment({required String id}) =>"$baseUrl/comments/create/$id";
+  static  String createLike({required String id}) =>"$baseUrl/likes/audition-toggle-like/$id";
 
 
 }

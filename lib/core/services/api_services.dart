@@ -345,6 +345,78 @@ class ApiService {
     }
   }
 
+
+  static Future<ApiResponseModel> audioFileUpload({
+    required String url,
+    required Map<String, dynamic> body,
+    Map<String, String>? header,
+    String method = "POST",
+    String? filePath,
+    String fileField = 'file',
+  }) async {
+    try {
+      Map<String, String> mainHeader = {
+        'Authorization': "Bearer ${PrefsHelper.token}",
+      };
+
+      if (kDebugMode) {
+        print("URL => $url");
+        print("BODY => $body");
+        print("HEADERS => ${header ?? mainHeader}");
+        print("METHOD => $method");
+        print("FILE PATH => $filePath");       // ✅ FIX
+        print("FILE FIELD => $fileField");     // ✅ FIX
+      }
+
+      var request = http.MultipartRequest(method, Uri.parse(url));
+
+      /// body add
+      body.forEach((key, value) {
+        request.fields[key] = value.toString();
+      });
+
+      /// file add
+      if (filePath != null && filePath.isNotEmpty) {
+        final mimeType = lookupMimeType(filePath) ?? 'application/octet-stream';
+
+        var file = await http.MultipartFile.fromPath(
+          fileField,     // ✅ FIX
+          filePath,      // ✅ FIX
+          contentType: MediaType.parse(mimeType),
+        );
+
+        request.files.add(file);
+      }
+
+      /// headers
+      request.headers.addAll(
+        header ?? mainHeader,
+      );
+
+      var response = await request.send();
+
+      if (kDebugMode) {
+        print("STATUS CODE => ${response.statusCode}");
+      }
+
+      String data = await response.stream.bytesToString();
+      var mapData = jsonDecode(data);
+
+      return ApiResponseModel(
+        response.statusCode,
+        mapData['message'] ?? "",
+        mapData,
+      );
+    } on SocketException {
+      return ApiResponseModel(503, AppString.noInternetConnection, {});
+    } on FormatException {
+      return ApiResponseModel(400, AppString.badResponseRequest, {});
+    } on TimeoutException {
+      return ApiResponseModel(408, AppString.requestTimeOut, {});
+    } catch (e) {
+      return ApiResponseModel(500, e.toString(), {});
+    }
+  }
   ///<<<======================== multipartRequest Api ==============================>>>
 
   static Future<ApiResponseModel> multipartRequestBody({

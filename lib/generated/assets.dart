@@ -39,6 +39,7 @@ class Assets {
   static const String iconRound = 'assets/icon/round.png';
   static const String iconScript = 'assets/icon/script.png';
   static const String iconSearch = 'assets/icon/search.png';
+  static const String iconSendIcon = 'assets/icon/sendIcon.png';
   static const String iconSetIcon = 'assets/icon/setIcon.png';
   static const String iconStar = 'assets/icon/star.png';
   static const String iconTablet = 'assets/icon/tablet.png';

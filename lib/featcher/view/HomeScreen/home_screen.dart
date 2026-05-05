@@ -1,20 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:justtsham/core/constant/other_helper.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/utils/app_icons.dart';
+import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/core/widgets/common_text.dart';
 import 'package:justtsham/featcher/controller/HomeController/home_controller.dart';
+import 'package:justtsham/featcher/model/HomeModel/audition_model.dart';
 
 import '../../../core/utils/app_image.dart';
 import '../../../core/widgets/commom_image.dart';
 import 'notification_screen.dart';
 
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final HomeController controller=Get.put(HomeController());
+  @override
+  void initState() {
+    controller.getHomeData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,199 +174,279 @@ class HomeScreen extends StatelessWidget {
                 ),
               )),
               SizedBox(height: 20.h,),
-              ListView.builder(
-                  itemCount: 3,
-                  padding: EdgeInsets.zero,
-                  shrinkWrap: true,
-                  physics: ScrollPhysics(),
-                  itemBuilder: (context,index){
-                    return  Container(
-                      margin: EdgeInsets.only(bottom: 16),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.20),
-                            offset: Offset(0, 20),
-                            blurRadius: 25,
-                            spreadRadius: -5,
+              Obx((){
+                if(controller.isLoading.value){
+                  return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
+                }else if(controller.auditionList.isEmpty){
+                  return Center(child: CommonText(title: "No Audition Found"),);
+                }else {
+                  return ListView.builder(
+                      itemCount: controller.auditionList.length,
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      physics: ScrollPhysics(),
+                      itemBuilder: (context,index){
+                        AuditionModel list=controller.auditionList[index];
+                        return  Container(
+                          margin: EdgeInsets.only(bottom: 16),
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0xFF6C4DFF).withOpacity(0.20),
+                                offset: Offset(0, 20),
+                                blurRadius: 25,
+                                spreadRadius: -5,
+                              ),
+                              BoxShadow(
+                                color: Color(0xFF6C4DFF).withOpacity(0.20),
+                                offset: Offset(0, 8),
+                                blurRadius: 10,
+                                spreadRadius: -6,
+                              ),
+                            ],
                           ),
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.20),
-                            offset: Offset(0, 8),
-                            blurRadius: 10,
-                            spreadRadius: -6,
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: ClipOval(
-                                child: CommonImage(
-                                  imageSrc: AppImage.person,
-                                  imageType: ImageType.png,
-                                  height: 50.h,
-                                  width: 50.h,
-                                  fill: BoxFit.cover,
-                                ),
-                              ),
-                              title: CommonText(
-                                title: "Alex Mercer",
-                                fSize: 14,
-                                fWeight: FontWeight.w700,
-                                color: AppColor.primary,
-                              ),
-                              subtitle: CommonText(
-                                title: "2 hours",
-                                fSize: 12,
-                                fWeight: FontWeight.w500,
-                                color: AppColor.primary,
-                              ),
-                              trailing: Container(
-                                height: 24.h,
-                                width: 93.w,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Color(0xFFE5E2FD),
-                                ),
-                                child: Center(
-                                  child: CommonText(
-                                    title: "Commercial",
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: ClipOval(
+                                    child: CommonImage(
+                                      imageSrc: AppUrl.imageUrl + list.creator.profileImage,
+                                      imageType: ImageType.network,
+                                      height: 50.h,
+                                      width: 50.h,
+                                      fill: BoxFit.cover,
+                                    ),
+                                  ),
+                                  title: CommonText(
+                                    title: list.creator.fullName,
+                                    fSize: 14,
+                                    fWeight: FontWeight.w700,
+                                    color: AppColor.primary,
+                                  ),
+                                  subtitle: CommonText(
+                                    title: OtherHelper.timeAgo(list.creator.createdAt.toString()),
                                     fSize: 12,
                                     fWeight: FontWeight.w500,
                                     color: AppColor.primary,
                                   ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10.h),
-                            CommonText(
-                              title: "Nissan - Epic Journey (Spec)",
-                              fSize: 14,
-                              fWeight: FontWeight.w600,
-                              color: AppColor.primary,
-                            ),
-                            SizedBox(height: 10.h),
-                            Container(
-                              height: 66.h,
-                              width: double.infinity,
-                              padding: EdgeInsets.symmetric(horizontal: 12.w),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: const Color(0xFFF3F4F6),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  ValueListenableBuilder<bool>(
-                                    valueListenable: controller.isPlaying,
-                                    builder: (context, isPlaying, _) {
-                                      return GestureDetector(
-                                        onTap: controller.togglePlay,
-                                        child: Container(
-                                          height: 39.h,
-                                          width: 39.h,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xff3C2A5D),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            isPlaying ? Icons.pause : Icons.play_arrow,
-                                            size: 20,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  SizedBox(width: 15.w),
-                                  Expanded(
-                                    child: SizedBox(
-                                      height: 48.h,
-                                      child: CustomPaint(painter: CleanWavePainter()),
+                                  trailing: Container(
+                                    height: 24.h,
+                                    width: 93.w,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: Color(0xFFE5E2FD),
+                                    ),
+                                    child: Center(
+                                      child: CommonText(
+                                        title: list.category,
+                                        fSize: 12,
+                                        fWeight: FontWeight.w500,
+                                        color: AppColor.primary,
+                                      ),
                                     ),
                                   ),
-
-                                  SizedBox(width: 15.w),
-
-                                  CommonText(
-                                    title: "1:24",
-                                    fSize: 12,
-                                    fWeight: FontWeight.w700,
-                                    color: AppColor.secondary,
+                                ),
+                                SizedBox(height: 10.h),
+                                CommonText(
+                                  title: list.title,
+                                  fSize: 14,
+                                  fWeight: FontWeight.w600,
+                                  color: AppColor.primary,
+                                ),
+                                SizedBox(height: 10.h),
+                                Container(
+                                  height: 66.h,
+                                  width: double.infinity,
+                                  padding: EdgeInsets.symmetric(horizontal: 12.w),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: const Color(0xFFF3F4F6),
+                                      width: 1,
+                                    ),
                                   ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 14.h),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
+                                  child: Row(
+                                    children: [
+                                      ValueListenableBuilder<bool>(
+                                        valueListenable: controller.isPlaying,
+                                        builder: (context, isPlaying, _) {
+                                          return GestureDetector(
+                                            onTap: controller.togglePlay,
+                                            child: Container(
+                                              height: 39.h,
+                                              width: 39.h,
+                                              decoration: const BoxDecoration(
+                                                color: Color(0xff3C2A5D),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                isPlaying ? Icons.pause : Icons.play_arrow,
+                                                size: 20,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      SizedBox(width: 15.w),
+                                      Expanded(
+                                        child: SizedBox(
+                                          height: 48.h,
+                                          child: CustomPaint(painter: CleanWavePainter()),
+                                        ),
+                                      ),
+
+                                      SizedBox(width: 15.w),
+
+                                      CommonText(
+                                        title: "1:24",
+                                        fSize: 12,
+                                        fWeight: FontWeight.w700,
+                                        color: AppColor.secondary,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 14.h),
                                 Row(
-                                  spacing: 20,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
-                                      spacing: 5,
+                                      spacing: 20,
                                       children: [
-                                        Image.asset(
-                                          AppIcons.love,
-                                          height: 20.h,
-                                          width: 20.w,
-                                          fit: BoxFit.cover,
+                                        Row(
+                                          spacing: 5,
+                                          children: [
+                                            Image.asset(
+                                              AppIcons.love,
+                                              height: 20.h,
+                                              width: 20.w,
+                                              fit: BoxFit.cover,
+                                            ),
+                                            CommonText(
+                                              title: list.likeCount.toString(),
+                                              color: AppColor.secondary,
+                                              fSize: 12,
+                                              fWeight: FontWeight.w700,
+                                            ),
+                                          ],
                                         ),
-                                        CommonText(
-                                          title: "234",
-                                          color: AppColor.secondary,
-                                          fSize: 12,
-                                          fWeight: FontWeight.w700,
+                                        Row(
+                                          spacing: 5,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: (){
+                                                controller.toggleCommentField(index);
+
+                                              },
+                                              child: Image.asset(
+                                                AppIcons.message,
+                                                height: 20.h,
+                                                width: 20.w,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            CommonText(
+                                              title: list.commentCount.toString(),
+                                              color: AppColor.secondary,
+                                              fSize: 12,
+                                              fWeight: FontWeight.w700,
+                                            ),
+                                          ],
                                         ),
+
                                       ],
                                     ),
-                                    Row(
-                                      spacing: 5,
-                                      children: [
-                                        Image.asset(
-                                          AppIcons.message,
-                                          height: 20.h,
-                                          width: 20.w,
-                                          fit: BoxFit.cover,
-                                        ),
-                                        CommonText(
-                                          title: "12",
-                                          color: AppColor.secondary,
-                                          fSize: 12,
-                                          fWeight: FontWeight.w700,
-                                        ),
-                                      ],
+                                    Image.asset(
+                                      AppIcons.fav,
+                                      height: 20.h,
+                                      width: 20.w,
+                                      fit: BoxFit.cover,
                                     ),
                                   ],
                                 ),
-                                Image.asset(
-                                  AppIcons.fav,
-                                  height: 20.h,
-                                  width: 20.w,
-                                  fit: BoxFit.cover,
-                                ),
+                                Obx(() {
+                                  return AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 300),
+                                    child: controller.activeCommentIndex.value == index
+                                        ? Padding(
+                                      key: const ValueKey("comment"),
+                                      padding: EdgeInsets.only(top: 12.h),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: TextField(
+                                              controller: controller.commentController,
+                                              decoration: InputDecoration(
+                                                prefixIcon: Padding(
+                                                  padding: const EdgeInsets.all(12.0),
+                                                  child: Image.asset(
+                                                    AppIcons.message,
+                                                    height: 10.h,
+                                                    width: 10.w,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                                suffixIcon:Padding(
+                                                  padding: const EdgeInsets.all(12.0),
+                                                  child: GestureDetector(
+                                                    onTap: (){
+                                                      controller.postComment(id: list.id);
+                                                    },
+                                                    child: Image.asset(
+                                                      AppIcons.send,
+                                                      height: 10.h,
+                                                      width: 10.w,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                                hintText: "Write a comment...",
+                                                hintStyle: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: Color(0xFF99A1AF),
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                     enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFBFBFBF),
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF6C4DFF),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    )
+                                        : const SizedBox.shrink(),
+                                  );
+                                })
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
+                          ),
+                        );
+                      });
+                }
+              }),
 
             ],
           ),
@@ -361,6 +454,7 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+
   Container voiceBox({
     required String title,
     required bool isSelected,

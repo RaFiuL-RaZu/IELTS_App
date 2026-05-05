@@ -26,9 +26,13 @@ class ScriptController extends GetxController{
 
   List<String> items = [
     "All",
-    "Commercial",
-    "Animation",
+    "E-Learning",
+    "Character",
     "Narration",
+    "Video Game",
+    "Animation",
+    "Commercial",
+    "Sports",
   ];
 
   List<String> timeList = [
@@ -40,12 +44,14 @@ class ScriptController extends GetxController{
   RxBool isDropdownOpen = false.obs;
 
   List<String> categories = [
-    "Commercial",
-    "Animation",
-    "Sports",
+    "All",
+    "E-Learning",
     "Character",
     "Narration",
     "Video Game",
+    "Animation",
+    "Commercial",
+    "Sports",
   ];
 
   RxString selectedCategory = "".obs;

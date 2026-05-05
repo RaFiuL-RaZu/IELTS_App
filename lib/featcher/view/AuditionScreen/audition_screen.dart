@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:justtsham/core/constant/other_helper.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/utils/app_icons.dart';
 import 'package:justtsham/core/widgets/common_text.dart';
@@ -9,10 +10,17 @@ import '../../../core/widgets/common_text_field.dart';
 import '../../../core/widgets/coomon_button.dart';
 import '../../controller/AuditionController/audition_controller.dart';
 
-class AuditionScreen extends StatelessWidget {
+class AuditionScreen extends StatefulWidget {
   AuditionScreen({super.key});
 
+  @override
+  State<AuditionScreen> createState() => _AuditionScreenState();
+}
+
+class _AuditionScreenState extends State<AuditionScreen> {
   final AuditionController controller=Get.put(AuditionController());
+
+
   Color getStatusColor(String action) {
     switch (action.toLowerCase()) {
       case "callback":
@@ -25,6 +33,7 @@ class AuditionScreen extends StatelessWidget {
         return const Color(0xFFFEF9C2);
     }
   }
+
   Color getStatusText(String action) {
     switch (action.toLowerCase()) {
       case "callback":
@@ -36,6 +45,12 @@ class AuditionScreen extends StatelessWidget {
       default:
         return const Color(0xFF155DFC);
     }
+  }
+  @override
+  void initState() {
+    controller.getActivity();
+    controller.getMyHistory();
+    super.initState();
   }
 
   @override
@@ -98,7 +113,7 @@ class AuditionScreen extends StatelessWidget {
                                       color: AppColor.primary,
                                     ),
                                     SizedBox(height: 10.h),
-                                    CommonTextField(title: "e.g. Disney Animation",),
+                                    CommonTextField(title: "e.g. Disney Animation",controller: controller.projectController,),
                                     SizedBox(height: 10.h),
                                     CommonText(
                                       title: "Role Name",
@@ -107,7 +122,45 @@ class AuditionScreen extends StatelessWidget {
                                       color: AppColor.primary,
                                     ),
                                     SizedBox(height: 10.h),
-                                    CommonTextField(title: "e.g. Hero Character",),
+                                    Obx(() => Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        CommonTextField(
+                                          readOnly: true,
+                                          onTap: controller.toggleRoleDropdown,
+                                          title: controller.selectedRole.value.isEmpty
+                                              ? "e.g. Hero Character"
+                                              : controller.selectedRole.value,
+                                          sIcon: const Icon(
+                                            Icons.arrow_drop_down,
+                                            color: Color(0xFF99A1AF),
+                                          ),
+                                        ),
+
+                                        if (controller.isRoleDropdownOpen.value)
+                                          Container(
+                                            margin: const EdgeInsets.only(top: 5),
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(color: Colors.grey.shade300),
+                                            ),
+                                            child: Column(
+                                              children: controller.roleList.map((item) {
+                                                return GestureDetector(
+                                                  onTap: () => controller.selectRole(item),
+                                                  child: Container(
+                                                    width: double.infinity,
+                                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                                    child: Text(item),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ),
+                                      ],
+                                    )),
                                     SizedBox(height: 10.h),
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,36 +253,60 @@ class AuditionScreen extends StatelessWidget {
                                       color: AppColor.primary,
                                     ),
                                     SizedBox(height: 10.h,),
-                                    Container(
-                                      height: 153.h,
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: Color(0xFF99A1AF)),
-                                        borderRadius: BorderRadius.circular(16)
-                                      ),child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      spacing: 5,
-                                      children: [
-
-                                        Container(
-                                          height: 48.h,
-                                          width: 48.w,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(50),
-                                            color: Color(0xFFE5E2FD),
-                                          ),
-                                          child: Center(
-                                            child: Image.asset(AppIcons.upload,height: 24,width: 24,fit: BoxFit.fill,),
-                                          ),
+                                    GestureDetector(
+                                      onTap: controller.pickAudioFile,
+                                      child: Container(
+                                        height: 153.h,
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(color: const Color(0xFF99A1AF)),
+                                          borderRadius: BorderRadius.circular(16),
                                         ),
-                                        CommonText(title: "Select Audio File",fSize: 14,fWeight: FontWeight.w500,color: AppColor.primary,),
-                                        CommonText(title: "MP3, WAV up to 10MB",fSize: 12,fWeight: FontWeight.w400,color: Color(0xFF99A1AF),),
-                                      ],
-                                    ),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              height: 48.h,
+                                              width: 48.w,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(50),
+                                                color: const Color(0xFFE5E2FD),
+                                              ),
+                                              child: Center(
+                                                child: Image.asset(
+                                                  AppIcons.upload,
+                                                  height: 24,
+                                                  width: 24,
+                                                  fit: BoxFit.fill,
+                                                ),
+                                              ),
+                                            ),
+
+                                            Obx(() => CommonText(
+                                              title: controller.audioFileName.value.isEmpty
+                                                  ? "Select Audio File"
+                                                  : controller.audioFileName.value,
+                                              fSize: 14,
+                                              fWeight: FontWeight.w500,
+                                              color: AppColor.primary,
+                                            )),
+
+                                            const CommonText(
+                                              title: "MP3, WAV up to 10MB",
+                                              fSize: 12,
+                                              fWeight: FontWeight.w400,
+                                              color: Color(0xFF99A1AF),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                     SizedBox(height: 16.h,),
-                                    CommonButton(titleText: "Save Audition"),
+                                    Obx(()=>CommonButton(
+                                      isLoading: controller.isLoading.value,
+                                      titleText: "Save Audition",onTap: (){
+                                      controller.createAudition();
+                                    },),)
 
                                   ],
                                 ),
@@ -260,106 +337,114 @@ class AuditionScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 12.h,),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    colors: [Color(0xFFEDEBFF), Color(0xFFF7F6FF)],
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  Row(
-                      children: [
-                       Image.asset(AppIcons.progress,height: 16.h,width: 16.w,),
-                        SizedBox(width: 8),
-                        Text(
-                          "MONTHLY ACTIVITY",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
+              Obx((){
+               if(controller.isLoading.value){
+                 return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
+               }else if(controller.activityModel.value == null){
+                 return Center(child: CommonText(title: "No Data Found"),);
+               }else{
+                 return  Container(
+                   padding: EdgeInsets.all(16),
+                   decoration: BoxDecoration(
+                     borderRadius: BorderRadius.circular(20),
+                     gradient: LinearGradient(
+                       colors: [Color(0xFFEDEBFF), Color(0xFFF7F6FF)],
+                     ),
+                   ),
+                   child: Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Row(
+                         children: [
+                           Image.asset(AppIcons.progress,height: 16.h,width: 16.w,),
+                           SizedBox(width: 8),
+                           Text(
+                             "MONTHLY ACTIVITY",
+                             style: TextStyle(
+                               fontSize: 14,
+                               fontWeight: FontWeight.w700,
+                               color: Colors.black54,
+                             ),
+                           ),
+                         ],
+                       ),
+                       const SizedBox(height: 20),
 
-                    SizedBox(
-                      height: 180,
-                      child: SfCartesianChart(
-                        plotAreaBorderWidth: 0,
+                       SizedBox(
+                         height: 180,
+                         child: SfCartesianChart(
+                           plotAreaBorderWidth: 0,
 
-                        primaryXAxis: NumericAxis(
-                          minimum: 1,
-                          maximum: 12,
-                          interval: 1,
-                          majorGridLines:
-                          const MajorGridLines(width: 0),
-                          axisLine: const AxisLine(width: 0),
-                        ),
+                           primaryXAxis: NumericAxis(
+                             minimum: 1,
+                             maximum: 12,
+                             interval: 1,
+                             majorGridLines:
+                             const MajorGridLines(width: 0),
+                             axisLine: const AxisLine(width: 0),
+                           ),
 
-                        primaryYAxis: NumericAxis(
-                          minimum: 0,
-                          maximum: 40,
-                          interval: 10,
-                          axisLine: const AxisLine(width: 0),
-                          majorTickLines:
-                          const MajorTickLines(size: 0),
-                          majorGridLines: MajorGridLines(
-                            width: 1,
-                            color: Colors.grey.withOpacity(0.2),
-                          ),
-                        ),
+                           primaryYAxis: NumericAxis(
+                             minimum: 0,
+                             maximum: 40,
+                             interval: 10,
+                             axisLine: const AxisLine(width: 0),
+                             majorTickLines:
+                             const MajorTickLines(size: 0),
+                             majorGridLines: MajorGridLines(
+                               width: 1,
+                               color: Colors.grey.withOpacity(0.2),
+                             ),
+                           ),
 
-                        tooltipBehavior:
-                        TooltipBehavior(enable: true),
+                           tooltipBehavior:
+                           TooltipBehavior(enable: true),
 
-                        series: [
-                          SplineAreaSeries<ChartData, int>(
-                            dataSource: controller.chartData,
-                            xValueMapper: (d, _) => d.x,
-                            yValueMapper: (d, _) => d.y,
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.deepPurple.withOpacity(0.4),
-                                Colors.deepPurple.withOpacity(0.05),
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          ),
+                           series: [
+                             SplineAreaSeries<ChartData, int>(
+                               dataSource: controller.chartData,
+                               xValueMapper: (d, _) => d.x,
+                               yValueMapper: (d, _) => d.y,
+                               gradient: LinearGradient(
+                                 colors: [
+                                   Colors.deepPurple.withOpacity(0.4),
+                                   Colors.deepPurple.withOpacity(0.05),
+                                 ],
+                                 begin: Alignment.topCenter,
+                                 end: Alignment.bottomCenter,
+                               ),
+                             ),
 
-                          /// LINE
-                          SplineSeries<ChartData, int>(
-                            dataSource: controller.chartData,
-                            xValueMapper: (d, _) => d.x,
-                            yValueMapper: (d, _) => d.y,
-                            color: Colors.deepPurple,
-                            width: 3,
-                          ),
-                        ],
+                             /// LINE
+                             SplineSeries<ChartData, int>(
+                               dataSource: controller.chartData,
+                               xValueMapper: (d, _) => d.x,
+                               yValueMapper: (d, _) => d.y,
+                               color: Colors.deepPurple,
+                               width: 3,
+                             ),
+                           ],
 
-                        /// VERTICAL LINE
-                        annotations: [
-                          CartesianChartAnnotation(
-                            widget: Container(
-                              width: 1,
-                              height: double.infinity,
-                              color: Colors.grey,
-                            ),
-                            coordinateUnit: CoordinateUnit.point,
-                            x: 10,
-                            y: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                           /// VERTICAL LINE
+                           annotations: [
+                             CartesianChartAnnotation(
+                               widget: Container(
+                                 width: 1,
+                                 height: double.infinity,
+                                 color: Colors.grey,
+                               ),
+                               coordinateUnit: CoordinateUnit.point,
+                               x: 10,
+                               y: 20,
+                             ),
+                           ],
+                         ),
+                       ),
+                     ],
+                   ),
+                 );
+               }
+             }),
               SizedBox(height: 20.h,),
               Row(
                spacing: 20,
@@ -398,14 +483,14 @@ class AuditionScreen extends StatelessWidget {
                          ),
                          SizedBox(height: 7.h),
                          CommonText(
-                           title: "18%",
+                           title: "${controller.activityModel.value!.totalBooked.toString()}%",
                            fSize: 24,
                            fWeight: FontWeight.w800,
                            color: AppColor.primary,
                          ),
                          SizedBox(height: 10.h),
                          CommonText(
-                           title: "2% this month",
+                           title: "${controller.activityModel.value!.thisMonthTotalBook}% this month",
                            fSize: 12,
                            fWeight: FontWeight.w500,
                            color: Color(0xFF00C950),
@@ -450,14 +535,14 @@ class AuditionScreen extends StatelessWidget {
                          ),
                          SizedBox(height: 7.h),
                          CommonText(
-                           title: "12",
+                           title: controller.activityModel.value!.totalCallBack.toString(),
                            fSize: 24,
                            fWeight: FontWeight.w800,
                            color: AppColor.primary,
                          ),
                          SizedBox(height: 10.h),
                          CommonText(
-                           title: "out of 45 subs",
+                           title: "out of ${controller.activityModel.value!.totalSubmitted} subs",
                            fSize: 12,
                            fWeight: FontWeight.w500,
                            color: AppColor.secondary,
@@ -486,63 +571,71 @@ class AuditionScreen extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 12.h,),
-              ListView.builder(
-                itemCount: controller.historyList.length,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.zero,
-                itemBuilder: (context, index) {
-                  final list = controller.historyList[index];
+             Obx((){
+               if(controller.isLoading.value){
+                 return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
+               }else if(controller.myHistoryList.isEmpty){
+                 return Center(child: CommonText(title: "No Data Found"),);
+               }else{
+                 return  ListView.builder(
+                   itemCount: controller.myHistoryList.length,
+                   shrinkWrap: true,
+                   physics: const NeverScrollableScrollPhysics(),
+                   padding: EdgeInsets.zero,
+                   itemBuilder: (context, index) {
+                     final list = controller.myHistoryList[index];
 
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    margin: const EdgeInsets.only(bottom: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      color: Colors.white,
-                    ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
+                     return Container(
+                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                       margin: const EdgeInsets.only(bottom: 10),
+                       decoration: BoxDecoration(
+                         borderRadius: BorderRadius.circular(24),
+                         color: Colors.white,
+                       ),
+                       child: ListTile(
+                         contentPadding: EdgeInsets.zero,
 
-                      title: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CommonText(
-                            title: list["title"] ?? "",
-                            fSize: 16,
-                            fWeight: FontWeight.w700,
-                            color: AppColor.primary,
-                          ),
-                          SizedBox(height: 4.h),
-                          CommonText(
-                            title: "Narrator • Jun 08, 2026",
-                            fSize: 12,
-                            fWeight: FontWeight.w500,
-                            color: AppColor.secondary,
-                          ),
-                        ],
-                      ),
+                         title: Column(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                             CommonText(
+                               title: list.title,
+                               fSize: 16,
+                               fWeight: FontWeight.w700,
+                               color: AppColor.primary,
+                             ),
+                             SizedBox(height: 4.h),
+                             CommonText(
+                               title: OtherHelper.timeAgo(list.createdAt.toString()),
+                               fSize: 12,
+                               fWeight: FontWeight.w500,
+                               color: AppColor.secondary,
+                             ),
+                           ],
+                         ),
 
-                      trailing: Container(
-                        height: 24.h,
-                        width: 93.w,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color:getStatusColor(list["action"] ?? ""),
-                        ),
-                        child: Center(
-                          child: CommonText(
-                            title: list["action"] ?? "",
-                            fSize: 12,
-                            fWeight: FontWeight.w700,
-                            color: getStatusText(list["action"] ?? ""),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              )
+                         trailing: Container(
+                           height: 24.h,
+                           width: 93.w,
+                           decoration: BoxDecoration(
+                             borderRadius: BorderRadius.circular(20),
+                             color:getStatusColor(list.status ?? ""),
+                           ),
+                           child: Center(
+                             child: CommonText(
+                               title: list.status ?? "",
+                               fSize: 12,
+                               fWeight: FontWeight.w700,
+                               color: getStatusText(list.status ?? ""),
+                             ),
+                           ),
+                         ),
+                       ),
+                     );
+                   },
+                 );
+               }
+             })
 
 
 

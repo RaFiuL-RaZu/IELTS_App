@@ -42,7 +42,7 @@ class _NavBarScreenState extends State<NavBarScreen> {
         ),
 
         bottomNavigationBar: Container(
-          height: 124,
+          height: 146,
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(10),
