@@ -23,6 +23,7 @@ class AppUrl{
   static  String getActivity ="$baseUrl/auditions/activity";
   static  String createAudition ="$baseUrl/auditions/create";
   static  String getMyHistory ="$baseUrl/auditions/my-auditions";
+  static  String getScript ="$baseUrl/scripts/user-get-scripts";
   static  String postComment({required String id}) =>"$baseUrl/comments/create/$id";
   static  String createLike({required String id}) =>"$baseUrl/likes/audition-toggle-like/$id";
 

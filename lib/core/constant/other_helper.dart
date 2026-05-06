@@ -1,5 +1,7 @@
 
 
+import 'package:intl/intl.dart';
+
 class OtherHelper{
   static String timeAgo(String dateString) {
     final dateTime = DateTime.parse(dateString);
@@ -17,6 +19,11 @@ class OtherHelper{
     } else {
       return "${(diff.inDays / 7).floor()}w ago";
     }
+  }
+
+  static String formatDate(String dateString) {
+    final dateTime = DateTime.parse(dateString); // if API gives ISO
+    return DateFormat("MMM dd, yyyy").format(dateTime);
   }
 
 }

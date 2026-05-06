@@ -7,15 +7,27 @@ import 'package:justtsham/core/widgets/common_text.dart';
 import 'package:justtsham/core/widgets/common_text_field.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
 import 'package:justtsham/featcher/controller/ScriptController/script_controller.dart';
+import 'package:justtsham/featcher/model/ScriptModel/script_model.dart';
 
 import '../../../core/utils/app_image.dart';
 import '../../../core/widgets/commom_image.dart';
 import '../CummunityScreen/commercial_screen.dart';
 
-class ScriptScreen extends StatelessWidget {
+class ScriptScreen extends StatefulWidget {
   ScriptScreen({super.key});
 
+  @override
+  State<ScriptScreen> createState() => _ScriptScreenState();
+}
+
+class _ScriptScreenState extends State<ScriptScreen> {
   final ScriptController controller = Get.put(ScriptController());
+
+  @override
+  void initState() {
+    controller.getScript();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,85 +110,94 @@ class ScriptScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 20.h),
-                          ListView.builder(
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            physics: ScrollPhysics(),
-                            itemCount: 3,
-                              itemBuilder: (context,index){
-                            return GestureDetector(
-                              onTap: (){
-                                Get.to(()=>CommercialScreen());
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 20),
-                                margin: EdgeInsets.only(bottom: 16),
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Color(0xFF6C4DFF).withOpacity(0.20),
-                                      offset: Offset(0, 20),
-                                      blurRadius: 25,
-                                      spreadRadius: -5,
-                                    ),
-                                    BoxShadow(
-                                      color: Color(0xFF6C4DFF).withOpacity(0.20),
-                                      offset: Offset(0, 8),
-                                      blurRadius: 10,
-                                      spreadRadius: -6,
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 16,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        height: 24.h,
-                                        width: 93.w,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(20),
-                                          color: Color(0xFFE5E2FD),
-                                        ),
-                                        child: Center(
-                                          child: CommonText(
-                                            title: "Commercial",
-                                            fSize: 12,
-                                            fWeight: FontWeight.w500,
-                                            color: AppColor.primary,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(height: 7.h),
-                                      CommonText(
-                                        title: "Nike - Limitless",
-                                        fSize: 16,
-                                        fWeight: FontWeight.w600,
-                                        color: AppColor.primary,
-                                      ),
-                                      SizedBox(height: 10.h),
-                                      CommonText(
-                                        title: "Some people say the sky is the limit. But what if you don't even believe in the sky? What if...",
-                                        fSize: 14,
-                                        fWeight: FontWeight.w400,
-                                        color: AppColor.secondary,
-                                      ),
-                                      SizedBox(height: 10.h),
-                                      CommonButton(titleText: " Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),)
+                         Obx((){
+                           if(controller.isLoading.value){
+                             return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
+                           }else if(controller.scriptList.isEmpty){
+                             return Center(child: CommonText(title: "No Data Found"),);
+                           }else{
+                             return ListView.builder(
+                                 padding: EdgeInsets.zero,
+                                 shrinkWrap: true,
+                                 physics: ScrollPhysics(),
+                                 itemCount: controller.scriptList.length,
+                                 itemBuilder: (context,index){
+                                   ScriptModel script=controller.scriptList[index];
+                                   return GestureDetector(
+                                     onTap: (){
+                                       Get.to(()=>CommercialScreen());
+                                     },
+                                     child: Container(
+                                       padding: EdgeInsets.symmetric(vertical: 20),
+                                       margin: EdgeInsets.only(bottom: 16),
+                                       width: double.infinity,
+                                       decoration: BoxDecoration(
+                                         borderRadius: BorderRadius.circular(20),
+                                         color: Colors.white,
+                                         boxShadow: [
+                                           BoxShadow(
+                                             color: Color(0xFF6C4DFF).withOpacity(0.20),
+                                             offset: Offset(0, 20),
+                                             blurRadius: 25,
+                                             spreadRadius: -5,
+                                           ),
+                                           BoxShadow(
+                                             color: Color(0xFF6C4DFF).withOpacity(0.20),
+                                             offset: Offset(0, 8),
+                                             blurRadius: 10,
+                                             spreadRadius: -6,
+                                           ),
+                                         ],
+                                       ),
+                                       child: Padding(
+                                         padding: const EdgeInsets.symmetric(
+                                           horizontal: 16,
+                                           vertical: 16,
+                                         ),
+                                         child: Column(
+                                           crossAxisAlignment: CrossAxisAlignment.start,
+                                           children: [
+                                             Container(
+                                               height: 24.h,
+                                               width: 93.w,
+                                               decoration: BoxDecoration(
+                                                 borderRadius: BorderRadius.circular(20),
+                                                 color: Color(0xFFE5E2FD),
+                                               ),
+                                               child: Center(
+                                                 child: CommonText(
+                                                   title: script.category?? "",
+                                                   fSize: 12,
+                                                   fWeight: FontWeight.w500,
+                                                   color: AppColor.primary,
+                                                 ),
+                                               ),
+                                             ),
+                                             SizedBox(height: 7.h),
+                                             CommonText(
+                                               title: script.title ?? "",
+                                               fSize: 16,
+                                               fWeight: FontWeight.w600,
+                                               color: AppColor.primary,
+                                             ),
+                                             SizedBox(height: 10.h),
+                                             CommonText(
+                                               title: script.content ?? "",
+                                               fSize: 14,
+                                               fWeight: FontWeight.w400,
+                                               color: AppColor.secondary,
+                                             ),
+                                             SizedBox(height: 10.h),
+                                             CommonButton(titleText: " Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),)
 
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          }),
+                                           ],
+                                         ),
+                                       ),
+                                     ),
+                                   );
+                                 });
+                           }
+                         })
                         ],
                       )
                     : Column(

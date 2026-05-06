@@ -11,7 +11,7 @@ import '../../../core/widgets/coomon_button.dart';
 import '../../controller/AuditionController/audition_controller.dart';
 
 class AuditionScreen extends StatefulWidget {
-  AuditionScreen({super.key});
+  const AuditionScreen({super.key});
 
   @override
   State<AuditionScreen> createState() => _AuditionScreenState();
@@ -22,8 +22,8 @@ class _AuditionScreenState extends State<AuditionScreen> {
 
 
   Color getStatusColor(String action) {
-    switch (action.toLowerCase()) {
-      case "callback":
+    switch (action.toLowerCase().trim()) {
+      case "call backed":
         return const Color(0xFFFEF9C2);
       case "rejected":
         return const Color(0xFFFFE2E2);
@@ -35,8 +35,8 @@ class _AuditionScreenState extends State<AuditionScreen> {
   }
 
   Color getStatusText(String action) {
-    switch (action.toLowerCase()) {
-      case "callback":
+    switch (action.toLowerCase().trim()) {
+      case "call backed":
         return const Color(0xFFA65F00);
       case "rejected":
         return const Color(0xFFE7000B);
@@ -446,115 +446,100 @@ class _AuditionScreenState extends State<AuditionScreen> {
                }
              }),
               SizedBox(height: 20.h,),
-              Row(
-               spacing: 20,
-               children: [
-                 Expanded(
-                   child: Container(
-                     padding: EdgeInsets.symmetric(vertical: 14,horizontal: 15),
-                     width: double.infinity,
-                     decoration: BoxDecoration(
-                       borderRadius: BorderRadius.circular(24),
-                       gradient: LinearGradient(
-                         colors: [
-                           Colors.white,
-                           Color(0x4D6C4DFF),
-                         ],
-                         begin: Alignment.topLeft,
-                         end: Alignment.center,
-                       ),
-                     ),
-                     child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         Row(
-                           children: [
-                             Image.asset(AppIcons.round,height: 16.h,width: 16.w,),
-                             SizedBox(width: 8),
-                             Text(
-                               " Book Ratio",
-                               style: TextStyle(
-                                 fontSize: 12,
-                                 fontWeight: FontWeight.w700,
-                                 color: Color(0xFF6A7282),
-                               ),
-                             ),
-                           ],
-                         ),
-                         SizedBox(height: 7.h),
-                         CommonText(
-                           title: "${controller.activityModel.value!.totalBooked.toString()}%",
-                           fSize: 24,
-                           fWeight: FontWeight.w800,
-                           color: AppColor.primary,
-                         ),
-                         SizedBox(height: 10.h),
-                         CommonText(
-                           title: "${controller.activityModel.value!.thisMonthTotalBook}% this month",
-                           fSize: 12,
-                           fWeight: FontWeight.w500,
-                           color: Color(0xFF00C950),
-                         ),
-                         SizedBox(height: 10.h),
+          Obx(() {
+            final activity = controller.activityModel.value;
 
-                       ],
-                     ),
-                   ),
-                 ),
-                 Expanded(
-                   child: Container(
-                     padding: EdgeInsets.symmetric(vertical: 14,horizontal: 15),
-                     width: double.infinity,
-                     decoration: BoxDecoration(
-                       borderRadius: BorderRadius.circular(24),
-                       gradient: LinearGradient(
-                         colors: [
-                           Colors.white,
-                           Color(0x4DF0B100)
-                         ],
-                         begin: Alignment.topLeft,
-                         end: Alignment.center,
-                       ),
-                     ),
-                     child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         Row(
-                           children: [
-                             Image.asset(AppIcons.docs,height: 16.h,width: 16.w,),
-                             SizedBox(width: 8),
-                             Text(
-                               "Callbacks",
-                               style: TextStyle(
-                                 fontSize: 12,
-                                 fontWeight: FontWeight.w700,
-                                 color: Color(0xFF6A7282),
-                               ),
-                             ),
-                           ],
-                         ),
-                         SizedBox(height: 7.h),
-                         CommonText(
-                           title: controller.activityModel.value!.totalCallBack.toString(),
-                           fSize: 24,
-                           fWeight: FontWeight.w800,
-                           color: AppColor.primary,
-                         ),
-                         SizedBox(height: 10.h),
-                         CommonText(
-                           title: "out of ${controller.activityModel.value!.totalSubmitted} subs",
-                           fSize: 12,
-                           fWeight: FontWeight.w500,
-                           color: AppColor.secondary,
-                         ),
-                         SizedBox(height: 10.h),
+            if (activity == null) {
+              return const SizedBox();
+            }
 
-                       ],
-                     ),
-                   ),
-                 ),
-               ],
-             ),
+            return Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 15),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: LinearGradient(
+                        colors: [Colors.white, Color(0x4D6C4DFF)],
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Image.asset(AppIcons.round, height: 16.h, width: 16.w),
+                            SizedBox(width: 8),
+                            Text("Book Ratio"),
+                          ],
+                        ),
+                        SizedBox(height: 7.h),
+
+                        /// ✅ SAFE
+                        CommonText(
+                          title: "${activity.totalBooked}%",
+                          fSize: 24,
+                          fWeight: FontWeight.w800,
+                          color: AppColor.primary,
+                        ),
+
+                        SizedBox(height: 10.h),
+
+                        CommonText(
+                          title: "${activity.thisMonthTotalBook}% this month",
+                          fSize: 12,
+                          fWeight: FontWeight.w500,
+                          color: Color(0xFF00C950),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 15),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: LinearGradient(
+                        colors: [Colors.white, Color(0x4DF0B100)],
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Image.asset(AppIcons.docs, height: 16.h, width: 16.w),
+                            SizedBox(width: 8),
+                            Text("Callbacks"),
+                          ],
+                        ),
+                        SizedBox(height: 7.h),
+
+                        CommonText(
+                          title: activity.totalCallBack.toString(),
+                          fSize: 24,
+                          fWeight: FontWeight.w800,
+                          color: AppColor.primary,
+                        ),
+
+                        SizedBox(height: 10.h),
+
+                        CommonText(
+                          title: "out of ${activity.totalSubmitted} subs",
+                          fSize: 12,
+                          fWeight: FontWeight.w500,
+                          color: AppColor.secondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }),
               SizedBox(height: 12.h,),
               Row(
                 children: [
@@ -606,7 +591,7 @@ class _AuditionScreenState extends State<AuditionScreen> {
                              ),
                              SizedBox(height: 4.h),
                              CommonText(
-                               title: OtherHelper.timeAgo(list.createdAt.toString()),
+                               title: "${list.category} .${OtherHelper.formatDate(list.createdAt.toString())}",
                                fSize: 12,
                                fWeight: FontWeight.w500,
                                color: AppColor.secondary,

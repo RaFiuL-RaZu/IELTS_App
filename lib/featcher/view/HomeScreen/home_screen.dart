@@ -1,3 +1,4 @@
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -11,6 +12,7 @@ import 'package:justtsham/featcher/model/HomeModel/audition_model.dart';
 
 import '../../../core/utils/app_image.dart';
 import '../../../core/widgets/commom_image.dart';
+import '../CummunityScreen/community_screen.dart';
 import 'notification_screen.dart';
 
 
@@ -157,36 +159,41 @@ class _HomeScreenState extends State<HomeScreen> {
               Obx(() => SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  spacing: 10,
-                  children: [
-                    ...List.generate(controller.items.length, (index) {
-                      return GestureDetector(
+                  children: List.generate(controller.items.length, (index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: GestureDetector(
                         onTap: () {
                           controller.selectItem(index);
+                          debugPrint("selected index: ${controller.selectedIndex.value}");
+                          debugPrint("selected item: ${controller.items[index]}");
                         },
                         child: voiceBox(
                           title: controller.items[index],
                           isSelected: controller.selectedIndex.value == index,
                         ),
-                      );
-                    })
-                  ],
+                      ),
+                    );
+                  }),
                 ),
               )),
               SizedBox(height: 20.h,),
               Obx((){
-                if(controller.isLoading.value){
-                  return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
-                }else if(controller.auditionList.isEmpty){
-                  return Center(child: CommonText(title: "No Audition Found"),);
-                }else {
-                  return ListView.builder(
-                      itemCount: controller.auditionList.length,
+                if (controller.isLoading.value) {
+                  return Center(
+                    child: CircularProgressIndicator(color: AppColor.primary),
+                  );
+                }
+
+                if (controller.filteredList.isEmpty) {
+                  return Center(child: CommonText(title: "No Audition Found"));
+                }return ListView.builder(
+                      itemCount: controller.filteredList.length,
                       padding: EdgeInsets.zero,
                       shrinkWrap: true,
-                      physics: ScrollPhysics(),
+                    physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (context,index){
-                        AuditionModel list=controller.auditionList[index];
+                        AuditionModel list = controller.filteredList[index];
                         return  Container(
                           margin: EdgeInsets.only(bottom: 16),
                           width: double.infinity,
@@ -278,45 +285,59 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   child: Row(
                                     children: [
-                                      ValueListenableBuilder<bool>(
-                                        valueListenable: controller.isPlaying,
-                                        builder: (context, isPlaying, _) {
-                                          return GestureDetector(
-                                            onTap: controller.togglePlay,
-                                            child: Container(
-                                              height: 39.h,
-                                              width: 39.h,
-                                              decoration: const BoxDecoration(
-                                                color: Color(0xff3C2A5D),
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: Icon(
-                                                isPlaying ? Icons.pause : Icons.play_arrow,
-                                                size: 20,
-                                                color: Colors.white,
-                                              ),
+                                      Obx(() {
+                                        final url = AppUrl.imageUrl + list.auditionFile;
+
+                                        final isPlaying =
+                                            controller.currentUrl.value == url &&
+                                                controller.isPlaying.value;
+
+                                        return GestureDetector(
+                                          onTap: () => controller.togglePlay(url),
+                                          child: Container(
+                                            height: 39.h,
+                                            width: 39.h,
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xff3C2A5D),
+                                              shape: BoxShape.circle,
                                             ),
-                                          );
-                                        },
-                                      ),
-                                      SizedBox(width: 15.w),
+                                            child: Icon(
+                                              isPlaying ? Icons.pause : Icons.play_arrow,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        );
+                                      }),
+
+                                      SizedBox(width: 10.w),
+
+                                      /// WAVE
                                       Expanded(
-                                        child: SizedBox(
-                                          height: 48.h,
-                                          child: CustomPaint(painter: CleanWavePainter()),
+                                        child: AudioFileWaveforms(
+                                          size: Size(double.infinity, 50),
+                                          playerController: controller.playerController,
+                                          waveformType: WaveformType.fitWidth,
+                                          enableSeekGesture: true,
                                         ),
                                       ),
 
-                                      SizedBox(width: 15.w),
+                                      SizedBox(width: 10.w),
 
-                                      CommonText(
-                                        title: "1:24",
-                                        fSize: 12,
-                                        fWeight: FontWeight.w700,
-                                        color: AppColor.secondary,
+                                      /// TIME
+                                      Flexible(
+                                        child: Text(
+                                          "1:24",
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColor.secondary,
+                                          ),
+                                        ),
                                       ),
                                     ],
-                                  ),
+                                  )
                                 ),
                                 SizedBox(height: 14.h),
                                 Row(
@@ -445,8 +466,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       });
-                }
-              }),
+                }),
 
             ],
           ),
@@ -502,51 +522,41 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 class CleanWavePainter extends CustomPainter {
+  final double progress;
+
+  CleanWavePainter({required this.progress});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFD6CFF5)
-      ..strokeWidth = 2.5
+      ..strokeWidth = 2
+      ..color = Colors.deepPurple
       ..strokeCap = StrokeCap.round;
 
     final centerY = size.height / 2;
 
-    final List<double> pattern = [
-      4,
-      6,
-      8,
-      12,
-      16,
-      12,
-      8,
-      6,
-      4,
-      6,
-      10,
-      14,
-      18,
-      14,
-      10,
-      6,
-    ];
+    final barCount = 40;
+    final barWidth = size.width / barCount;
 
-    double x = 0;
+    for (int i = 0; i < barCount; i++) {
+      final x = i * barWidth;
 
-    for (int i = 0; x < size.width; i++) {
-      final height = pattern[i % pattern.length];
+      double waveHeight = (i / barCount) < progress
+          ? (10 + (i % 5) * 3) // active wave
+          : 3; // inactive wave
 
       canvas.drawLine(
-        Offset(x, centerY - height / 2),
-        Offset(x, centerY + height / 2),
+        Offset(x, centerY - waveHeight),
+        Offset(x, centerY + waveHeight),
         paint,
       );
-
-      x += 4;
     }
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CleanWavePainter oldDelegate) {
+    return oldDelegate.progress != progress;
+  }
 }
 
 
