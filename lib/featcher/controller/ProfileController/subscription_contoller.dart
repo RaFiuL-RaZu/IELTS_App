@@ -1,6 +1,11 @@
 
 
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:justtsham/core/constant/prefs_helper.dart';
+import 'package:justtsham/core/services/api_services.dart';
+import 'package:justtsham/core/utils/app_urls.dart';
+import 'package:justtsham/featcher/model/ProfileModel/subscription_model.dart';
 
 class SubscriptionController extends GetxController{
   List<String> planList = [
@@ -26,4 +31,38 @@ class SubscriptionController extends GetxController{
     "Advanced analytics and performance insights",
     "Full community interaction (comments, likes, following)",
   ];
+  
+  RxBool isLoading=false.obs;
+
+  RxList subList=[].obs;
+  
+  Future<void> getSubscription()async{
+    
+    isLoading(true);
+    
+    try{
+      
+      Map<String,String> header={
+        'token':PrefsHelper.token
+      };
+      
+      final response=await ApiService.getApi(AppUrl.subscription,header: header);
+
+      if(response.statusCode==200 || response.statusCode==201){
+
+        final data=response.body['data'];
+        subList.value =
+            data.map((e) => SubscriptionModel.fromJson(e)).toList();
+
+      }
+      
+    }catch(e,s){
+      debugPrint("Error Handling :$e");
+      debugPrint("SnackTrack Error :$e");
+    }finally{
+      isLoading(false);
+    }
+    
+    
+  }
 }

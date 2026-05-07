@@ -151,10 +151,9 @@ class ApiService {
         'Authorization': "Bearer ${PrefsHelper.token}",
     };
 
-    final headers = {
-      ...mainHeader,
-      if (header != null) ...header,
-    };
+    final headers = header != null && header.isNotEmpty
+        ? header
+        : mainHeader;
 
     if (kDebugMode) {
       debugPrint("=========== PATCH API ===========");

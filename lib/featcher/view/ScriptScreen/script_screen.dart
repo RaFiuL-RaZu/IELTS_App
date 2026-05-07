@@ -8,13 +8,10 @@ import 'package:justtsham/core/widgets/common_text_field.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
 import 'package:justtsham/featcher/controller/ScriptController/script_controller.dart';
 import 'package:justtsham/featcher/model/ScriptModel/script_model.dart';
-
-import '../../../core/utils/app_image.dart';
-import '../../../core/widgets/commom_image.dart';
 import '../CummunityScreen/commercial_screen.dart';
 
 class ScriptScreen extends StatefulWidget {
-  ScriptScreen({super.key});
+  const ScriptScreen({super.key});
 
   @override
   State<ScriptScreen> createState() => _ScriptScreenState();
@@ -26,6 +23,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
   @override
   void initState() {
     controller.getScript();
+
     super.initState();
   }
 
@@ -70,7 +68,11 @@ class _ScriptScreenState extends State<ScriptScreen> {
                     ? Column(
                         children: [
                           CommonTextField(
+                            controller: controller.searchController,
                             title: "Search scripts...",
+                            onChanged: (value) {
+                              controller.searchScripts(value);
+                            },
                             prefixIcon: Padding(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 14,
@@ -96,7 +98,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                   ) {
                                     return GestureDetector(
                                       onTap: () {
-                                        controller.selectItem(index);
+                                        controller.filterScriptsByCategory(index);
                                       },
                                       child: voiceBox(
                                         title: controller.items[index],
@@ -120,9 +122,9 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                  padding: EdgeInsets.zero,
                                  shrinkWrap: true,
                                  physics: ScrollPhysics(),
-                                 itemCount: controller.scriptList.length,
+                                 itemCount: controller.filteredScriptList.length,
                                  itemBuilder: (context,index){
-                                   ScriptModel script=controller.scriptList[index];
+                                   ScriptModel script = controller.filteredScriptList[index];
                                    return GestureDetector(
                                      onTap: (){
                                        Get.to(()=>CommercialScreen());

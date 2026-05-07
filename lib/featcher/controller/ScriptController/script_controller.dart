@@ -12,6 +12,50 @@ import 'package:justtsham/featcher/model/ScriptModel/script_model.dart';
 
 class ScriptController extends GetxController{
 
+  RxList<ScriptModel> filteredScriptList = <ScriptModel>[].obs;
+  TextEditingController searchController = TextEditingController();
+  @override
+  void onInit() {
+    super.onInit();
+    filteredScriptList.value = scriptList;
+  }
+
+  void searchScripts(String query) {
+    String selectedCategory = items[selectedTab.value];
+
+    List<ScriptModel> tempList = scriptList;
+
+    if (selectedCategory != "All") {
+      tempList = tempList.where((script) {
+        return script.category
+            ?.toLowerCase()
+            .trim() ==
+            selectedCategory.toLowerCase().trim();
+      }).toList();
+    }
+
+    if (query.isNotEmpty) {
+      tempList = tempList.where((script) {
+        return (script.title ?? "")
+            .toLowerCase()
+            .contains(query.toLowerCase()) ||
+            (script.category ?? "")
+                .toLowerCase()
+                .contains(query.toLowerCase()) ||
+            (script.content ?? "")
+                .toLowerCase()
+                .contains(query.toLowerCase());
+      }).toList();
+    }
+
+    filteredScriptList.value = tempList;
+  }
+  void filterScriptsByCategory(int index) {
+    selectedTab.value = index;
+
+    searchScripts(searchController.text);
+  }
+
   RxInt selectedIndex = 0.obs;
 
   void changeTab(int index) {
@@ -115,6 +159,7 @@ class ScriptController extends GetxController{
               .map((e) => ScriptModel.fromJson(e))
               .toList()
               .cast<ScriptModel>();
+          filteredScriptList.value = scriptList;
       }}
 
     }catch(e,s){
