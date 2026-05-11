@@ -46,11 +46,33 @@ class ChangePassword extends StatelessWidget {
                 color: AppColor.primary,
               ),
               SizedBox(height: 6.h),
-              CommonTextField(
-                controller: controller.oldPasswordController,
+              Obx(()=> CommonTextField(
                 title: "Password",
-                sIcon: Icon(Icons.visibility_off, color: AppColor.secondary),
-              ),
+                controller: controller.oldPasswordController,
+                obscureText: controller.isOldPassword.value,
+                sIcon: GestureDetector(
+                  onTap: () {
+                    controller.isOldPassword.value=!controller.isOldPassword.value;
+                  },
+                  child: Icon(
+                    controller.isOldPassword.value
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    size: 18,
+                    color: Colors.grey.shade600,
+                  ),
+
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Current password is required";
+                  }
+                  if (value.length < 6) {
+                    return "Password must be at least 6 characters";
+                  }
+                  return null;
+                },
+              ),),
               SizedBox(height: 10.h),
               CommonText(
                 title: "New Password",
@@ -59,11 +81,47 @@ class ChangePassword extends StatelessWidget {
                 color: AppColor.primary,
               ),
               SizedBox(height: 6.h),
-              CommonTextField(
-                controller: controller.newPasswordController,
-                title: "New password",
-                sIcon: Icon(Icons.visibility_off, color: AppColor.secondary),
-              ),
+             Obx(()=> CommonTextField(
+               controller: controller.newPasswordController,
+               title: "New password",
+               obscureText: controller.isNewPassword.value,
+               sIcon: GestureDetector(
+                 onTap: () {
+                   controller.isNewPassword.value=!controller.isNewPassword.value;
+                 },
+                 child: Icon(
+                   controller.isNewPassword.value
+                       ? Icons.visibility_off
+                       : Icons.visibility,
+                   size: 18,
+                   color: Colors.grey.shade600,
+                 ),
+
+               ),
+
+               validator: (value) {
+                 if (value == null || value.trim().isEmpty) {
+                   return "New password is required";
+                 }
+
+                 if (value.length < 8) {
+                   return "Password must be at least 8 characters";
+                 }
+
+                 if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                   return "Include at least 1 uppercase letter";
+                 }
+
+                 if (!RegExp(r'[0-9]').hasMatch(value)) {
+                   return "Include at least 1 number";
+                 }
+                 if (!RegExp(r'[!@#\$&*~%^]').hasMatch(value)) {
+                   return "Include at least 1 special character";
+                 }
+
+                 return null;
+               },
+             ),),
               SizedBox(height: 10.h),
               CommonText(
                 title: "Confirm New Password",
@@ -72,11 +130,36 @@ class ChangePassword extends StatelessWidget {
                 color: AppColor.primary,
               ),
               SizedBox(height: 6.h),
-              CommonTextField(
-                controller: controller.confirmPasswordController,
-                title: "Confirm password",
-                sIcon: Icon(Icons.visibility_off, color: AppColor.secondary),
-              ),
+             Obx(()=>CommonTextField(
+               controller: controller.confirmPasswordController,
+               title: "Confirm password",
+               obscureText: controller.isConfirmPassword.value,
+               sIcon: GestureDetector(
+                 onTap: () {
+                   controller.isConfirmPassword.value=!controller.isConfirmPassword.value;
+                 },
+                 child: Icon(
+                   controller.isConfirmPassword.value
+                       ? Icons.visibility_off
+                       : Icons.visibility,
+                   size: 18,
+                   color: Colors.grey.shade600,
+                 ),
+
+               ),
+
+               validator: (value) {
+                 if (value == null || value.trim().isEmpty) {
+                   return "Confirm password is required";
+                 }
+
+                 if (value != controller.newPasswordController.text) {
+                   return "Passwords do not match";
+                 }
+
+                 return null;
+               },
+             ),),
               SizedBox(height: 10.h),
               CommonText(
                 title:

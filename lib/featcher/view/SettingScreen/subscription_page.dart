@@ -22,6 +22,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   @override
   void initState() {
     controller.getSubscription();
+    controller.getMyPlan();
     super.initState();
   }
 
@@ -48,7 +49,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               SizedBox(height: 20.h),
 
 
-            Obx((){
+              Obx((){
               if(controller.isLoading.value){
                 return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
               }else if(controller.subList.isEmpty){
@@ -180,28 +181,43 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                                       },
                                     ),
                                     SizedBox(height: 24.h),
-                                  subData.title=='pro' ? CommonButton(
-                                    titleText: "Upgrade to Premium",
-                                    buttonHeight: 50.h,
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFFFDC700), Color(0xFFFE9A00)],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderColor: AppColor.secondary,
-                                    titleColor: Color(0xFF733E0A),
-                                    useGradient: true,
-                                    onTap: () {},
-                                  ) :  CommonButton(
-                                      titleText: subData.title=="free" ? "Current Plan" : "Upgrade to Pro",
-                                      // buttonWidth: 209.w,
+                                    subData.title == 'pro'
+                                        ? Obx(()=>CommonButton(
+                                      titleText: controller.myPlanModel.value.subscriptionType == subData.title
+                                          ? "Current Plan"
+                                          : "Upgrade to Premium",
+                                      buttonHeight: 50.h,
+                                      gradient: const LinearGradient(
+                                        colors: [Color(0xFFFDC700), Color(0xFFFE9A00)],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderColor: AppColor.secondary,
+                                      titleColor: Color(0xFF733E0A),
+                                      useGradient: true,
+                                      onTap: () {
+                                        controller.selectPlan(subData.id.toString());
+                                        controller.getPayment();
+                                      },
+                                    ))
+                                        : Obx(()=>CommonButton(
+                                      titleText: controller.myPlanModel.value.subscriptionType == subData.title
+                                          ? "Current Plan"
+                                          : subData.title == "free"
+                                          ? "Free Plan"
+                                          : "Upgrade to Pro",
                                       buttonHeight: 50.h,
                                       backgroundColor: Colors.white,
                                       borderColor: AppColor.secondary,
-                                      titleColor: subData.title=='free' ? AppColor.secondary : AppColor.primary,
+                                      titleColor: subData.title == 'free'
+                                          ? AppColor.secondary
+                                          : AppColor.primary,
                                       useGradient: false,
-                                      onTap: () {},
-                                    ),
+                                      onTap: () {
+                                        controller.selectPlan(subData.id.toString());
+                                        controller.getPayment();
+                                      },
+                                    )),
                                   ],
                                 ),
                               ),
@@ -228,234 +244,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                     });
               }
             }),
-
               SizedBox(height: 60.h),
-              // Container(
-              //   width: double.infinity,
-              //   decoration: BoxDecoration(
-              //     borderRadius: BorderRadius.circular(20),
-              //     color: Colors.white,
-              //   ),
-              //   child: Padding(
-              //     padding: const EdgeInsets.symmetric(
-              //       horizontal: 16,
-              //       vertical: 16,
-              //     ),
-              //     child: Padding(
-              //       padding: const EdgeInsets.symmetric(horizontal: 25),
-              //       child: Column(
-              //         crossAxisAlignment: CrossAxisAlignment.start,
-              //         children: [
-              //           Align(
-              //             alignment: Alignment.centerLeft,
-              //             child: Text(
-              //               "Free Plan",
-              //               style: TextStyle(
-              //                 fontSize: 24,
-              //                 fontWeight: FontWeight.w600,
-              //               ),
-              //             ),
-              //           ),
-              //           CommonText(
-              //             title: "Perfect for getting started.",
-              //             fSize: 14,
-              //             fWeight: FontWeight.w500,
-              //             color: AppColor.secondary,
-              //           ),
-              //
-              //           SizedBox(height: 12.h),
-              //           Row(
-              //             children: [
-              //               CommonText(
-              //                 title: "\$0",
-              //                 fSize: 30,
-              //                 fWeight: FontWeight.w800,
-              //               ),
-              //               CommonText(
-              //                 title: "/month",
-              //                 fSize: 16,
-              //                 fWeight: FontWeight.w500,
-              //                 color: Color(0xFF717182),
-              //               ),
-              //             ],
-              //           ),
-              //           SizedBox(height: 30.h),
-              //           ListView.builder(
-              //             padding: EdgeInsets.zero,
-              //             shrinkWrap: true,
-              //             physics: const NeverScrollableScrollPhysics(),
-              //             itemCount: controller.planList.length,
-              //             itemBuilder: (context, i) {
-              //               return Padding(
-              //                 padding: const EdgeInsets.symmetric(vertical: 8),
-              //                 child: Row(
-              //                   spacing: 5,
-              //                   children: [
-              //                     Container(
-              //                       height: 20.h,
-              //                       width: 20.w,
-              //                       decoration: BoxDecoration(
-              //                         shape: BoxShape.circle,
-              //                         color: AppColor.background,
-              //                       ),
-              //                       child: Padding(
-              //                         padding: const EdgeInsets.all(4.0),
-              //                         child: Image.asset(
-              //                           AppIcons.flag,
-              //                           height: 14,
-              //                           width: 14,
-              //                           fit: BoxFit.fill,
-              //                           color: Color(0xFF717182),
-              //                         ),
-              //                       ),
-              //                     ),
-              //                     const SizedBox(width: 6),
-              //                     Flexible(
-              //                       child: CommonText(
-              //                         title: controller.planList[i],
-              //                         fSize: 14,
-              //                         fWeight: FontWeight.w700,
-              //                       ),
-              //                     ),
-              //                   ],
-              //                 ),
-              //               );
-              //             },
-              //           ),
-              //           SizedBox(height: 24.h),
-              //           CommonButton(
-              //             titleText: "Current Plan",
-              //             // buttonWidth: 209.w,
-              //             buttonHeight: 50.h,
-              //             backgroundColor: Colors.white,
-              //             borderColor: AppColor.secondary,
-              //             titleColor: AppColor.secondary,
-              //             useGradient: false,
-              //             onTap: () {},
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              // SizedBox(height: 20.h),
-              //
-              // SizedBox(height: 20.h),
-              // Container(
-              //   width: double.infinity,
-              //   decoration: BoxDecoration(
-              //     borderRadius: BorderRadius.circular(20),
-              //     color: Color(0xFF000000),
-              //   ),
-              //   child: Padding(
-              //     padding: const EdgeInsets.symmetric(
-              //       horizontal: 16,
-              //       vertical: 16,
-              //     ),
-              //     child: Padding(
-              //       padding: const EdgeInsets.symmetric(horizontal: 25),
-              //       child: Column(
-              //         crossAxisAlignment: CrossAxisAlignment.start,
-              //         children: [
-              //           Align(
-              //             alignment: Alignment.centerLeft,
-              //             child: Text(
-              //               "Premium Plan",
-              //               style: TextStyle(
-              //                 fontSize: 24,
-              //                 color: Colors.white,
-              //                 fontWeight: FontWeight.w600,
-              //               ),
-              //             ),
-              //           ),
-              //           CommonText(
-              //             title: "For professionals looking to grow faster.",
-              //             fSize: 14,
-              //             fWeight: FontWeight.w500,
-              //             color: Color(0XCCFFFFFF),
-              //           ),
-              //
-              //           SizedBox(height: 12.h),
-              //           Row(
-              //             children: [
-              //               CommonText(
-              //                 title: "\$19",
-              //                 fSize: 30,
-              //                 fWeight: FontWeight.w800,
-              //                 color: Colors.white,
-              //               ),
-              //               CommonText(
-              //                 title: "/month",
-              //                 fSize: 16,
-              //                 fWeight: FontWeight.w500,
-              //                 color: Colors.white,
-              //               ),
-              //             ],
-              //           ),
-              //           SizedBox(height: 30.h),
-              //           ListView.builder(
-              //             padding: EdgeInsets.zero,
-              //             shrinkWrap: true,
-              //             physics: const NeverScrollableScrollPhysics(),
-              //             itemCount: controller.premiumList.length,
-              //             itemBuilder: (context, i) {
-              //               return Padding(
-              //                 padding: const EdgeInsets.symmetric(vertical: 8),
-              //                 child: Row(
-              //                   spacing: 5,
-              //                   children: [
-              //                     Container(
-              //                       height: 20.h,
-              //                       width: 20.w,
-              //                       decoration: BoxDecoration(
-              //                         shape: BoxShape.circle,
-              //                         color: Color(0x33FFFFFF),
-              //                       ),
-              //                       child: Padding(
-              //                         padding: const EdgeInsets.all(4.0),
-              //                         child: Image.asset(
-              //                           AppIcons.crown,
-              //                           height: 14,
-              //                           width: 14,
-              //                           fit: BoxFit.fill,
-              //                           color: Colors.orangeAccent,
-              //                         ),
-              //                       ),
-              //                     ),
-              //                     const SizedBox(width: 6),
-              //                     Flexible(
-              //                       child: CommonText(
-              //                         title: controller.premiumList[i],
-              //                         fSize: 14,
-              //                         color: Colors.white,
-              //                         fWeight: FontWeight.w700,
-              //                       ),
-              //                     ),
-              //                   ],
-              //                 ),
-              //               );
-              //             },
-              //           ),
-              //           SizedBox(height: 24.h),
-              //           CommonButton(
-              //             titleText: "Upgrade to Premium",
-              //             buttonHeight: 50.h,
-              //             gradient: const LinearGradient(
-              //               colors: [Color(0xFFFDC700), Color(0xFFFE9A00)],
-              //               begin: Alignment.topLeft,
-              //               end: Alignment.bottomRight,
-              //             ),
-              //             borderColor: AppColor.secondary,
-              //             titleColor: Color(0xFF733E0A),
-              //             useGradient: true,
-              //             onTap: () {},
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              // SizedBox(height: 50.h),
             ],
           ),
         ),

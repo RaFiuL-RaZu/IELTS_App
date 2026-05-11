@@ -10,11 +10,14 @@ import '../../../core/widgets/common_text.dart';
 import '../../controller/CommunityController/commercial_controller.dart';
 
 class CommercialScreen extends StatelessWidget {
-  const CommercialScreen({super.key});
+CommercialScreen({super.key, required this.title});
+
+  final String title;
+
+  final controller = Get.put(CommercialController());
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(CommercialController());
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(
@@ -80,8 +83,7 @@ class CommercialScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 5),
                           CommonText(
-                            title:
-                                "Some people say the sky is the limit. But what if you don't even believe in the sky?\nWhat if every time they told you to slow down, you just found a new gear?\nIntroducing the all-new experience. Designed for those who don't just follow the path... they create it.\nGet yours today.",
+                            title:title,
                             fSize: 16,
                             fWeight: FontWeight.w500,
                           ),

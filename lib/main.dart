@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/routes/routes.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import 'core/constant/prefs_helper.dart';
 
@@ -11,6 +12,7 @@ void main() {
 }
 action()async{
   WidgetsFlutterBinding.ensureInitialized();
+  WebViewPlatform.instance;
   await PrefsHelper.getAllPrefData();
 
 }

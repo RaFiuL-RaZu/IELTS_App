@@ -23,7 +23,6 @@ class _ScriptScreenState extends State<ScriptScreen> {
   @override
   void initState() {
     controller.getScript();
-
     super.initState();
   }
 
@@ -127,7 +126,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                    ScriptModel script = controller.filteredScriptList[index];
                                    return GestureDetector(
                                      onTap: (){
-                                       Get.to(()=>CommercialScreen());
+                                       Get.to(()=>CommercialScreen(title: script.content.toString(),));
                                      },
                                      child: Container(
                                        padding: EdgeInsets.symmetric(vertical: 20),
@@ -328,7 +327,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                           padding: const EdgeInsets.symmetric(vertical: 12),
                                           child: Text(
                                             tone,
-                                            style: const TextStyle(fontSize: 14),
+                                            style: const TextStyle(fontSize: 14,color: Colors.black),
                                           ),
                                         ),
                                       );
@@ -361,8 +360,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                       },
                                       child: voiceBox(
                                         title: controller.timeList[index],
-                                        isSelected:
-                                        controller.selectedTime.value == index,
+                                          isSelected: controller.selectedSecond.value == index
                                       ),
                                     );
                                   }),
@@ -371,13 +369,19 @@ class _ScriptScreenState extends State<ScriptScreen> {
                             ),
                           ),
                           SizedBox(height: 20.h,),
-                          CommonButton(titleText: " Generate Script",),
+                          Obx(()=>CommonButton(
+                            isLoading: controller.isLoading.value,
+                            titleText: " Generate Script",
+                            onTap: (){
+                              controller.createScript();
+                            },
+                          ),)
 
                         ],
                       ),
                     ),
                     SizedBox(height: 20.h,),
-                    Container(
+                    controller.script.isEmpty ? SizedBox() : Container(
                       padding: EdgeInsets.symmetric(vertical: 10),
                       margin: EdgeInsets.only(bottom: 16),
                       width: double.infinity,
@@ -407,28 +411,28 @@ class _ScriptScreenState extends State<ScriptScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                           Row(
-                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                             children: [
-                               Container(
-                                 height: 24.h,
-                                 width: 93.w,
-                                 decoration: BoxDecoration(
-                                   borderRadius: BorderRadius.circular(20),
-                                   color: Color(0xFFE5E2FD),
-                                 ),
-                                 child: Center(
-                                   child: CommonText(
-                                     title: "Generated!",
-                                     fSize: 12,
-                                     fWeight: FontWeight.w500,
-                                     color: AppColor.primary,
-                                   ),
-                                 ),
-                               ),
-                               CommonText(title: "15 sec",fSize: 12,fWeight: FontWeight.w500,color: AppColor.primary,),
-                             ],
-                           ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  height: 24.h,
+                                  width: 93.w,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Color(0xFFE5E2FD),
+                                  ),
+                                  child: Center(
+                                    child: CommonText(
+                                      title: "Generated!",
+                                      fSize: 12,
+                                      fWeight: FontWeight.w500,
+                                      color: AppColor.primary,
+                                    ),
+                                  ),
+                                ),
+                                Obx(()=>CommonText(title: controller.selectedTime.value,fSize: 12,fWeight: FontWeight.w500,color: AppColor.primary,),),
+                              ],
+                            ),
                             SizedBox(height: 7.h),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 0,vertical: 10),
@@ -448,7 +452,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                     children: [
                                       CommonText(
                                         title:
-                                        "Narrator : Some people say the sky is the limit. But what if you don't even believe in the sky?\nWhat if every time they told you to slow down, you just found a new gear?\nIntroducing the all-new experience. Designed for those who don't just follow the path... they create it.\nGet yours today.",
+                                        controller.script.value,
                                         fSize: 16,
                                         color: AppColor.secondary,
                                         fWeight: FontWeight.w500,
@@ -467,9 +471,9 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                   height: 48.h,
                                   width: 48.w,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(14),
-                                    color: Colors.white,
-                                    border: Border.all(color: Colors.grey.shade300)
+                                      borderRadius: BorderRadius.circular(14),
+                                      color: Colors.white,
+                                      border: Border.all(color: Colors.grey.shade300)
                                   ),
                                   child: Center(
                                     child: Icon(Icons.copy,color: Colors.grey.shade400,),

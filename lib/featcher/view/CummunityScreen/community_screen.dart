@@ -139,7 +139,7 @@ class CommunityScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      Get.to(() => CommercialScreen());
+                      Get.to(() => CommercialScreen(title: '',));
                     },
                     child: Container(
                       margin: EdgeInsets.only(bottom: 16),

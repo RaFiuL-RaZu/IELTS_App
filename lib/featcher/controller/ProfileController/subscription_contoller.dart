@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import 'package:justtsham/core/constant/prefs_helper.dart';
 import 'package:justtsham/core/services/api_services.dart';
 import 'package:justtsham/core/utils/app_urls.dart';
+import 'package:justtsham/featcher/model/ProfileModel/myplan_model.dart';
 import 'package:justtsham/featcher/model/ProfileModel/subscription_model.dart';
+import 'package:justtsham/featcher/view/SettingScreen/weebview.dart';
 
 class SubscriptionController extends GetxController{
   List<String> planList = [
@@ -35,6 +37,10 @@ class SubscriptionController extends GetxController{
   RxBool isLoading=false.obs;
 
   RxList subList=[].obs;
+  RxString planId="".obs;
+  void selectPlan(String id) {
+    planId.value = id;
+  }
   
   Future<void> getSubscription()async{
     
@@ -65,4 +71,69 @@ class SubscriptionController extends GetxController{
     
     
   }
+
+
+Rx<MyPlanModel> myPlanModel=MyPlanModel().obs;
+  Future<void> getMyPlan()async{
+
+    isLoading(true);
+
+    try{
+
+      Map<String,String> header={
+        'token':PrefsHelper.token
+      };
+
+      final response=await ApiService.getApi(AppUrl.getMyPlan,header: header);
+
+      if(response.statusCode==200 || response.statusCode==201){
+
+        final data=response.body['data'];
+        myPlanModel.value=MyPlanModel.fromJson(data);
+      }
+
+    }catch(e,s){
+      debugPrint("Error Handling :$e");
+      debugPrint("SnackTrack Error :$e");
+    }finally{
+      isLoading(false);
+    }
+
+
+  }
+
+
+  var checkOutUrl='';
+
+  Future<void> getPayment()async{
+
+    isLoading(true);
+
+    try{
+
+      Map<String,String> header={
+        'token':PrefsHelper.token
+      };
+      Map<String,dynamic> body={
+        "planId":planId.value
+      };
+
+      final response=await ApiService.postApi(AppUrl.getPayment,body,header: header);
+
+      if(response.statusCode==200 || response.statusCode==201){
+        final data=response.body['data'];
+        Get.to(()=>WebViewPage(url: data));
+
+      }
+
+    }catch(e,s){
+      debugPrint("Error Handling :$e");
+      debugPrint("SnackTrack Error :$e");
+    }finally{
+      isLoading(false);
+    }
+
+
+  }
+
 }

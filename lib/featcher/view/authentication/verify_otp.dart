@@ -63,7 +63,7 @@ class VerifyOtp extends StatelessWidget {
               ),
             ),
             SizedBox(height: 22.h),
-            RichText(
+            Obx(() => RichText(
               text: TextSpan(
                 style: TextStyle(
                   fontSize: 14,
@@ -71,20 +71,29 @@ class VerifyOtp extends StatelessWidget {
                   color: AppColor.secondary,
                 ),
                 children: [
-                  TextSpan(text: "Didn't receive the code? "),
+                  TextSpan(text: "Didn't receive the code?  "),
                   TextSpan(
-                    text: "Resend",
+                    text: controller.resendTimer.value > 0
+                        ? "Resend in ${controller.resendTimer.value}s"
+                        : "Resend",
                     style: TextStyle(
-                      color: AppColor.primary,
+                      color: controller.resendTimer.value > 0
+                          ? Colors.grey
+                          : AppColor.primary,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       decoration: TextDecoration.underline,
                     ),
-                    recognizer: TapGestureRecognizer()..onTap = () {},
+                    recognizer: controller.resendTimer.value > 0
+                        ? null
+                        : TapGestureRecognizer()
+                      ?..onTap = () {
+                        controller.resendOtp();
+                      },
                   ),
                 ],
               ),
-            ),
+            )),
             Spacer(),
             CommonButton(titleText: "Verify & Continue",onTap: (){
              controller.otpVerify();

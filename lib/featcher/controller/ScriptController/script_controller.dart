@@ -68,12 +68,21 @@ class ScriptController extends GetxController{
   void selectItem(int index) {
     selectedTab.value = index;
   }
-  RxInt selectedTime = 0.obs;
+  RxInt selectedSecond = 0.obs;
+  RxString selectedTime = "15 sec".obs;
 
   void selectTimeItem(int index) {
-    selectedTime.value = index;
+    selectedSecond.value = index;
+    selectedTime.value = timeList[index];
   }
 
+
+  List<String> timeList = [
+    "15 sec",
+    "30 sec",
+    "45 sec",
+    "1 minute",
+  ];
 
   List<String> items = [
     "All",
@@ -86,16 +95,9 @@ class ScriptController extends GetxController{
     "Sports",
   ];
 
-  List<String> timeList = [
-    "15 sec",
-    "30 sec",
-    "45 sec",
-  ];
-
   RxBool isDropdownOpen = false.obs;
 
   List<String> categories = [
-    "All",
     "E-Learning",
     "Character",
     "Narration",
@@ -161,6 +163,48 @@ class ScriptController extends GetxController{
               .cast<ScriptModel>();
           filteredScriptList.value = scriptList;
       }}
+
+    }catch(e,s){
+      debugPrint("DebugPrint : $e");
+      debugPrint("SnackTrack : $s");
+    }finally{
+      isLoading(false);
+    }
+
+
+  }
+
+
+
+
+
+
+  var script="".obs;
+  Future<void> createScript()async{
+    isLoading(true);
+    try{
+
+      Map<String,String> header={
+        "token":PrefsHelper.token
+      };
+
+      Map<String,dynamic> body={
+        "category": selectedCategory.value,
+        "tone": selectedTone.value,
+        "duration": selectedTime.value
+      };
+
+      debugPrint("Script: $body");
+
+
+      final response= await ApiService.postApi(AppUrl.createScript,body,header: header);
+
+      if(response.statusCode==200 || response.statusCode==201) {
+        final data = response.body['data'];
+        script.value=data;
+
+      }
+
 
     }catch(e,s){
       debugPrint("DebugPrint : $e");

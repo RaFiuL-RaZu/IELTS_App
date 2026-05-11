@@ -24,8 +24,12 @@ class AppUrl{
   static  String getActivity ="$baseUrl/auditions/activity";
   static  String createAudition ="$baseUrl/auditions/create";
   static  String getMyHistory ="$baseUrl/auditions/my-auditions";
-  static  String getScript ="$baseUrl/scripts/user-get-scripts";
+  static  String getScript ="$baseUrl/scripts/user-scripts";
+  static  String createScript ="$baseUrl/openai/script-generator";
   static  String subscription ="$baseUrl/subscriptions/plans";
+  static  String getMyPlan ="$baseUrl/subscriptions/my-subscriptions";
+  static  String getHelp ="$baseUrl/setting/help-center";
+  static  String getPayment ="$baseUrl/stripe/create-subscription-session";
   static  String postComment({required String id}) =>"$baseUrl/comments/create/$id";
   static  String createLike({required String id}) =>"$baseUrl/likes/audition-toggle-like/$id";
 

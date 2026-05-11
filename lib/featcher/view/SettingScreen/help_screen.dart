@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/utils/app_icons.dart';
+import 'package:justtsham/featcher/controller/ProfileController/help_controller.dart';
 import '../../../core/widgets/common_text.dart';
 
-class HelpScreen extends StatelessWidget {
-  const HelpScreen({super.key});
+class HelpScreen extends StatefulWidget {
+ HelpScreen({super.key});
+
+  @override
+  State<HelpScreen> createState() => _HelpScreenState();
+}
+
+class _HelpScreenState extends State<HelpScreen> {
+  final HelpController controller=Get.put(HelpController());
+
+  @override
+  void initState() {
+    controller.getHelp();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,21 +100,21 @@ class HelpScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 20.h),
-                      ProfileBox(
+                      Obx(()=>ProfileBox(
                         title: 'Email',
-                        text: 'support@vovault.app',
+                        text: controller.helpModel.value.email.toString(),
                         icon: Icons.lock,
-                      ),
-                      ProfileBox(
-                        title: 'Phone',
-                        text: '+1 (555) 123-4567',
-                        icon: Icons.delete,
-                      ),
-                      ProfileBox(
-                        title: 'Location',
-                        text: '123 Studio Way, Suite 400',
-                        icon: Icons.delete,
-                      ),
+                      )),
+                     Obx(()=> ProfileBox(
+                       title: 'Phone',
+                       text: controller.helpModel.value.phone.toString(),
+                       icon: Icons.delete,
+                     ),),
+                     Obx(()=> ProfileBox(
+                       title: 'Location',
+                       text: controller.helpModel.value.location.toString(),
+                       icon: Icons.delete,
+                     ),)
                     ],
                   ),
                 ),

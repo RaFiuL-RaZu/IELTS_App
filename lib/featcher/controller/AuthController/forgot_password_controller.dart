@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
@@ -31,6 +33,7 @@ class ForgotPasswordController extends GetxController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         forgetToken=response.body['data']['forgetToken'];
         Get.to(()=>VerifyOtp());
+        startResendCountdown();
         CommonSnackBar.show(
           title: "Success",
           message: "Otp sent successfully",
@@ -79,6 +82,64 @@ var verifyToken="";
   }
 
 
+  RxInt resendTimer = 120.obs;
+  Timer? _timer;
+
+  void startResendCountdown() {
+    _timer?.cancel();
+    resendTimer.value = 120;
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (resendTimer.value == 0) {
+        timer.cancel();
+      } else {
+        resendTimer.value--;
+      }
+    });
+  }
+
+  RxBool isResending=false.obs;
+
+  Future<void> resendOtp() async {
+    if (isResending.value || resendTimer.value > 0) {
+      return;
+    }
+
+
+    isResending(true);
+
+    try {
+      Map<String, String> header = {
+        'token':forgetToken
+      };
+      Map<String, dynamic> body = {
+        "email": emailController.text.trim(),
+      };
+
+      final response = await ApiService.patchApi(
+        '${AppUrl.baseUrl}/otp/resend-email-otp',
+        header: header,
+        body:body,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Get.snackbar('Success', 'OTP resent successfully',
+            snackPosition: SnackPosition.TOP);
+        // Start countdown timer
+        startResendCountdown();
+      } else {
+        Get.snackbar('Error', response.message,
+            snackPosition: SnackPosition.TOP);
+      }
+    } catch (e, s) {
+      debugPrint("Resend OTP Error: $e");
+      debugPrint("Stack trace: $s");
+      Get.snackbar('Error', 'Something went wrong',
+          snackPosition: SnackPosition.TOP);
+    } finally {
+      isResending(false);
+    }
+  }
 
   Future<void> resetPassword() async {
     isLoading(true);

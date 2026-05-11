@@ -13,6 +13,10 @@ class PasswordController extends GetxController{
   TextEditingController newPasswordController=TextEditingController();
   TextEditingController confirmPasswordController=TextEditingController();
 
+  RxBool isOldPassword=false.obs;
+  RxBool isNewPassword=false.obs;
+  RxBool isConfirmPassword=false.obs;
+
   RxBool isLoading=false.obs;
 
   Future<void> resetPassword() async {
@@ -24,8 +28,8 @@ class PasswordController extends GetxController{
       };
 
       Map<String, dynamic> body = {
+        "oldPassword": oldPasswordController.text.trim(),
         "newPassword": newPasswordController.text.trim(),
-        "oldPassword": oldPasswordController.text.trim()
       };
 
       final response = await ApiService.patchApi(
@@ -38,7 +42,7 @@ class PasswordController extends GetxController{
         Get.back();
         CommonSnackBar.show(
           title: "Success",
-          message: "Password change successfully",
+          message: "Password update successfully",
           isSuccess: true,
         );
       }
