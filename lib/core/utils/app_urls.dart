@@ -29,6 +29,7 @@ class AppUrl{
   static  String subscription ="$baseUrl/subscriptions/plans";
   static  String getMyPlan ="$baseUrl/subscriptions/my-subscriptions";
   static  String getHelp ="$baseUrl/setting/help-center";
+  static  String getNotify ="$baseUrl/notifications/my-notifications";
   static  String getPayment ="$baseUrl/stripe/create-subscription-session";
   static  String postComment({required String id}) =>"$baseUrl/comments/create/$id";
   static  String createLike({required String id}) =>"$baseUrl/likes/audition-toggle-like/$id";

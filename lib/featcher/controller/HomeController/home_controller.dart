@@ -1,5 +1,5 @@
-import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:flutter/cupertino.dart';
+
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:justtsham/core/constant/prefs_helper.dart';
@@ -10,30 +10,16 @@ import '../../model/HomeModel/audition_model.dart';
 
 class HomeController extends GetxController {
 
-  final recorderController = RecorderController();
-  final playerController = PlayerController();
+
+  final AudioPlayer player = AudioPlayer();
+
+  RxString currentUrl = "".obs;
+  RxBool isPlaying = false.obs;
+
+  Rx<Duration> position = Duration.zero.obs;
+  Rx<Duration> duration = Duration.zero.obs;
 
   RxDouble progress = 0.0.obs;
-  Duration duration = Duration.zero;
-  Duration position = Duration.zero;
-  void updateProgress() {
-    if (duration.inMilliseconds == 0) return;
-
-    progress.value =
-        position.inMilliseconds / duration.inMilliseconds;
-  }
-  void _initAudioListener() {
-    player.positionStream.listen((pos) {
-      position = pos;
-      updateProgress();
-    });
-
-    player.durationStream.listen((dur) {
-      if (dur != null) {
-        duration = dur;
-      }
-    });
-  }
 
   @override
   void onInit() {
@@ -41,53 +27,55 @@ class HomeController extends GetxController {
     _initAudioListener();
   }
 
+  void _initAudioListener() {
+    player.positionStream.listen((pos) {
+      position.value = pos;
+      updateProgress();
+    });
 
-
-  final AudioPlayer player = AudioPlayer();
-
-  RxString currentUrl = "".obs;
-  RxBool isPlaying = false.obs;
-
-  Future<void> playAudio(String url) async {
-    try {
-      if (currentUrl.value == url && player.playing) {
-        await player.pause();
-        isPlaying.value = false;
-        return;
+    player.durationStream.listen((dur) {
+      if (dur != null) {
+        duration.value = dur;
       }
+    });
+  }
 
-      currentUrl.value = url;
+  void updateProgress() {
+    if (duration.value.inMilliseconds == 0) return;
 
-      await player.setUrl(url);
-      await player.play();
-
-      isPlaying.value = true;
-
-      player.playerStateStream.listen((state) {
-        if (state.processingState == ProcessingState.completed) {
-          isPlaying.value = false;
-        }
-      });
-
-    } catch (e) {
-      print("Audio error: $e");
-    }
+    progress.value =
+        position.value.inMilliseconds / duration.value.inMilliseconds;
   }
 
   Future<void> togglePlay(String url) async {
-    if (currentUrl.value != url) {
-      await player.pause();
-      await playerController.preparePlayer(path: url);
-      currentUrl.value = url;
-    }
+    try {
+      debugPrint("url : $url");
+      if (currentUrl.value != url) {
+        await player.stop();
+        currentUrl.value = url;
+        await player.setUrl(url);
+        await player.play();
+        isPlaying.value = true;
+        return;
+      }
 
-    if (player.playing) {
-      await player.pause();
-      isPlaying.value = false;
-    } else {
-      await player.play();
-      isPlaying.value = true;
+      if (player.playing) {
+        await player.pause();
+        isPlaying.value = false;
+      } else {
+        await player.play();
+        isPlaying.value = true;
+      }
+    } catch (e) {
+      debugPrint("Audio Error: $e");
     }
+  }
+
+  String formatTime(Duration d) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    final m = two(d.inMinutes.remainder(60));
+    final s = two(d.inSeconds.remainder(60));
+    return "$m:$s";
   }
 
   @override
@@ -97,7 +85,7 @@ class HomeController extends GetxController {
   }
 
 
-
+  /// ================= UI STATES =================
 
   RxInt activeCommentIndex = (-1).obs;
 
@@ -111,6 +99,8 @@ class HomeController extends GetxController {
   }
 
   TextEditingController commentController = TextEditingController();
+
+  /// ================= FILTER =================
 
   RxInt selectedIndex = 0.obs;
 
@@ -153,11 +143,11 @@ class HomeController extends GetxController {
     }
 
     filteredList.value = auditionList.where((e) {
-      return normalize(e.category ?? "") ==
-          normalize(selected);
+      return normalize(e.category ?? "") == normalize(selected);
     }).toList();
   }
 
+  /// ================= API =================
 
   Future<void> getHomeData() async {
     isLoading(true);
@@ -199,8 +189,11 @@ class HomeController extends GetxController {
         'comment': commentController.text.trim()
       };
 
-      final response =
-      await ApiService.postApi(AppUrl.postComment(id: id), body, header: header);
+      final response = await ApiService.postApi(
+        AppUrl.postComment(id: id),
+        body,
+        header: header,
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         commentController.clear();
@@ -215,14 +208,17 @@ class HomeController extends GetxController {
     }
   }
 
-
   Future<void> createLike({required String id}) async {
     try {
       Map<String, String> header = {
         "token": PrefsHelper.token,
       };
 
-      await ApiService.postApi(AppUrl.createLike(id: id), {}, header: header);
+      await ApiService.postApi(
+        AppUrl.createLike(id: id),
+        {},
+        header: header,
+      );
 
       getHomeData();
     } catch (e) {

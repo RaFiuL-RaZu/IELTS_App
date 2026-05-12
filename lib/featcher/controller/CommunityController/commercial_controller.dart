@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class CommercialController extends GetxController {

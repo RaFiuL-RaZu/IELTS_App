@@ -1,3 +1,4 @@
+
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,10 +10,7 @@ import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/core/widgets/common_text.dart';
 import 'package:justtsham/featcher/controller/HomeController/home_controller.dart';
 import 'package:justtsham/featcher/model/HomeModel/audition_model.dart';
-
-import '../../../core/utils/app_image.dart';
 import '../../../core/widgets/commom_image.dart';
-import '../CummunityScreen/community_screen.dart';
 import 'notification_screen.dart';
 
 
@@ -283,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       width: 1,
                                     ),
                                   ),
-                                  child: Row(
+                                  child:Row(
                                     children: [
                                       Obx(() {
                                         final url = AppUrl.imageUrl + list.auditionFile;
@@ -312,30 +310,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                       SizedBox(width: 10.w),
 
-                                      /// WAVE
+                                      /// PROGRESS BAR
                                       Expanded(
-                                        child: AudioFileWaveforms(
-                                          size: Size(double.infinity, 50),
-                                          playerController: controller.playerController,
-                                          waveformType: WaveformType.fitWidth,
-                                          enableSeekGesture: true,
-                                        ),
+                                        child: Obx(() {
+                                          final url = AppUrl.imageUrl + list.auditionFile;
+                                          final showProgress = controller.currentUrl.value == url;
+                                          return LinearProgressIndicator(
+                                            value: showProgress ? controller.progress.value : 0.0,
+                                            minHeight: 3,
+                                            backgroundColor: Colors.grey.shade300,
+                                            color: AppColor.primary,
+                                          );
+                                        }),
                                       ),
 
                                       SizedBox(width: 10.w),
 
-                                      /// TIME
-                                      Flexible(
-                                        child: Text(
-                                          "1:24",
-                                          overflow: TextOverflow.ellipsis,
+                                      Obx(() {
+                                        final url = AppUrl.imageUrl + list.auditionFile;
+                                        final isCurrentPlaying = controller.currentUrl.value == url;
+                                        if (!isCurrentPlaying) return const SizedBox.shrink();
+                                        return Text(
+                                          controller.formatTime(controller.position.value),
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w700,
                                             color: AppColor.secondary,
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                      }),
                                     ],
                                   )
                                 ),
