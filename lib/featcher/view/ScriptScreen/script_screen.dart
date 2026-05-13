@@ -8,6 +8,7 @@ import 'package:justtsham/core/widgets/common_text_field.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
 import 'package:justtsham/featcher/controller/ScriptController/script_controller.dart';
 import 'package:justtsham/featcher/model/ScriptModel/script_model.dart';
+import 'package:justtsham/featcher/view/ScriptScreen/practice_screen.dart';
 import '../CummunityScreen/commercial_screen.dart';
 
 class ScriptScreen extends StatefulWidget {
@@ -111,10 +112,10 @@ class _ScriptScreenState extends State<ScriptScreen> {
                             ),
                           ),
                           SizedBox(height: 20.h),
-                         Obx((){
+                          Obx((){
                            if(controller.isLoading.value){
                              return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
-                           }else if(controller.scriptList.isEmpty){
+                           }else if(controller.filteredScriptList.isEmpty){
                              return Center(child: CommonText(title: "No Data Found"),);
                            }else{
                              return ListView.builder(
@@ -126,7 +127,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                    ScriptModel script = controller.filteredScriptList[index];
                                    return GestureDetector(
                                      onTap: (){
-                                       Get.to(()=>CommercialScreen(title: script.content.toString(),));
+                                       Get.to(()=>CommercialScreen(title: script.content.toString(),id: script.id.toString(), page: 'script',));
                                      },
                                      child: Container(
                                        padding: EdgeInsets.symmetric(vertical: 20),
@@ -153,31 +154,53 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                        child: Padding(
                                          padding: const EdgeInsets.symmetric(
                                            horizontal: 16,
-                                           vertical: 16,
+                                           vertical: 5,
                                          ),
                                          child: Column(
                                            crossAxisAlignment: CrossAxisAlignment.start,
                                            children: [
-                                             Container(
-                                               height: 24.h,
-                                               width: 93.w,
-                                               decoration: BoxDecoration(
-                                                 borderRadius: BorderRadius.circular(20),
-                                                 color: Color(0xFFE5E2FD),
-                                               ),
-                                               child: Center(
-                                                 child: CommonText(
-                                                   title: script.category?? "",
-                                                   fSize: 12,
-                                                   fWeight: FontWeight.w500,
-                                                   color: AppColor.primary,
-                                                 ),
-                                               ),
-                                             ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Container(
+                                                  height: 24.h,
+                                                  width: 93.w,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(20),
+                                                    color: Color(0xFFE5E2FD),
+                                                  ),
+                                                  child: Center(
+                                                    child: CommonText(
+                                                      title: script.category?? "",
+                                                      fSize: 12,
+                                                      fWeight: FontWeight.w500,
+                                                      color: AppColor.primary,
+                                                    ),
+                                                  ),
+                                                ),
+                                                script.isComplete==false ? SizedBox() : Container(
+                                                  height: 24.h,
+                                                  width: 93.w,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(20),
+                                                    color: Colors.green.shade200,
+                                                  ),
+                                                  child: Center(
+                                                    child: CommonText(
+                                                        title: script.category?? "",
+                                                        fSize: 12,
+                                                        fWeight: FontWeight.w500,
+                                                        color: Color(0xFF00C950)
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                              SizedBox(height: 7.h),
                                              CommonText(
                                                title: script.title ?? "",
                                                fSize: 16,
+                                               maxLine: 1,
                                                fWeight: FontWeight.w600,
                                                color: AppColor.primary,
                                              ),
@@ -185,11 +208,12 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                              CommonText(
                                                title: script.content ?? "",
                                                fSize: 14,
+                                               maxLine: 3,
                                                fWeight: FontWeight.w400,
                                                color: AppColor.secondary,
                                              ),
                                              SizedBox(height: 10.h),
-                                             CommonButton(titleText: " Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),)
+                                            script.isComplete==false ?  CommonButton(titleText: " Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),) : SizedBox()
 
                                            ],
                                          ),
@@ -466,7 +490,11 @@ class _ScriptScreenState extends State<ScriptScreen> {
                             Row(
                               spacing: 10,
                               children: [
-                                Expanded(child: CommonButton(titleText: " Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),)),
+                                Expanded(child: CommonButton(
+                                  onTap: (){
+                                    Get.to(()=>PracticeScreen(content: controller.script.value, title: controller.selectedCategory.value,));
+                                  },
+                                  titleText: " Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),)),
                                 Container(
                                   height: 48.h,
                                   width: 48.w,

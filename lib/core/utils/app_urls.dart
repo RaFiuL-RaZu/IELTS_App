@@ -3,9 +3,9 @@
 class AppUrl{
 
 
-  static const String baseUrl = "http://10.10.10.31:8888/api/v1";
-  static const String imageUrl = "http://10.10.10.31:8888";
-  static const String socketUrl = "http://10.10.10.119:4010/api/v1";
+  static const String baseUrl = "https://nj3lnpq3-8888.inc1.devtunnels.ms/api/v1";
+  static const String imageUrl = "https://nj3lnpq3-8888.inc1.devtunnels.ms";
+  static const String socketUrl = "http://10.10.5.47:8888/api/v1";
 
 
 
@@ -21,10 +21,14 @@ class AppUrl{
   static const String resetPassword ="$baseUrl/auth/forgot-password-reset";
   static const String changePassword ="$baseUrl/auth/change-password";
   static  String getHomeAudition ="$baseUrl/auditions/home-auditions";
+  static  String getCommunityData ="$baseUrl/community";
   static  String getActivity ="$baseUrl/auditions/activity";
   static  String createAudition ="$baseUrl/auditions/create";
+  static  String practiceScript ="$baseUrl/practice-scripts/create";
+  static  String createCommunity ="$baseUrl/community/create-community";
   static  String getMyHistory ="$baseUrl/auditions/my-auditions";
-  static  String getScript ="$baseUrl/scripts/user-scripts";
+  static  String getScript ="$baseUrl/scripts/user-get-admin-scripts";
+  static  String weeklyScript ="$baseUrl/scripts/weekly-scripts";
   static  String createScript ="$baseUrl/openai/script-generator";
   static  String subscription ="$baseUrl/subscriptions/plans";
   static  String getMyPlan ="$baseUrl/subscriptions/my-subscriptions";

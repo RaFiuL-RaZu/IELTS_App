@@ -496,7 +496,7 @@ class _AuditionScreenState extends State<AuditionScreen> {
                     ),
                   ),
                 ),
-
+                SizedBox(width: 5,),
                 Expanded(
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 14, horizontal: 15),

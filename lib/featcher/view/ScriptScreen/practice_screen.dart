@@ -3,20 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
-
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_icons.dart';
 import '../../../core/widgets/common_text.dart';
-import '../../controller/CommunityController/commercial_controller.dart';
+import '../../controller/ScriptController/practice_controller.dart';
 
-class CommercialScreen extends StatelessWidget {
-  CommercialScreen({super.key, required this.title, required this.id, required this.page});
+class PracticeScreen extends StatelessWidget {
+  PracticeScreen({super.key, required this.content, required this.title});
 
+  final String content;
   final String title;
-  final String id;
-  final String page;
 
-  final controller = Get.put(CommercialController());
+  final controller = Get.put(PracticeController());
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +33,9 @@ class CommercialScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 color: const Color(0xFFD2CBFA),
               ),
-              child: const Center(
+              child:  Center(
                 child: CommonText(
-                  title: "COMMERCIAL",
+                  title: title.toUpperCase(),
                   fSize: 10,
                   fWeight: FontWeight.w600,
                 ),
@@ -86,7 +84,7 @@ class CommercialScreen extends StatelessWidget {
                             ),
                             SizedBox(height: 5),
                             CommonText(
-                              title: title,
+                              title: content,
                               fSize: 16,
                               fWeight: FontWeight.w500,
                             ),
@@ -152,7 +150,7 @@ class CommercialScreen extends StatelessWidget {
                                 enableGesture: false,
                                 size: Size(double.infinity, 20),
                                 recorderController:
-                                    controller.recorderController,
+                                controller.recorderController,
                                 waveStyle: const WaveStyle(
                                   waveColor: Colors.black,
                                   showMiddleLine: false,
@@ -233,9 +231,9 @@ class CommercialScreen extends StatelessWidget {
                                         padding: EdgeInsets.all(0.0),
                                         child: Center(
                                           child: Obx(
-                                            () => Icon(
+                                                () => Icon(
                                               controller.playerState.value ==
-                                                      PlayerState.playing
+                                                  PlayerState.playing
                                                   ? Icons.pause
                                                   : Icons.play_arrow,
                                               color: Colors.white,
@@ -252,7 +250,7 @@ class CommercialScreen extends StatelessWidget {
                                     }else{
                                       return GestureDetector(
                                         onTap: () {
-                                          controller.practiceScript(id: id, title: page);
+                                          controller.createCommunity();
                                         },
                                         child: Container(
                                           height: 48.h,
@@ -311,8 +309,8 @@ class CommercialScreen extends StatelessWidget {
                                       border: controller.isRecording.value
                                           ? Border.all(color: Colors.red)
                                           : Border.all(
-                                              color: AppColor.background,
-                                            ),
+                                        color: AppColor.background,
+                                      ),
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(25.0),

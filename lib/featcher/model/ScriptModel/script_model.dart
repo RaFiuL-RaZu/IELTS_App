@@ -8,6 +8,7 @@ class ScriptModel {
   final String? difficulty;
   final String? duration;
   final bool isWeeklyScript;
+  final bool isComplete; // ✅ NEW FIELD
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -21,6 +22,7 @@ class ScriptModel {
     this.difficulty = 'Beginner',
     this.duration = '',
     this.isWeeklyScript = false,
+    this.isComplete = false, // ✅ default
     this.createdAt,
     this.updatedAt,
   });
@@ -36,6 +38,7 @@ class ScriptModel {
       difficulty: json['difficulty'] ?? 'Beginner',
       duration: json['duration'] ?? '',
       isWeeklyScript: json['isWeeklyScript'] ?? false,
+      isComplete: json['isComplete'] ?? false, // ✅ added
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'])
           : null,
@@ -56,6 +59,7 @@ class ScriptModel {
       'difficulty': difficulty ?? 'Beginner',
       'duration': duration ?? '',
       'isWeeklyScript': isWeeklyScript,
+      'isComplete': isComplete,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };

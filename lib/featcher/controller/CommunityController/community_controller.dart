@@ -1,9 +1,15 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:justtsham/core/constant/prefs_helper.dart';
+import 'package:justtsham/core/services/api_services.dart';
+import 'package:justtsham/core/utils/app_urls.dart';
+import 'package:justtsham/featcher/model/CommunityModel/community_model.dart';
 import 'package:waveform_flutter/waveform_flutter.dart';
 
 class CommunityController extends GetxController {
+
+  static CommunityController get instance=>Get.put(CommunityController());
 
   final ValueNotifier<bool> isPlaying = ValueNotifier(false);
 
@@ -73,6 +79,35 @@ class CommunityController extends GetxController {
     final secs = (seconds.value % 60).toString().padLeft(2, '0');
     return "$minutes:$secs";
   }
+  RxBool isLoading=false.obs;
+
+  WeeklyModel weeklyModel=WeeklyModel();
+  
+  Future<void> getCommunity()async{
+    
+    isLoading(true);
+    
+    try{
+      
+      Map<String,String> header={
+        'token':PrefsHelper.token
+      };
+      
+      final response=await ApiService.getApi(AppUrl.weeklyScript,header: header);
+      if(response.statusCode==200 || response.statusCode==201){
+        final data=response.body['data'];
+        weeklyModel=WeeklyModel.fromJson(data);
+      }
+    }catch(e,s){
+      debugPrint("Error Handling : $e");
+      debugPrint("SnackTrack Error : $s");
+    }finally{
+      isLoading(false);
+    }
+  }
+
+
+
 
   @override
   void onClose() {

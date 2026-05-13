@@ -87,7 +87,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         Align(
           alignment: Alignment.bottomCenter,
           child: Container(
-            height: 340.h,
+            height: 360.h,
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
@@ -140,6 +140,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                        : "Continue",
                  buttonRadius: 16,
                  ),
+                SizedBox(height: 20.h),
               ],
             ),
           ),

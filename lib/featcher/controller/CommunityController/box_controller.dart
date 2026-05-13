@@ -1,0 +1,153 @@
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:justtsham/core/constant/prefs_helper.dart';
+import 'package:justtsham/core/services/api_services.dart';
+import 'package:justtsham/core/utils/app_urls.dart';
+import 'package:justtsham/featcher/model/CommunityModel/weekly_model.dart';
+
+import '../../model/HomeModel/audition_model.dart';
+
+class BoxController extends GetxController {
+
+
+  final AudioPlayer player = AudioPlayer();
+
+  RxString currentUrl = "".obs;
+  RxBool isPlaying = false.obs;
+
+  Rx<Duration> position = Duration.zero.obs;
+  Rx<Duration> duration = Duration.zero.obs;
+
+  RxDouble progress = 0.0.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _initAudioListener();
+  }
+
+  void _initAudioListener() {
+    player.positionStream.listen((pos) {
+      position.value = pos;
+      updateProgress();
+    });
+
+    player.durationStream.listen((dur) {
+      if (dur != null) {
+        duration.value = dur;
+      }
+    });
+  }
+
+  void updateProgress() {
+    if (duration.value.inMilliseconds == 0) return;
+
+    progress.value =
+        position.value.inMilliseconds / duration.value.inMilliseconds;
+  }
+
+  Future<void> togglePlay(String url) async {
+    try {
+      debugPrint("url : $url");
+      if (currentUrl.value != url) {
+        await player.stop();
+        currentUrl.value = url;
+        await player.setUrl(url);
+        await player.play();
+        isPlaying.value = true;
+        return;
+      }
+
+      if (player.playing) {
+        await player.pause();
+        isPlaying.value = false;
+      } else {
+        await player.play();
+        isPlaying.value = true;
+      }
+    } catch (e) {
+      debugPrint("Audio Error: $e");
+    }
+  }
+
+  String formatTime(Duration d) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    final m = two(d.inMinutes.remainder(60));
+    final s = two(d.inSeconds.remainder(60));
+    return "$m:$s";
+  }
+
+  @override
+  void onClose() {
+    player.dispose();
+    super.onClose();
+  }
+
+
+  /// ================= UI STATES =================
+
+  RxInt activeCommentIndex = (-1).obs;
+
+  void toggleCommentField(int index) {
+    activeCommentIndex.value =
+    activeCommentIndex.value == index ? -1 : index;
+  }
+
+  void hideCommentField() {
+    activeCommentIndex.value = -1;
+  }
+
+  TextEditingController commentController = TextEditingController();
+
+  /// ================= FILTER =================
+
+  RxInt selectedIndex = 0.obs;
+
+  List<String> items = [
+    "All",
+    "E-Learning",
+    "Character",
+    "Narration",
+    "Video Game",
+    "Animation",
+    "Commercial",
+    "Sports",
+  ];
+
+  RxBool isLoading = false.obs;
+
+  RxList<CommunityModel> communityList = <CommunityModel>[].obs;
+
+
+
+  /// ================= API =================
+
+  Future<void> getBoxData() async {
+    isLoading(true);
+
+    try {
+      Map<String, String> header = {
+        "token": PrefsHelper.token,
+      };
+
+      final response =
+      await ApiService.getApi(AppUrl.getCommunityData, header: header);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.body['data']['communityList'];
+
+        communityList.value = List<CommunityModel>.from(
+          data.map((e) => CommunityModel.fromJson(e)),
+        );
+      }
+    } catch (e, s) {
+      debugPrint("Error: $e");
+      debugPrint("StackTrace: $s");
+    } finally {
+      isLoading(false);
+    }
+  }
+
+}

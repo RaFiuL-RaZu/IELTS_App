@@ -1,21 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:justtsham/core/constant/other_helper.dart';
 import 'package:justtsham/featcher/controller/CommunityController/community_controller.dart';
+import 'package:justtsham/featcher/controller/HomeController/home_controller.dart';
+import 'package:justtsham/featcher/model/CommunityModel/weekly_model.dart';
 
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_icons.dart';
 import '../../../core/utils/app_image.dart';
+import '../../../core/utils/app_urls.dart';
 import '../../../core/widgets/commom_image.dart';
 import '../../../core/widgets/common_text.dart';
+import '../../controller/CommunityController/box_controller.dart';
+import '../../model/HomeModel/audition_model.dart';
 import 'commercial_screen.dart';
 
-class CommunityScreen extends StatelessWidget {
+class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
 
   @override
+  State<CommunityScreen> createState() => _CommunityScreenState();
+}
+
+class _CommunityScreenState extends State<CommunityScreen> {
+  final controller = Get.put(CommunityController());
+  final BoxController boxController=Get.find<BoxController>();
+
+  @override
+  void initState() {
+    controller.getCommunity();
+    boxController.getBoxData();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = Get.put(CommunityController());
     return Scaffold(
       backgroundColor: AppColor.background,
       body: SingleChildScrollView(
@@ -32,308 +52,309 @@ class CommunityScreen extends StatelessWidget {
                 color: AppColor.primary,
               ),
               SizedBox(height: 12.h),
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF180E27), Color(0xFF56397C)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
+             Obx(() {
+               if (controller.isLoading.value) {
+                 return Center(
+                   child: CircularProgressIndicator(color: AppColor.primary),
+                 );
+               }
 
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0xFF6C4DFF).withOpacity(0.20),
-                      offset: Offset(0, 20),
-                      blurRadius: 25,
-                      spreadRadius: -5,
-                    ),
-                    BoxShadow(
-                      color: Color(0xFF6C4DFF).withOpacity(0.20),
-                      offset: Offset(0, 8),
-                      blurRadius: 10,
-                      spreadRadius: -6,
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        spacing: 5,
-                        children: [
-                          Image.asset(
-                            AppIcons.trophy,
-                            height: 15.h,
-                            width: 15.h,
-                          ),
-                          CommonText(
-                            title: "Weekly Challenge",
-                            fSize: 12,
-                            fWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 9.h),
-                      CommonText(
-                        title: "Superhero Movie Trailer",
-                        fSize: 22,
-                        fWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                      SizedBox(height: 10.h),
-                      CommonText(
-                        title:
-                            "Record your best epic movie trailer voice. Think dramatic, powerful, and heroic.",
-                        fSize: 16,
-                        fWeight: FontWeight.w400,
-                        color: Colors.white,
-                      ),
-                      SizedBox(height: 10.h),
-                      CommonText(
-                        title: "3 days, 14:22:08 remaining",
-                        fSize: 12,
-                        fWeight: FontWeight.w400,
-                        color: Colors.white,
-                      ),
-                      SizedBox(height: 10.h),
-                      Container(
-                        height: 48.h,
+               final data = controller.weeklyModel;
+               if (data == null) {
+                 return const SizedBox();
+               }
+
+               return Container(
+                 width: double.infinity,
+                 decoration: BoxDecoration(
+                   borderRadius: BorderRadius.circular(20),
+                   gradient: LinearGradient(
+                     colors: [Color(0xFF180E27), Color(0xFF56397C)],
+                     begin: Alignment.centerLeft,
+                     end: Alignment.centerRight,
+                   ),
+                   boxShadow: [
+                     BoxShadow(
+                       color: Color(0xFF6C4DFF).withOpacity(0.20),
+                       offset: Offset(0, 20),
+                       blurRadius: 25,
+                       spreadRadius: -5,
+                     ),
+                     BoxShadow(
+                       color: Color(0xFF6C4DFF).withOpacity(0.20),
+                       offset: Offset(0, 8),
+                       blurRadius: 10,
+                       spreadRadius: -6,
+                     ),
+                   ],
+                 ),
+                 child: Padding(
+                   padding: const EdgeInsets.symmetric(
+                     horizontal: 16,
+                     vertical: 16,
+                   ),
+                   child: Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Row(
+                         spacing: 5,
+                         children: [
+                           Image.asset(
+                             AppIcons.trophy,
+                             height: 15.h,
+                             width: 15.h,
+                           ),
+                           CommonText(
+                             title: "Weekly Challenge",
+                             fSize: 12,
+                             fWeight: FontWeight.w700,
+                             color: Colors.white,
+                           ),
+                         ],
+                       ),
+                       SizedBox(height: 9.h),
+                       CommonText(
+                         title: data.title ?? "",
+                         maxLine: 2,
+                         fSize: 22,
+                         overflow: TextOverflow.ellipsis,
+                         fWeight: FontWeight.w700,
+                         color: Colors.white,
+                       ),
+                       SizedBox(height: 10.h),
+                       CommonText(
+                         title:
+                         data.content ?? "",
+                         fSize: 16,
+                         maxLine: 3,
+                         overflow: TextOverflow.ellipsis,
+                         fWeight: FontWeight.w400,
+                         color: Colors.white,
+                       ),
+                       SizedBox(height: 10.h),
+                       CommonText(
+                         title: "${OtherHelper.formatDate(data.weeklyScriptExpiryDate.toString())} remaining",
+                         fSize: 12,
+                         fWeight: FontWeight.w400,
+                         color: Colors.white,
+                       ),
+                       SizedBox(height: 10.h),
+                       GestureDetector(
+                         onTap: () {
+                           if(data.isPracticed==false){
+                             Get.to(() => CommercialScreen(title:data.content.toString(), id: data.id.toString(), page: 'community',));
+                           }
+                         },
+                         child: Container(
+                           height: 48.h,
+                           width: double.infinity,
+                           decoration: BoxDecoration(
+                             borderRadius: BorderRadius.circular(16),
+                             color: Color(0xFF7741C1),
+                           ),
+                           child: Center(
+                             child: Row(
+                               mainAxisAlignment: MainAxisAlignment.center,
+                               spacing: 5,
+                               children: [
+                                 CommonText(
+                                   title: data.isPracticed==true ? "Completed" : "Submit Your Take",
+                                   fSize: 20.sp,
+                                   fWeight: FontWeight.w500,
+                                   color: Colors.white,
+                                 ),
+                               ],
+                             ),
+                           ),
+                         ),
+                       ),
+                     ],
+                   ),
+                 ),
+               );
+               ;
+             }),
+              SizedBox(height: 20.h),
+              Obx((){
+                if (boxController.isLoading.value) {
+                  return Center(
+                    child: CircularProgressIndicator(color: AppColor.primary),
+                  );
+                }
+
+                if (boxController.communityList.isEmpty) {
+                  return Center(child: CommonText(title: "No Audition Found"));
+                }return ListView.builder(
+                    itemCount: boxController.communityList.length,
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (context,index){
+                      CommunityModel list = boxController.communityList[index];
+                      return  Container(
+                        margin: EdgeInsets.only(bottom: 16),
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: Color(0xFF7741C1),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            spacing: 5,
-                            children: [
-                              CommonText(
-                                title: "Submit Your Take",
-                                fSize: 20.sp,
-                                fWeight: FontWeight.w500,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 20.h),
-              ListView.builder(
-                itemCount: 3,
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                physics: ScrollPhysics(),
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Get.to(() => CommercialScreen(title: '',));
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(bottom: 16),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.20),
-                            offset: Offset(0, 20),
-                            blurRadius: 25,
-                            spreadRadius: -5,
-                          ),
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.20),
-                            offset: Offset(0, 8),
-                            blurRadius: 10,
-                            spreadRadius: -6,
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: ClipOval(
-                                child: CommonImage(
-                                  imageSrc: AppImage.person,
-                                  imageType: ImageType.png,
-                                  height: 50.h,
-                                  width: 50.h,
-                                  fill: BoxFit.cover,
-                                ),
-                              ),
-                              title: CommonText(
-                                title: "Alex Mercer",
-                                fSize: 14,
-                                fWeight: FontWeight.w700,
-                                color: AppColor.primary,
-                              ),
-                              subtitle: CommonText(
-                                title: "2 hours",
-                                fSize: 12,
-                                fWeight: FontWeight.w500,
-                                color: AppColor.primary,
-                              ),
-                              trailing: Container(
-                                height: 24.h,
-                                width: 93.w,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Color(0xFFE5E2FD),
-                                ),
-                                child: Center(
-                                  child: CommonText(
-                                    title: "Commercial",
-                                    fSize: 12,
-                                    fWeight: FontWeight.w500,
-                                    color: AppColor.primary,
-                                  ),
-                                ),
-                              ),
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(0xFF6C4DFF).withOpacity(0.20),
+                              offset: Offset(0, 20),
+                              blurRadius: 25,
+                              spreadRadius: -5,
                             ),
-                            SizedBox(height: 10.h),
-                            CommonText(
-                              title: "Nissan - Epic Journey (Spec)",
-                              fSize: 14,
-                              fWeight: FontWeight.w600,
-                              color: AppColor.primary,
-                            ),
-                            SizedBox(height: 10.h),
-                            Container(
-                              height: 66.h,
-                              width: double.infinity,
-                              padding: EdgeInsets.symmetric(horizontal: 12.w),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: const Color(0xFFF3F4F6),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  ValueListenableBuilder<bool>(
-                                    valueListenable: controller.isPlaying,
-                                    builder: (context, isPlaying, _) {
-                                      return GestureDetector(
-                                        onTap: controller.togglePlay,
-                                        child: Container(
-                                          height: 39.h,
-                                          width: 39.h,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xff3C2A5D),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            isPlaying
-                                                ? Icons.pause
-                                                : Icons.play_arrow,
-                                            size: 20,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  SizedBox(width: 15.w),
-                                  Expanded(
-                                    child: SizedBox(
-                                      height: 48.h,
-                                      child: CustomPaint(
-                                        painter: CleanWavePainter(),
-                                      ),
-                                    ),
-                                  ),
-
-                                  SizedBox(width: 15.w),
-
-                                  CommonText(
-                                    title: "1:24",
-                                    fSize: 12,
-                                    fWeight: FontWeight.w700,
-                                    color: AppColor.secondary,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 14.h),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  spacing: 20,
-                                  children: [
-                                    Row(
-                                      spacing: 5,
-                                      children: [
-                                        Image.asset(
-                                          AppIcons.love,
-                                          height: 20.h,
-                                          width: 20.w,
-                                          fit: BoxFit.cover,
-                                        ),
-                                        CommonText(
-                                          title: "234",
-                                          color: AppColor.secondary,
-                                          fSize: 12,
-                                          fWeight: FontWeight.w700,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      children: [
-                                        Image.asset(
-                                          AppIcons.message,
-                                          height: 20.h,
-                                          width: 20.w,
-                                          fit: BoxFit.cover,
-                                        ),
-                                        CommonText(
-                                          title: "12",
-                                          color: AppColor.secondary,
-                                          fSize: 12,
-                                          fWeight: FontWeight.w700,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                Image.asset(
-                                  AppIcons.fav,
-                                  height: 20.h,
-                                  width: 20.w,
-                                  fit: BoxFit.cover,
-                                ),
-                              ],
+                            BoxShadow(
+                              color: Color(0xFF6C4DFF).withOpacity(0.20),
+                              offset: Offset(0, 8),
+                              blurRadius: 10,
+                              spreadRadius: -6,
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                leading: ClipOval(
+                                  child: CommonImage(
+                                    imageSrc: (list.user?.profileImage != null)
+                                        ? AppUrl.imageUrl + list.user!.profileImage!
+                                        : "",
+                                    imageType: ImageType.network,
+                                    height: 50.h,
+                                    width: 50.h,
+                                    fill: BoxFit.cover,
+                                  ),
+                                ),
+                                title: CommonText(
+                                  title: list.user?.fullName ?? "",
+                                  fSize: 14,
+                                  fWeight: FontWeight.w700,
+                                  color: AppColor.primary,
+                                ),
+                                subtitle: CommonText(
+                                  title: OtherHelper.timeAgo(list.createdAt.toString()),
+                                  fSize: 12,
+                                  fWeight: FontWeight.w500,
+                                  color: AppColor.primary,
+                                ),
+                                trailing: Container(
+                                  height: 24.h,
+                                  width: 93.w,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Color(0xFFE5E2FD),
+                                  ),
+                                  child: Center(
+                                    child: CommonText(
+                                      title: list.category.toString(),
+                                      fSize: 12,
+                                      fWeight: FontWeight.w500,
+                                      color: AppColor.primary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 10.h),
+                              CommonText(
+                                title: list.category.toString(),
+                                fSize: 14,
+                                fWeight: FontWeight.w600,
+                                color: AppColor.primary,
+                              ),
+                              SizedBox(height: 10.h),
+                              Container(
+                                  height: 66.h,
+                                  width: double.infinity,
+                                  padding: EdgeInsets.symmetric(horizontal: 12.w),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: const Color(0xFFF3F4F6),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child:Row(
+                                    children: [
+                                      Obx(() {
+                                        final url = AppUrl.imageUrl + (list.audioFile ?? "");
+
+                                        final isPlaying =
+                                            boxController.currentUrl.value == url &&
+                                                controller.isPlaying.value;
+
+                                        return GestureDetector(
+                                          onTap: () => boxController.togglePlay(url),
+                                          child: Container(
+                                            height: 39.h,
+                                            width: 39.h,
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xff3C2A5D),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              isPlaying ? Icons.pause : Icons.play_arrow,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        );
+                                      }),
+
+                                      SizedBox(width: 10.w),
+
+                                      /// PROGRESS BAR
+                                      Expanded(
+                                        child: Obx(() {
+                                          final url = AppUrl.imageUrl + (list.audioFile ?? "");
+
+                                          final showProgress = boxController.currentUrl.value == url;
+
+                                          return LinearProgressIndicator(
+                                            value: showProgress ? boxController.progress.value : 0.0,
+                                            minHeight: 3,
+                                            backgroundColor: Colors.grey.shade300,
+                                            color: AppColor.primary,
+                                          );
+                                        }),
+                                      ),
+
+                                      SizedBox(width: 10.w),
+
+                                      Obx(() {
+                                        final url = AppUrl.imageUrl + (list.audioFile ?? "");
+
+                                        final isCurrentPlaying = boxController.currentUrl.value == url;
+
+                                        if (!isCurrentPlaying) return const SizedBox.shrink();
+
+                                        return Text(
+                                          boxController.formatTime(boxController.position.value),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColor.secondary,
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  )
+                              ),
+                              SizedBox(height: 14.h),
+                            ],
+                          ),
+                        ),
+                      );
+                    });
+              }),
             ],
           ),
         ),

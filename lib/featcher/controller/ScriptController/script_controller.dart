@@ -3,6 +3,8 @@
 import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:justtsham/core/constant/prefs_helper.dart';
@@ -12,6 +14,8 @@ import 'package:justtsham/featcher/model/ScriptModel/script_model.dart';
 
 class ScriptController extends GetxController{
 
+  static ScriptController get instance=>Get.put(ScriptController());
+
   RxList<ScriptModel> filteredScriptList = <ScriptModel>[].obs;
   TextEditingController searchController = TextEditingController();
   @override
@@ -19,6 +23,7 @@ class ScriptController extends GetxController{
     super.onInit();
     filteredScriptList.value = scriptList;
   }
+
 
   void searchScripts(String query) {
     String selectedCategory = items[selectedTab.value];
@@ -142,36 +147,38 @@ class ScriptController extends GetxController{
 
   RxList<ScriptModel> scriptList=<ScriptModel>[].obs;
 
-  Future<void> getScript()async{
+  Future<void> getScript() async {
+    debugPrint("GetScript");
 
     isLoading(true);
 
-    try{
-      
-      Map<String,String> header={
-        "token":PrefsHelper.token
+    try {
+      Map<String, String> header = {
+        "token": PrefsHelper.token
       };
-      
-      final response= await ApiService.getApi(AppUrl.getScript,header: header);
 
-      if(response.statusCode==200 || response.statusCode==201){
-        final data=response.body['data']['scripts'];
+      final response =
+      await ApiService.getApi(AppUrl.getScript, header: header);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+
+        final data = response.body['data']['result'];
+
         if (data is List) {
-          scriptList.value = data
-              .map((e) => ScriptModel.fromJson(e))
-              .toList()
-              .cast<ScriptModel>();
-          filteredScriptList.value = scriptList;
-      }}
-
-    }catch(e,s){
-      debugPrint("DebugPrint : $e");
-      debugPrint("SnackTrack : $s");
-    }finally{
+          scriptList.value =
+              data.map((e) => ScriptModel.fromJson(e)).toList();
+          filteredScriptList.value=scriptList;
+        }
+        debugPrint("API FULL RESPONSE: ${response.body}");
+        debugPrint("SCRIPT LIST LENGTH: ${scriptList.length}");
+        debugPrint("FILTER LIST LENGTH: ${filteredScriptList.length}");
+      }
+    } catch (e, s) {
+      debugPrint("Error: $e");
+      debugPrint("Stack: $s");
+    } finally {
       isLoading(false);
     }
-
-
   }
 
 

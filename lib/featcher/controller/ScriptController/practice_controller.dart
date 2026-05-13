@@ -13,7 +13,7 @@ import '../../../core/constant/prefs_helper.dart';
 import '../../../core/services/api_services.dart';
 import '../../../core/utils/app_urls.dart';
 
-class CommercialController extends GetxController {
+class PracticeController extends GetxController {
   final recorderController = RecorderController();
   late final PlayerController playerController;
 
@@ -100,17 +100,17 @@ class CommercialController extends GetxController {
       totalDuration.value = await playerController.getDuration();
 
       currentPosition.value = 0;
-      
+
       // Set recordedPath so play/pause button works for uploaded audio too
       recordedPath = path;
-      
+
       isUploadedAudio.value = true;
       isRecorded.value = true;
       playerState.value = playerController.playerState;
-      
+
       // Small delay to ensure player is ready
       await Future.delayed(const Duration(milliseconds: 100));
-      
+
       await playerController.startPlayer();
 
       debugPrint("Uploaded audio prepared and playing: $path");
@@ -149,7 +149,7 @@ class CommercialController extends GetxController {
     } catch (_) {}
 
     try {
-    playerController.dispose();
+      playerController.dispose();
     } catch (e) {
       debugPrint("Player dispose ignored: $e");
     }
@@ -286,7 +286,7 @@ class CommercialController extends GetxController {
 
 
 
-  Future<void> practiceScript({required String id, required String title}) async {
+  Future<void> createCommunity() async {
     isLoading(true);
 
     try {
@@ -300,36 +300,32 @@ class CommercialController extends GetxController {
 
       Map<String,dynamic> body = {
         'data':jsonEncode({
-          "scriptId": id,
+          "category":ScriptController.instance.selectedCategory.value,
+          "toneStyle":ScriptController.instance.selectedTone.value,
+          "duration":ScriptController.instance.selectedTime.value,
+          "content":ScriptController.instance.script.value,
         })
       };
       debugPrint("saveAudition3 :");
 
       final response = await ApiService.audioFileUpload(
-        url: AppUrl.practiceScript,
+        url: AppUrl.createCommunity,
         body: body,
         header: header,
         method: "POST",
         filePath: selectedAudioFile != null && selectedAudioFile!.path.isNotEmpty
             ? selectedAudioFile!.path
             : recordedPath ?? "",
-        fileField: "practiceScriptFile",
+        fileField: "communityAudioFile",
       );
       debugPrint("saveAudition4 :");
       debugPrint("Response: ${response.body}");
       debugPrint("Response: ${response.statusCode}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        debugPrint("Response: ${response.body}");
-        debugPrint("Response: ${response.statusCode}");
-        if(title=="script"){
-          Get.back();
-          ScriptController.instance.getScript();
-        }else{
-          Get.back();
-          CommunityController.instance.getCommunity();
-
-        }
+        Get.back();
+        Get.back();
+        Get.back();
       }
     } catch (e, s) {
       debugPrint("Error: $e");
