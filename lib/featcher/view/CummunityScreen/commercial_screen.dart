@@ -119,8 +119,9 @@ class CommercialScreen extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
                           Obx(() {
                             final isRecorded = controller.isRecorded.value;
 
@@ -333,21 +334,21 @@ class CommercialScreen extends StatelessWidget {
                               );
                             }
                           }),
-                          SizedBox(height: 10),
-                          CommonButton(
-                            onTap: (){
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return Dialog(
-                                    insetPadding: EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                      BorderRadius.circular(20),
-                                    ),
-                                    child: Container(
+                            SizedBox(height: 10),
+                            CommonButton(
+                              onTap: (){
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return Dialog(
+                                      insetPadding: EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                        BorderRadius.circular(20),
+                                      ),
+                                      child: Container(
                                       width: double.infinity,
                                       height: 460.h,
                                       decoration: BoxDecoration(
@@ -523,7 +524,7 @@ class CommercialScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                ),
+                ),)
               ],
             ),
           ),

@@ -11,6 +11,17 @@ class CommunityController extends GetxController {
 
   static CommunityController get instance=>Get.put(CommunityController());
 
+
+  var expandedIndex = (-1).obs;
+
+  void toggleExpand(int index) {
+    if (expandedIndex.value == index) {
+      expandedIndex.value = -1;
+    } else {
+      expandedIndex.value = index;
+    }
+  }
+
   final ValueNotifier<bool> isPlaying = ValueNotifier(false);
 
   void togglePlay() {

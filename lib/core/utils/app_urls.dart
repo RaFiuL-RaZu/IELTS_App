@@ -37,6 +37,7 @@ class AppUrl{
   static  String getPayment ="$baseUrl/stripe/create-subscription-session";
   static  String postComment({required String id}) =>"$baseUrl/comments/create/$id";
   static  String createLike({required String id}) =>"$baseUrl/likes/audition-toggle-like/$id";
+  static  String getComment({required String id}) =>"$baseUrl/comments/all-comment/$id";
 
 
 }

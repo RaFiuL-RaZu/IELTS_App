@@ -12,6 +12,8 @@ import '../../model/HomeModel/audition_model.dart';
 class BoxController extends GetxController {
 
 
+
+
   final AudioPlayer player = AudioPlayer();
 
   RxString currentUrl = "".obs;

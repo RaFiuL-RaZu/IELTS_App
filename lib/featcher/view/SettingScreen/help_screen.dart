@@ -44,81 +44,87 @@ class _HelpScreenState extends State<HelpScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 20.h),
-              Container(
-                margin: EdgeInsets.only(bottom: 16),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.white,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  child: Column(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Container(
-                          height: 63.h,
-                          width: 63.w,
-                          decoration: BoxDecoration(
-                            color: AppColor.background,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 3,
+              Obx((){
+                if(controller.isLoading.value){
+                  return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
+                }else{
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 16),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                      child: Column(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Container(
+                              height: 63.h,
+                              width: 63.w,
+                              decoration: BoxDecoration(
+                                color: AppColor.background,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 3,
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(10.0),
-                            child: Center(
-                              child: Image.asset(
-                                AppIcons.faq,
-                                height: 31.h,
-                                width: 31.w,
-                                color: AppColor.primary,
-                                fit: BoxFit.fill,
+                              child: Padding(
+                                padding: EdgeInsets.all(10.0),
+                                child: Center(
+                                  child: Image.asset(
+                                    AppIcons.faq,
+                                    height: 31.h,
+                                    width: 31.w,
+                                    color: AppColor.primary,
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                      SizedBox(height: 20.h),
-                      Center(
-                        child: CommonText(
-                          align: TextAlign.center,
-                          title:
+                          SizedBox(height: 20.h),
+                          Center(
+                            child: CommonText(
+                              align: TextAlign.center,
+                              title:
                               "We're here to help! Reach out to us through any of the channels below.",
-                          fSize: 14,
-                          fWeight: FontWeight.w500,
-                          color: AppColor.secondary,
-                        ),
+                              fSize: 14,
+                              fWeight: FontWeight.w500,
+                              color: AppColor.secondary,
+                            ),
+                          ),
+                          SizedBox(height: 20.h),
+                          Obx(()=>ProfileBox(
+                            title: 'Email',
+                            text: controller.helpModel.value.email.toString(),
+                            icon: Icons.lock,
+                          )),
+                          Obx(()=> ProfileBox(
+                            title: 'Phone',
+                            text: controller.helpModel.value.phone.toString(),
+                            icon: Icons.delete,
+                          ),),
+                          Obx(()=> ProfileBox(
+                            title: 'Location',
+                            text: controller.helpModel.value.location.toString(),
+                            icon: Icons.delete,
+                          ),)
+                        ],
                       ),
-                      SizedBox(height: 20.h),
-                      Obx(()=>ProfileBox(
-                        title: 'Email',
-                        text: controller.helpModel.value.email.toString(),
-                        icon: Icons.lock,
-                      )),
-                     Obx(()=> ProfileBox(
-                       title: 'Phone',
-                       text: controller.helpModel.value.phone.toString(),
-                       icon: Icons.delete,
-                     ),),
-                     Obx(()=> ProfileBox(
-                       title: 'Location',
-                       text: controller.helpModel.value.location.toString(),
-                       icon: Icons.delete,
-                     ),)
-                    ],
-                  ),
-                ),
-              ),
+                    ),
+                  );
+                }
+              }),
             ],
           ),
         ),

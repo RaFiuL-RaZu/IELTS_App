@@ -25,11 +25,13 @@ class CommunityScreen extends StatefulWidget {
 
 class _CommunityScreenState extends State<CommunityScreen> {
   final controller = Get.put(CommunityController());
-  final BoxController boxController=Get.find<BoxController>();
+  final BoxController boxController=Get.put(BoxController());
 
   @override
   void initState() {
-    controller.getCommunity();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.getCommunity();
+    });
     boxController.getBoxData();
     super.initState();
   }
@@ -52,7 +54,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 color: AppColor.primary,
               ),
               SizedBox(height: 12.h),
-             Obx(() {
+              Obx(() {
                if (controller.isLoading.value) {
                  return Center(
                    child: CircularProgressIndicator(color: AppColor.primary),
@@ -263,12 +265,37 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                 ),
                               ),
                               SizedBox(height: 10.h),
-                              CommonText(
-                                title: list.category.toString(),
-                                fSize: 14,
-                                fWeight: FontWeight.w600,
-                                color: AppColor.primary,
-                              ),
+                              Obx(() {
+                                final isExpanded = controller.expandedIndex.value == index;
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CommonText(
+                                      title: list.content.toString(),
+                                      fSize: 14,
+                                      maxLine: isExpanded ? null : 3,
+                                      overflow:
+                                      isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                                      fWeight: FontWeight.w600,
+                                      color: AppColor.primary,
+                                    ),
+
+                                    SizedBox(height: 4),
+
+                                    GestureDetector(
+                                      onTap: () => controller.toggleExpand(index),
+                                      child: Text(
+                                        isExpanded ? "See less" : "See more",
+                                        style: TextStyle(
+                                          color: AppColor.primary,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }),
                               SizedBox(height: 10.h),
                               Container(
                                   height: 66.h,
@@ -311,7 +338,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
                                       SizedBox(width: 10.w),
 
-                                      /// PROGRESS BAR
                                       Expanded(
                                         child: Obx(() {
                                           final url = AppUrl.imageUrl + (list.audioFile ?? "");

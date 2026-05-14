@@ -17,6 +17,7 @@ class Assets {
   static const String iconDownload = 'assets/icon/download.png';
   static const String iconDrive = 'assets/icon/drive.png';
   static const String iconDrop = 'assets/icon/drop.png';
+  static const String iconFakeLove = 'assets/icon/fakeLove.png';
   static const String iconFaq = 'assets/icon/faq.png';
   static const String iconFav = 'assets/icon/fav.png';
   static const String iconFlag = 'assets/icon/flag.png';

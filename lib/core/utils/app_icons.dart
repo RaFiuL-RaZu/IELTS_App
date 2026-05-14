@@ -37,5 +37,6 @@ class AppIcons{
   static const drop ="$baseIcons/drop.png";
   static const tablet ="$baseIcons/tablet.png";
   static const send ="$baseIcons/sendIcon.png";
+  static const fakeLove ="$baseIcons/fakeLove.png";
 
 }

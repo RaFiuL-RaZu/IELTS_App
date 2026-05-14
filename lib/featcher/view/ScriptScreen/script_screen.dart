@@ -127,7 +127,9 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                    ScriptModel script = controller.filteredScriptList[index];
                                    return GestureDetector(
                                      onTap: (){
-                                       Get.to(()=>CommercialScreen(title: script.content.toString(),id: script.id.toString(), page: 'script',));
+                                      if(script.isComplete==false){
+                                        Get.to(()=>CommercialScreen(title: script.content.toString(),id: script.id.toString(), page: 'script',));
+                                      }
                                      },
                                      child: Container(
                                        padding: EdgeInsets.symmetric(vertical: 20),
@@ -187,7 +189,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                                   ),
                                                   child: Center(
                                                     child: CommonText(
-                                                        title: script.category?? "",
+                                                        title: "Completed",
                                                         fSize: 12,
                                                         fWeight: FontWeight.w500,
                                                         color: Color(0xFF00C950)
@@ -494,7 +496,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                   onTap: (){
                                     Get.to(()=>PracticeScreen(content: controller.script.value, title: controller.selectedCategory.value,));
                                   },
-                                  titleText: " Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),)),
+                                  titleText: "Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),)),
                                 Container(
                                   height: 48.h,
                                   width: 48.w,
