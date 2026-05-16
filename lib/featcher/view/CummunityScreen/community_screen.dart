@@ -225,14 +225,22 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
                                 leading: ClipOval(
-                                  child: CommonImage(
-                                    imageSrc: (list.user?.profileImage != null)
-                                        ? AppUrl.imageUrl + list.user!.profileImage!
-                                        : "",
+                                  child: (list.user?.profileImage?.isNotEmpty ?? false)
+                                      ? CommonImage(
+                                    imageSrc: AppUrl.imageUrl + list.user!.profileImage!,
                                     imageType: ImageType.network,
                                     height: 50.h,
                                     width: 50.h,
                                     fill: BoxFit.cover,
+                                  )
+                                      : Container(
+                                    height: 50.h,
+                                    width: 50.h,
+                                    color: Colors.grey.shade300,
+                                    child: const Icon(
+                                      Icons.person,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                                 title: CommonText(

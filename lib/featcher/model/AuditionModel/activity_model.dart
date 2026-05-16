@@ -4,6 +4,7 @@ class ActivityModel {
   final int? totalSubmitted;
   final int? totalBooked;
   final int? totalRejected;
+  final int? totalAuditionCount;
   final int? thisMonthTotalBook;
 
   ActivityModel({
@@ -12,6 +13,7 @@ class ActivityModel {
     this.totalSubmitted,
     this.totalBooked,
     this.totalRejected,
+    this.totalAuditionCount,
     this.thisMonthTotalBook,
   });
 
@@ -23,6 +25,7 @@ class ActivityModel {
       totalCallBack: json['totalCallBack'] ?? 0,
       totalSubmitted: json['totalSubmitted'] ?? 0,
       totalBooked: json['totalBooked'] ?? 0,
+      totalAuditionCount: json['totalAuditionCount'] ?? 0,
       totalRejected: json['totalRejected'] ?? 0,
       thisMonthTotalBook: json['thisMonthTotalBook'] ?? 0,
     );
@@ -34,6 +37,7 @@ class ActivityModel {
       'totalCallBack': totalCallBack,
       'totalSubmitted': totalSubmitted,
       'totalBooked': totalBooked,
+      'totalAuditionCount': totalAuditionCount,
       'totalRejected': totalRejected,
       'thisMonthTotalBook': thisMonthTotalBook,
     };

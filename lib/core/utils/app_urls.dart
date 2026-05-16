@@ -15,6 +15,7 @@ class AppUrl{
   static const String completeProfile ="$baseUrl/users/complete-my-profile";
   static const String login ="$baseUrl/auth/login";
   static const String myProfile ="$baseUrl/users/get-user-profile";
+  static const String resentOtp ="$baseUrl/otp/resend-email-otp?purpose=create";
   static const String updateProfile ="$baseUrl/users/update-my-profile";
   static const String forgotPassword ="$baseUrl/auth/forgot-password-otpByEmail";
   static const String verifyOtp ="$baseUrl/auth/forgot-password-otp-match";

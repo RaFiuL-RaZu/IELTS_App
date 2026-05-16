@@ -68,36 +68,37 @@ class VerifyEmail extends StatelessWidget {
             ),
             SizedBox(height: 22.h),
             Obx(() => RichText(
-                  text: TextSpan(
+              text: TextSpan(
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: AppColor.secondary,
+                ),
+                children: [
+                  TextSpan(text: "Didn't receive the code?  "),
+                  TextSpan(
+                    text: controller.resendTimer.value > 0
+                        ? "Resend in ${controller.resendTimer.value}s"
+                        : "Resend",
                     style: TextStyle(
+                      color: controller.resendTimer.value > 0
+                          ? Colors.grey
+                          : AppColor.primary,
                       fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: AppColor.secondary,
+                      fontWeight: FontWeight.w700,
+                      decoration: TextDecoration.underline,
                     ),
-                    children: [
-                      TextSpan(text: "Didn't receive the code?  "),
-                      TextSpan(
-                        text: controller.resendTimer.value > 0
-                            ? "Resend in ${controller.resendTimer.value}s"
-                            : "Resend",
-                        style: TextStyle(
-                          color: controller.resendTimer.value > 0
-                              ? Colors.grey
-                              : AppColor.primary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          decoration: TextDecoration.underline,
-                        ),
-                        recognizer: controller.resendTimer.value > 0
-                            ? null
-                            : TapGestureRecognizer()
-                              ?..onTap = () {
-                                  controller.resendOtp();
-                                },
-                      ),
-                    ],
+                    recognizer: controller.resendTimer.value > 0
+                        ? null
+                        : TapGestureRecognizer()
+                      ?..onTap = () {
+                        controller.resendOtp();
+                        debugPrint("Tap");
+                      },
                   ),
-                )),
+                ],
+              ),
+            )),
             Spacer(),
             Obx(() => CommonButton(
                   titleText: "Verify & Continue",

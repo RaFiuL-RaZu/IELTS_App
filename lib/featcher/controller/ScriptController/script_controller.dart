@@ -16,6 +16,16 @@ class ScriptController extends GetxController{
 
   static ScriptController get instance=>Get.put(ScriptController());
 
+  var expandedIndex = (-1).obs;
+
+  void toggleExpand(int index) {
+    if (expandedIndex.value == index) {
+      expandedIndex.value = -1;
+    } else {
+      expandedIndex.value = index;
+    }
+  }
+
   RxList<ScriptModel> filteredScriptList = <ScriptModel>[].obs;
   TextEditingController searchController = TextEditingController();
   @override

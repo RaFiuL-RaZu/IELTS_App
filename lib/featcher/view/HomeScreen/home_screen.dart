@@ -292,14 +292,23 @@ class _HomeScreenState extends State<HomeScreen> {
                             ListTile(
                               contentPadding: EdgeInsets.zero,
                               leading: ClipOval(
-                                child: CommonImage(
-                                  imageSrc:
-                                      AppUrl.imageUrl +
-                                      list.creator.profileImage,
+                                child: (list.creator.profileImage.isNotEmpty ?? false)
+                                    ? CommonImage(
+                                  imageSrc: AppUrl.imageUrl + list.creator.profileImage,
                                   imageType: ImageType.network,
-                                  height: 50.h,
-                                  width: 50.h,
+                                  height: 50,
+                                  width: 50,
                                   fill: BoxFit.cover,
+                                )
+                                    : Container(
+                                  height: 50,
+                                  width: 50,
+                                  color: Colors.grey.shade300,
+                                  child: const Icon(
+                                    Icons.person,
+                                    size: 18,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                               title: CommonText(
@@ -334,12 +343,59 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             SizedBox(height: 10.h),
-                            CommonText(
-                              title: list.title,
-                              fSize: 14,
-                              fWeight: FontWeight.w600,
-                              color: AppColor.primary,
-                            ),
+                          Obx(() {
+                            final isExpanded = controller.expandedIndex.value == index;
+
+                            final text = list.title.toString();
+
+                            final textSpan = TextSpan(
+                              text: text,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            );
+
+                            final tp = TextPainter(
+                              text: textSpan,
+                              maxLines: 3,
+                              textDirection: TextDirection.ltr,
+                            );
+
+                            tp.layout(maxWidth: Get.width); // or specific width
+
+                            final isOverflowing = tp.didExceedMaxLines;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CommonText(
+                                  title: text,
+                                  fSize: 14,
+                                  maxLine: isExpanded ? null : 3,
+                                  overflow: isExpanded
+                                      ? TextOverflow.visible
+                                      : TextOverflow.ellipsis,
+                                  fWeight: FontWeight.w600,
+                                  color: AppColor.primary,
+                                ),
+
+                                const SizedBox(height: 4),
+
+                                if (isOverflowing)
+                                  GestureDetector(
+                                    onTap: () => controller.toggleExpand(index),
+                                    child: Text(
+                                      isExpanded ? "See less" : "See more",
+                                      style: TextStyle(
+                                        color: AppColor.primary,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          }),
                             SizedBox(height: 10.h),
                             Container(
                               height: 66.h,
@@ -538,7 +594,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           ClipOval(
-                                            child: CommonImage(
+                                            child:  CommonImage(
                                               imageSrc:
                                                   AppUrl.imageUrl +
                                                   (comment.user?.profileImage ??

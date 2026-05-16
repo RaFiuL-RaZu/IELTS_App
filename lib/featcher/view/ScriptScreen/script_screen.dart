@@ -207,13 +207,37 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                                color: AppColor.primary,
                                              ),
                                              SizedBox(height: 10.h),
-                                             CommonText(
-                                               title: script.content ?? "",
-                                               fSize: 14,
-                                               maxLine: 3,
-                                               fWeight: FontWeight.w400,
-                                               color: AppColor.secondary,
-                                             ),
+                                             Obx(() {
+                                               final isExpanded = controller.expandedIndex.value == index;
+
+                                               return Column(
+                                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                                 children: [
+                                                   CommonText(
+                                                     title: script.content.toString(),
+                                                     fSize: 14,
+                                                     maxLine: isExpanded ? null : 3,
+                                                     overflow:
+                                                     isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                                                     fWeight: FontWeight.w600,
+                                                     color: AppColor.primary,
+                                                   ),
+
+                                                   SizedBox(height: 4),
+
+                                                   GestureDetector(
+                                                     onTap: () => controller.toggleExpand(index),
+                                                     child: Text(
+                                                       isExpanded ? "See less" : "See more",
+                                                       style: TextStyle(
+                                                         color: AppColor.primary,
+                                                         fontWeight: FontWeight.w500,
+                                                       ),
+                                                     ),
+                                                   ),
+                                                 ],
+                                               );
+                                             }),
                                              SizedBox(height: 10.h),
                                             script.isComplete==false ?  CommonButton(titleText: " Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),) : SizedBox()
 

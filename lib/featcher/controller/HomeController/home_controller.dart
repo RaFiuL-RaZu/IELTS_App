@@ -21,6 +21,15 @@ class HomeController extends GetxController {
   Rx<Duration> duration = Duration.zero.obs;
 
   RxDouble progress = 0.0.obs;
+  var expandedIndex = (-1).obs;
+
+  void toggleExpand(int index) {
+    if (expandedIndex.value == index) {
+      expandedIndex.value = -1;
+    } else {
+      expandedIndex.value = index;
+    }
+  }
 
   @override
   void onInit() {
@@ -51,23 +60,26 @@ class HomeController extends GetxController {
   Future<void> togglePlay(String url) async {
     try {
       debugPrint("url : $url");
+
       if (currentUrl.value != url) {
-        await player.stop();
         currentUrl.value = url;
+        isPlaying.value = true;
+
+        await player.stop();
         await player.setUrl(url);
         await player.play();
-        isPlaying.value = true;
         return;
       }
 
       if (player.playing) {
-        await player.pause();
         isPlaying.value = false;
+        await player.pause();
       } else {
-        await player.play();
         isPlaying.value = true;
+        await player.play();
       }
     } catch (e) {
+      isPlaying.value = false;
       debugPrint("Audio Error: $e");
     }
   }

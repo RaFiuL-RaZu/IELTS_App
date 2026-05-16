@@ -76,7 +76,6 @@ class LoginScreen extends StatelessWidget {
                   title: "Enter password",
                   controller: controller.passwordController,
                   obscureText: true,
-                  sIcon: Icon(Icons.visibility_off, color: AppColor.secondary),
                   validator: (value) => Validator.validatePassword(value),
                 ),
                 SizedBox(height: 10.h),

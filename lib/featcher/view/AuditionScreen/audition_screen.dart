@@ -471,14 +471,13 @@ class _AuditionScreenState extends State<AuditionScreen> {
                           children: [
                             Image.asset(AppIcons.round, height: 16.h, width: 16.w),
                             SizedBox(width: 8),
-                            Text("Book Ratio"),
+                            Text("Booked"),
                           ],
                         ),
                         SizedBox(height: 7.h),
 
-                        /// ✅ SAFE
                         CommonText(
-                          title: "${activity.totalBooked}%",
+                          title: "${activity.totalBooked}",
                           fSize: 24,
                           fWeight: FontWeight.w800,
                           color: AppColor.primary,
@@ -487,7 +486,7 @@ class _AuditionScreenState extends State<AuditionScreen> {
                         SizedBox(height: 10.h),
 
                         CommonText(
-                          title: "${activity.thisMonthTotalBook}% this month",
+                          title: "${activity.thisMonthTotalBook} this month",
                           fSize: 12,
                           fWeight: FontWeight.w500,
                           color: Color(0xFF00C950),
@@ -528,7 +527,7 @@ class _AuditionScreenState extends State<AuditionScreen> {
                         SizedBox(height: 10.h),
 
                         CommonText(
-                          title: "out of ${activity.totalSubmitted} subs",
+                          title: "out of ${activity.totalAuditionCount} auditions",
                           fSize: 12,
                           fWeight: FontWeight.w500,
                           color: AppColor.secondary,
