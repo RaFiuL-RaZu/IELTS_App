@@ -8,6 +8,7 @@ import 'package:justtsham/core/widgets/commom_image.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
 import 'package:justtsham/featcher/controller/ProfileController/profile_controller.dart';
 import 'package:justtsham/featcher/view/SettingScreen/privacy_screen.dart';
+import 'package:justtsham/featcher/view/SettingScreen/save_audition.dart';
 import 'package:justtsham/featcher/view/SettingScreen/subscription_page.dart';
 import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
 import '../../../core/widgets/common_text.dart';
@@ -179,6 +180,16 @@ class _SettingScreenState extends State<SettingScreen> {
                         child: ProfileBox(
                           title: 'Edit Profile',
                           icon: AppIcons.man,
+                        ),
+                      ),
+                      Divider(color: Colors.grey.shade200),
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(() => SaveAudition());
+                        },
+                        child: ProfileBox(
+                          title: 'Saved Audios',
+                          icon: AppIcons.fav,
                         ),
                       ),
                       Divider(color: Colors.grey.shade200),

@@ -3,8 +3,8 @@
 class AppUrl{
 
 
-  static const String baseUrl = "https://nj3lnpq3-8888.inc1.devtunnels.ms/api/v1";
-  static const String imageUrl = "https://nj3lnpq3-8888.inc1.devtunnels.ms";
+  static const String baseUrl = "http://10.10.10.31:8888/api/v1";
+  static const String imageUrl = "http://10.10.10.31:8888";
   static const String socketUrl = "http://10.10.5.47:8888/api/v1";
 
 
@@ -23,6 +23,7 @@ class AppUrl{
   static const String changePassword ="$baseUrl/auth/change-password";
   static  String getHomeAudition ="$baseUrl/auditions/home-auditions";
   static  String getCommunityData ="$baseUrl/community";
+  static  String getFavourites ="$baseUrl/favorites/my-favorites";
   static  String getActivity ="$baseUrl/auditions/activity";
   static  String createAudition ="$baseUrl/auditions/create";
   static  String practiceScript ="$baseUrl/practice-scripts/create";
@@ -35,6 +36,8 @@ class AppUrl{
   static  String getMyPlan ="$baseUrl/subscriptions/my-subscriptions";
   static  String getHelp ="$baseUrl/setting/help-center";
   static  String getNotify ="$baseUrl/notifications/my-notifications";
+  static  String createFav ="$baseUrl/favorites/add";
+  static  String deleteFav ="$baseUrl/favorites/delete";
   static  String getPayment ="$baseUrl/stripe/create-subscription-session";
   static  String postComment({required String id}) =>"$baseUrl/comments/create/$id";
   static  String createLike({required String id}) =>"$baseUrl/likes/audition-toggle-like/$id";

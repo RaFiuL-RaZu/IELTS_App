@@ -129,6 +129,7 @@ class ProfileController extends GetxController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         Get.back();
         await getMyProfile();
+        PrefsHelper.myName=profileModel.value.fullName.toString();
         CommonSnackBar.show(
           title: "Success",
           message: "Profile update successfully",

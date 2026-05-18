@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/featcher/controller/CommunityController/community_controller.dart';
 import 'package:justtsham/featcher/controller/ScriptController/script_controller.dart';
+import 'package:justtsham/featcher/view/ScriptScreen/script_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/constant/prefs_helper.dart';
@@ -323,7 +324,7 @@ class CommercialController extends GetxController {
         debugPrint("Response: ${response.body}");
         debugPrint("Response: ${response.statusCode}");
         if(title=="script"){
-          Get.back();
+          Get.offAll(()=>ScriptScreen());
           ScriptController.instance.getScript();
         }else{
           Get.back();

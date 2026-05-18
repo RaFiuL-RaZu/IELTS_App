@@ -1,4 +1,5 @@
 
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
@@ -141,6 +142,7 @@ class HomeController extends GetxController {
   // Track liked items
   RxSet<String> likedItemIds = <String>{}.obs;
 
+
   String normalize(String text) {
     return text
         .toUpperCase()
@@ -224,6 +226,62 @@ class HomeController extends GetxController {
     }
   }
 
+   RxBool isFavourite=false.obs;
+  Future<bool> addBookMark({required String id}) async {
+    isFavourite.value = true;
+
+    try {
+      final header = {
+        "token": PrefsHelper.token,
+      };
+
+      final body = {
+        "auditionId": id,
+      };
+
+      final response = await ApiService.postApi(
+        AppUrl.createFav,
+        body,
+        header: header,
+      );
+
+      return response.statusCode == 200;
+    } finally {
+      isFavourite.value = false;
+    }
+  }
+
+
+   RxBool isUnFav=false.obs;
+
+
+  Future<bool> deleteBookMark({required String id}) async {
+    isUnFav.value = true;
+
+    try {
+      final header = {
+        "token": PrefsHelper.token,
+      };
+
+      final body = {
+        "auditionId": id,
+      };
+
+      final response = await ApiService.deleteApi(
+        AppUrl.deleteFav,
+        header: header,
+        body: body,
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    } finally {
+      isUnFav.value = false;
+    }
+  }
+
+
   Future<void> postComment({required String id}) async {
     try {
       Map<String, String> header = {
@@ -243,8 +301,7 @@ class HomeController extends GetxController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         commentController.clear();
         hideCommentField();
-        
-        // Update comment count immediately without full refresh
+
         final index = auditionList.indexWhere((item) => item.id == id);
         if (index != -1) {
           final updatedItem = AuditionModel(
@@ -259,6 +316,8 @@ class HomeController extends GetxController {
             commentCount: auditionList[index].commentCount + 1,
             createdAt: auditionList[index].createdAt,
             updatedAt: auditionList[index].updatedAt,
+              isLiked: auditionList[index].isLiked.value,
+              isFavorite: auditionList[index].isFavorite.value
           );
           auditionList[index] = updatedItem;
           applyFilter();
@@ -270,65 +329,35 @@ class HomeController extends GetxController {
     }
   }
 
+
+
+  RxBool isLiked=false.obs;
   Future<void> createLike({required String id}) async {
     try {
-      Map<String, String> header = {
-        "token": PrefsHelper.token,
-      };
-      Map<String,String> body={};
-
       final response = await ApiService.postApi(
-        AppUrl.createLike(id: id),body,
-        header: header,
+        AppUrl.createLike(id: id),
+        {},
+        header: {"token": PrefsHelper.token},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final responseData = response.body;
-        final data = responseData['data'] as Map<String, dynamic>?;
-        final liked = data?['liked'] as bool? ?? false;
-        
-        // Update the like count in the list
+        final data = response.body['data'];
+        final liked = data?['liked'] ?? false;
+
         final index = auditionList.indexWhere((item) => item.id == id);
+
         if (index != -1) {
-          final currentItem = auditionList[index];
-          
+          final item = auditionList[index];
+
+          item.isLiked.value = liked;
+
           if (liked) {
-            likedItemIds.add(id);
-            final updatedItem = AuditionModel(
-              id: currentItem.id,
-              creator: currentItem.creator,
-              title: currentItem.title,
-              category: currentItem.category,
-              reminderDate: currentItem.reminderDate,
-              status: currentItem.status,
-              auditionFile: currentItem.auditionFile,
-              likeCount: currentItem.likeCount + 1,
-              commentCount: currentItem.commentCount,
-              createdAt: currentItem.createdAt,
-              updatedAt: currentItem.updatedAt,
-            );
-            auditionList[index] = updatedItem;
+            item.likeCount++;
           } else {
-            // User unliked the item
-            likedItemIds.remove(id);
-            if (currentItem.likeCount > 0) {
-              final updatedItem = AuditionModel(
-                id: currentItem.id,
-                creator: currentItem.creator,
-                title: currentItem.title,
-                category: currentItem.category,
-                reminderDate: currentItem.reminderDate,
-                status: currentItem.status,
-                auditionFile: currentItem.auditionFile,
-                likeCount: currentItem.likeCount - 1,
-                commentCount: currentItem.commentCount,
-                createdAt: currentItem.createdAt,
-                updatedAt: currentItem.updatedAt,
-              );
-              auditionList[index] = updatedItem;
-            }
+            if (item.likeCount > 0) item.likeCount--;
           }
-          applyFilter();
+
+          auditionList.refresh();
         }
       }
     } catch (e) {

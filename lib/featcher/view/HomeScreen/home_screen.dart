@@ -1,29 +1,42 @@
-import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/constant/other_helper.dart';
+import 'package:justtsham/core/constant/prefs_helper.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/utils/app_icons.dart';
-import 'package:justtsham/core/utils/app_image.dart';
 import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/core/widgets/common_text.dart';
 import 'package:justtsham/featcher/controller/CommunityController/community_controller.dart';
 import 'package:justtsham/featcher/controller/HomeController/home_controller.dart';
 import 'package:justtsham/featcher/model/HomeModel/audition_model.dart';
 import 'package:justtsham/featcher/model/HomeModel/comment_model.dart';
+import 'package:justtsham/featcher/view/HomeScreen/waveForme.dart';
 import '../../../core/widgets/commom_image.dart';
 import '../CummunityScreen/commercial_screen.dart';
 import 'notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String getGreeting() {
+    final hour = DateTime.now().hour;
+
+    if (hour >= 3 && hour < 11) {
+      return "Morning";
+    } else if (hour >= 11 && hour < 15) {
+      return "Noon";
+    } else if (hour >= 15 && hour < 21) {
+      return "Evening";
+    } else {
+      return "Night";
+    }
+  }
   final HomeController controller = Get.put(HomeController());
   final CommunityController boxController = Get.put(CommunityController());
   @override
@@ -49,13 +62,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: CommonText(
-                  title: "Good Morning!",
+                  title: "Good ${getGreeting()}!",
                   fSize: 16,
                   fWeight: FontWeight.w500,
                   color: AppColor.secondary,
                 ),
                 subtitle: CommonText(
-                  title: "Studio Feed",
+                  title: PrefsHelper.myName,
                   fSize: 22,
                   fWeight: FontWeight.w700,
                   color: AppColor.primary,
@@ -441,20 +454,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                   SizedBox(width: 10.w),
 
-                                  /// PROGRESS BAR
                                   Expanded(
                                     child: Obx(() {
                                       final url =
                                           AppUrl.imageUrl + list.auditionFile;
                                       final showProgress =
                                           controller.currentUrl.value == url;
-                                      return LinearProgressIndicator(
-                                        value: showProgress
-                                            ? controller.progress.value
-                                            : 0.0,
-                                        minHeight: 3,
-                                        backgroundColor: Colors.grey.shade300,
-                                        color: AppColor.primary,
+                                      return Padding(
+                                        padding:  EdgeInsets.symmetric(vertical: 5),
+                                        child: WaveformProgress(
+                                          progress: showProgress
+                                              ? controller.progress.value
+                                              : 0.0,
+                                        ),
                                       );
                                     }),
                                   ),
@@ -466,8 +478,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                         AppUrl.imageUrl + list.auditionFile;
                                     final isCurrentPlaying =
                                         controller.currentUrl.value == url;
-                                    if (!isCurrentPlaying)
+                                    if (!isCurrentPlaying) {
                                       return const SizedBox.shrink();
+                                    }
                                     return Text(
                                       controller.formatTime(
                                         controller.position.value,
@@ -493,16 +506,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                       spacing: 5,
                                       children: [
                                         Obx(() {
-                                          final isLiked = controller
-                                              .likedItemIds
-                                              .contains(list.id);
                                           return GestureDetector(
                                             onTap: () {
+
                                               controller.createLike(
                                                 id: list.id,
                                               );
                                             },
-                                            child: isLiked
+                                            child: list.isLiked.value
                                                 ? Image.asset(
                                                     AppIcons.love,
                                                     height: 20.h,
@@ -561,12 +572,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ],
                                 ),
-                                Image.asset(
-                                  AppIcons.fav,
-                                  height: 20.h,
-                                  width: 20.w,
-                                  fit: BoxFit.cover,
-                                ),
+                                GestureDetector(
+                                  onTap: () async {
+                                    if (!list.isFavorite.value) {
+                                      final success = await controller.addBookMark(id: list.id);
+                                      if (success) {
+                                        list.isFavorite.value = true;
+                                      }
+                                    } else {
+                                      final success = await controller.deleteBookMark(id: list.id);
+                                      if (success) {
+                                        list.isFavorite.value = false;
+                                      }
+                                    }
+                                  },
+                                  child: Obx(() {
+                                    return list.isFavorite.value ? Image.asset(
+                                      AppIcons.fullBook,
+                                      color: Color(0xFF7741C1),
+                                      height: 21,
+                                      width: 16,
+                                    ) : Image.asset(
+                                      AppIcons.fav,
+                                      height: 21,
+                                      width: 16,
+                                    );
+                                  }),
+                                )
                               ],
                             ),
 

@@ -5,6 +5,7 @@ import 'package:justtsham/core/constant/other_helper.dart';
 import 'package:justtsham/featcher/controller/CommunityController/community_controller.dart';
 import 'package:justtsham/featcher/controller/HomeController/home_controller.dart';
 import 'package:justtsham/featcher/model/CommunityModel/weekly_model.dart';
+import 'package:justtsham/featcher/model/ProfileModel/favourite_model.dart';
 
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_icons.dart';
@@ -13,27 +14,28 @@ import '../../../core/utils/app_urls.dart';
 import '../../../core/widgets/commom_image.dart';
 import '../../../core/widgets/common_text.dart';
 import '../../controller/CommunityController/box_controller.dart';
+import '../../controller/ProfileController/save_audition_controller.dart';
+import '../../controller/ProfileController/save_controller.dart';
 import '../../model/HomeModel/audition_model.dart';
 import '../HomeScreen/waveForme.dart';
-import 'commercial_screen.dart';
 
-class CommunityScreen extends StatefulWidget {
-  const CommunityScreen({super.key});
+class SaveAudition extends StatefulWidget {
+  const SaveAudition({super.key});
 
   @override
-  State<CommunityScreen> createState() => _CommunityScreenState();
+  State<SaveAudition> createState() => _CommunityScreenState();
 }
 
-class _CommunityScreenState extends State<CommunityScreen> {
-  final controller = Get.put(CommunityController());
-  final BoxController boxController=Get.put(BoxController());
+class _CommunityScreenState extends State<SaveAudition> {
+  final controller = Get.put(SaveAuditionController());
+  final SaveController boxController=Get.put(SaveController());
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.getCommunity();
     });
-    boxController.getBoxData();
+    boxController.getFavourite();
     super.initState();
   }
 
@@ -41,143 +43,22 @@ class _CommunityScreenState extends State<CommunityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.background,
+      appBar: AppBar(
+        backgroundColor: AppColor.background,
+        title: CommonText(
+          title: "Save Audition",
+          fSize: 22.sp,
+          fWeight: FontWeight.w700,
+          color: AppColor.primary,
+        ),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 60.h),
-              CommonText(
-                title: "Community",
-                fSize: 22,
-                fWeight: FontWeight.w800,
-                color: AppColor.primary,
-              ),
-              SizedBox(height: 12.h),
-              Obx(() {
-               if (controller.isLoading.value) {
-                 return Center(
-                   child: CircularProgressIndicator(color: AppColor.primary),
-                 );
-               }
-
-               final data = controller.weeklyModel;
-               if (data == null) {
-                 return const SizedBox();
-               }
-
-               return Container(
-                 width: double.infinity,
-                 decoration: BoxDecoration(
-                   borderRadius: BorderRadius.circular(20),
-                   gradient: LinearGradient(
-                     colors: [Color(0xFF180E27), Color(0xFF56397C)],
-                     begin: Alignment.centerLeft,
-                     end: Alignment.centerRight,
-                   ),
-                   boxShadow: [
-                     BoxShadow(
-                       color: Color(0xFF6C4DFF).withOpacity(0.20),
-                       offset: Offset(0, 20),
-                       blurRadius: 25,
-                       spreadRadius: -5,
-                     ),
-                     BoxShadow(
-                       color: Color(0xFF6C4DFF).withOpacity(0.20),
-                       offset: Offset(0, 8),
-                       blurRadius: 10,
-                       spreadRadius: -6,
-                     ),
-                   ],
-                 ),
-                 child: Padding(
-                   padding: const EdgeInsets.symmetric(
-                     horizontal: 16,
-                     vertical: 16,
-                   ),
-                   child: Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     children: [
-                       Row(
-                         spacing: 5,
-                         children: [
-                           Image.asset(
-                             AppIcons.trophy,
-                             height: 15.h,
-                             width: 15.h,
-                           ),
-                           CommonText(
-                             title: "Weekly Challenge",
-                             fSize: 12,
-                             fWeight: FontWeight.w700,
-                             color: Colors.white,
-                           ),
-                         ],
-                       ),
-                       SizedBox(height: 9.h),
-                       CommonText(
-                         title: data.title ?? "",
-                         maxLine: 2,
-                         fSize: 22,
-                         overflow: TextOverflow.ellipsis,
-                         fWeight: FontWeight.w700,
-                         color: Colors.white,
-                       ),
-                       SizedBox(height: 10.h),
-                       CommonText(
-                         title:
-                         data.content ?? "",
-                         fSize: 16,
-                         maxLine: 3,
-                         overflow: TextOverflow.ellipsis,
-                         fWeight: FontWeight.w400,
-                         color: Colors.white,
-                       ),
-                       SizedBox(height: 10.h),
-                       CommonText(
-                         title: "${OtherHelper.formatDate(data.weeklyScriptExpiryDate.toString())} remaining",
-                         fSize: 12,
-                         fWeight: FontWeight.w400,
-                         color: Colors.white,
-                       ),
-                       SizedBox(height: 10.h),
-                       GestureDetector(
-                         onTap: () {
-                           if(data.isPracticed==false){
-                             Get.to(() => CommercialScreen(title:data.content.toString(), id: data.id.toString(), page: 'community',));
-                           }
-                         },
-                         child: Container(
-                           height: 48.h,
-                           width: double.infinity,
-                           decoration: BoxDecoration(
-                             borderRadius: BorderRadius.circular(16),
-                             color: Color(0xFF7741C1),
-                           ),
-                           child: Center(
-                             child: Row(
-                               mainAxisAlignment: MainAxisAlignment.center,
-                               spacing: 5,
-                               children: [
-                                 CommonText(
-                                   title: data.isPracticed==true ? "Completed" : "Submit Your Take",
-                                   fSize: 20.sp,
-                                   fWeight: FontWeight.w500,
-                                   color: Colors.white,
-                                 ),
-                               ],
-                             ),
-                           ),
-                         ),
-                       ),
-                     ],
-                   ),
-                 ),
-               );
-               ;
-             }),
-              SizedBox(height: 20.h),
               Obx((){
                 if (boxController.isLoading.value) {
                   return Center(
@@ -185,15 +66,15 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   );
                 }
 
-                if (boxController.communityList.isEmpty) {
+                if (boxController.faveList.isEmpty) {
                   return Center(child: CommonText(title: "No Audition Found"));
                 }return ListView.builder(
-                    itemCount: boxController.communityList.length,
+                    itemCount: boxController.faveList.length,
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     itemBuilder: (context,index){
-                      CommunityModel list = boxController.communityList[index];
+                      FavouriteModel list = boxController.faveList[index];
                       return  Container(
                         margin: EdgeInsets.only(bottom: 16),
                         width: double.infinity,
@@ -226,9 +107,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
                                 leading: ClipOval(
-                                  child: (list.user?.profileImage?.isNotEmpty ?? false)
+                                  child: (list.audition.creator.profileImage.isNotEmpty ?? false)
                                       ? CommonImage(
-                                    imageSrc: AppUrl.imageUrl + list.user!.profileImage!,
+                                    imageSrc: AppUrl.imageUrl + list.audition.creator.profileImage,
                                     imageType: ImageType.network,
                                     height: 50.h,
                                     width: 50.h,
@@ -245,7 +126,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   ),
                                 ),
                                 title: CommonText(
-                                  title: list.user?.fullName ?? "",
+                                  title: list.audition.creator.fullName ?? "",
                                   fSize: 14,
                                   fWeight: FontWeight.w700,
                                   color: AppColor.primary,
@@ -265,7 +146,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   ),
                                   child: Center(
                                     child: CommonText(
-                                      title: list.category.toString(),
+                                      title: list.audition.category.toString(),
                                       fSize: 12,
                                       fWeight: FontWeight.w500,
                                       color: AppColor.primary,
@@ -281,7 +162,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     CommonText(
-                                      title: list.content.toString(),
+                                      title: list.audition.title.toString(),
                                       fSize: 14,
                                       maxLine: isExpanded ? null : 3,
                                       overflow:
@@ -321,7 +202,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   child:Row(
                                     children: [
                                       Obx(() {
-                                        final url = AppUrl.imageUrl + (list.audioFile ?? "");
+                                        final url = AppUrl.imageUrl + (list.audition.auditionFile ?? "");
                                         final isPlaying =
                                             boxController.currentUrl.value == url &&
                                                 boxController.isPlaying.value;
@@ -348,7 +229,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
                                       Expanded(
                                         child: Obx(() {
-                                          final url = AppUrl.imageUrl + (list.audioFile ?? "");
+                                          final url = AppUrl.imageUrl + (list.audition.auditionFile ?? "");
 
                                           final showProgress = boxController.currentUrl.value == url;
 
@@ -363,7 +244,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                       SizedBox(width: 10.w),
 
                                       Obx(() {
-                                        final url = AppUrl.imageUrl + (list.audioFile ?? "");
+                                        final url = AppUrl.imageUrl + (list.audition.auditionFile ?? "");
 
                                         final isCurrentPlaying = boxController.currentUrl.value == url;
 

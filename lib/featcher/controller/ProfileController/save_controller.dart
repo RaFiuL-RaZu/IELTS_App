@@ -7,9 +7,10 @@ import 'package:justtsham/core/services/api_services.dart';
 import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/featcher/model/CommunityModel/weekly_model.dart';
 
-import '../../model/HomeModel/audition_model.dart';
+import '../../model/ProfileModel/favourite_model.dart';
 
-class BoxController extends GetxController {
+
+class SaveController extends GetxController {
 
 
 
@@ -125,13 +126,13 @@ class BoxController extends GetxController {
 
   RxBool isLoading = false.obs;
 
-  RxList<CommunityModel> communityList = <CommunityModel>[].obs;
+  RxList<FavouriteModel> faveList = <FavouriteModel>[].obs;
 
 
 
   /// ================= API =================
 
-  Future<void> getBoxData() async {
+  Future<void> getFavourite() async {
     isLoading(true);
 
     try {
@@ -140,13 +141,13 @@ class BoxController extends GetxController {
       };
 
       final response =
-      await ApiService.getApi(AppUrl.getCommunityData, header: header);
+      await ApiService.getApi(AppUrl.getFavourites, header: header);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = response.body['data']['communityList'];
+        final data = response.body['data']['favorites'];
 
-        communityList.value = List<CommunityModel>.from(
-          data.map((e) => CommunityModel.fromJson(e)),
+        faveList.value = List<FavouriteModel>.from(
+          data.map((e) => FavouriteModel.fromJson(e)),
         );
       }
     } catch (e, s) {

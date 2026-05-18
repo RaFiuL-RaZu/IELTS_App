@@ -32,6 +32,7 @@ dependencies:
   just_audio: ^0.10.5
   webview_flutter: ^4.13.1
   audio_waveforms: ^2.0.2
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

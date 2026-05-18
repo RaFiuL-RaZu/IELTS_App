@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
+import 'package:justtsham/featcher/view/CummunityScreen/open_drive.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_icons.dart';
@@ -481,19 +483,31 @@ class CommercialScreen extends StatelessWidget {
                                                 ),
                                                 SizedBox(height: 10.h),
                                                 ProfileBox(
+                                                  onTap: () async {
+                                                    try {
+                                                      await Drive.openGoogleDrive();
+                                                      debugPrint("Google Drive opened");
+                                                    } catch (e) {
+                                                      debugPrint("Error: $e");
+                                                    }
+                                                  },
                                                   title: 'Google Drive',
                                                   icon: AppIcons.drop,
-                                                  boxColor: Color(
-                                                    0xFFFFFFFF,
-                                                  ),
+                                                  boxColor: const Color(0xFFFFFFFF),
                                                 ),
                                                 SizedBox(height: 12.h),
                                                 ProfileBox(
+                                                  onTap: () async {
+                                                    final Uri url = Uri.parse("https://drive.google.com");
+
+                                                    await launchUrl(
+                                                      url,
+                                                      mode: LaunchMode.externalApplication,
+                                                    );
+                                                  },
                                                   title: 'Cloud Drive',
                                                   icon: AppIcons.drop,
-                                                  boxColor: Color(
-                                                    0xFFFFFFFF,
-                                                  ),
+                                                  boxColor: const Color(0xFFFFFFFF),
                                                 ),
                                               ],
                                             ),
