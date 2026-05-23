@@ -33,139 +33,141 @@ class CompleteProfile extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 12.h,),
-            Center(
-              child: CommonText(
-                align: TextAlign.center,
-                title:
-                "Let the community know your style.",
-                fSize: 16.sp,
-                fWeight: FontWeight.w500,
-                color: AppColor.secondary,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 12.h,),
+              Center(
+                child: CommonText(
+                  align: TextAlign.center,
+                  title:
+                  "Let the community know your style.",
+                  fSize: 16.sp,
+                  fWeight: FontWeight.w500,
+                  color: AppColor.secondary,
+                ),
               ),
-            ),
-            SizedBox(height: 20.h),
-            Center(
-              child: Stack(
-                children: [
-                  Obx(() => Container(
-                    height: 112.h,
-                    width: 112.w,
-                    decoration: BoxDecoration(
-                      color: AppColor.background,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 4,
-                      ),
-                      image: controller.selectedImage.value.isNotEmpty
-                          ? DecorationImage(
-                        image: FileImage(
-                          File(controller.selectedImage.value),
+              SizedBox(height: 20.h),
+              Center(
+                child: Stack(
+                  children: [
+                    Obx(() => Container(
+                      height: 112.h,
+                      width: 112.w,
+                      decoration: BoxDecoration(
+                        color: AppColor.background,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 4,
                         ),
-                        fit: BoxFit.cover,
+                        image: controller.selectedImage.value.isNotEmpty
+                            ? DecorationImage(
+                          image: FileImage(
+                            File(controller.selectedImage.value),
+                          ),
+                          fit: BoxFit.cover,
+                        )
+                            : null,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.0),
+                            offset: Offset(0, 20),
+                            blurRadius: 25,
+                            spreadRadius: -5,
+                          ),
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.10),
+                            offset: Offset(0, 8),
+                            blurRadius: 10,
+                            spreadRadius: -6,
+                          ),
+                        ],
+                      ),
+
+                      child: controller.selectedImage.value.isEmpty
+                          ? Center(
+                        child: Image.asset(
+                          AppIcons.camera,
+                          height: 32.h,
+                          width: 32.w,
+                          fit: BoxFit.cover,
+                        ),
                       )
                           : null,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.0),
-                          offset: Offset(0, 20),
-                          blurRadius: 25,
-                          spreadRadius: -5,
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.10),
-                          offset: Offset(0, 8),
-                          blurRadius: 10,
-                          spreadRadius: -6,
-                        ),
-                      ],
-                    ),
+                    )),
 
-                    child: controller.selectedImage.value.isEmpty
-                        ? Center(
-                      child: Image.asset(
-                        AppIcons.camera,
-                        height: 32.h,
-                        width: 32.w,
-                        fit: BoxFit.cover,
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: (){
+                          controller.pickImageFromGallery();
+                        },
+                        child: Container(
+                          height: 40.h,
+                          width: 40.w,
+                          decoration: BoxDecoration(
+                            color: AppColor.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 4,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.0),
+                                offset: Offset(0, 20),
+                                blurRadius: 25,
+                                spreadRadius: -5,
+                              ),
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.10),
+                                offset: Offset(0, 8),
+                                blurRadius: 10,
+                                spreadRadius: -6,
+                              ),
+                            ],
+                          ),child: Icon(Icons.add,color: Colors.white,),
+                        ),
                       ),
-                    )
-                        : null,
-                  )),
-                  
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: (){
-                        controller.pickImageFromGallery();
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 4.h,),
+              CommonText(title: "Bio",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
+              SizedBox(height: 6.h,),
+              CommonTextField(title: "Tell us about your voice...",maxLines: 3,controller: controller.bioController,),
+              SizedBox(height: 10.h,),
+              CommonText(title: "Voice Specialties",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
+              SizedBox(height: 6.h,),
+              Obx(
+                    () => Wrap(
+                  spacing: 5,
+                  runSpacing: 10,
+                  children: List.generate(controller.items.length, (index) {
+                    return GestureDetector(
+                      onTap: () {
+                        controller.toggleItem(index, controller.items[index]);
+                        debugPrint(">>>>>>>${controller.selectedValues}");
                       },
-                      child: Container(
-                        height: 40.h,
-                        width: 40.w,
-                        decoration: BoxDecoration(
-                          color: AppColor.primary,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 4,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.0),
-                              offset: Offset(0, 20),
-                              blurRadius: 25,
-                              spreadRadius: -5,
-                            ),
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.10),
-                              offset: Offset(0, 8),
-                              blurRadius: 10,
-                              spreadRadius: -6,
-                            ),
-                          ],
-                        ),child: Icon(Icons.add,color: Colors.white,),
+                      child: voiceBox(
+                        title: controller.items[index],
+                        isSelected: controller.selectedIndexes.contains(index),
                       ),
-                    ),
-                  ),
-                ],
+                    );
+                  }),
+                ),
               ),
-            ),
-            SizedBox(height: 4.h,),
-            CommonText(title: "Bio",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
-            SizedBox(height: 6.h,),
-            CommonTextField(title: "Tell us about your voice...",maxLines: 3,controller: controller.bioController,),
-            SizedBox(height: 10.h,),
-            CommonText(title: "Voice Specialties",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
-            SizedBox(height: 6.h,),
-            Obx(
-                  () => Wrap(
-                spacing: 5,
-                runSpacing: 10,
-                children: List.generate(controller.items.length, (index) {
-                  return GestureDetector(
-                    onTap: () {
-                      controller.toggleItem(index, controller.items[index]);
-                      debugPrint(">>>>>>>${controller.selectedValues}");
-                    },
-                    child: voiceBox(
-                      title: controller.items[index],
-                      isSelected: controller.selectedIndexes.contains(index),
-                    ),
-                  );
-                }),
-              ),
-            ),
-            Spacer(),
-            CommonButton(titleText: "Complete Setup",onTap: (){
-             controller.completeProfile();
-            },),
-            SizedBox(height: 50,),
-          ],
+             SizedBox(height: 80,),
+              CommonButton(titleText: "Complete Setup",onTap: (){
+               controller.completeProfile();
+              },),
+              SizedBox(height: 50,),
+            ],
+          ),
         ),
       ),
     );

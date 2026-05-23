@@ -93,26 +93,34 @@ class CommunityController extends GetxController {
   RxBool isLoading=false.obs;
 
   WeeklyModel weeklyModel=WeeklyModel();
-  
-  Future<void> getCommunity()async{
-    
+
+  Future<void> getCommunity() async {
     isLoading(true);
-    
-    try{
-      
-      Map<String,String> header={
-        'token':PrefsHelper.token
+
+    try {
+      Map<String, String> header = {
+        'token': PrefsHelper.token
       };
-      
-      final response=await ApiService.getApi(AppUrl.weeklyScript,header: header);
-      if(response.statusCode==200 || response.statusCode==201){
-        final data=response.body['data'];
-        weeklyModel=WeeklyModel.fromJson(data);
+
+      final response =
+      await ApiService.getApi(AppUrl.weeklyScript, header: header);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final body = response.body;
+
+        if (body['data'] != null) {
+          weeklyModel = WeeklyModel.fromJson(body['data']);
+        } else {
+          debugPrint("⚠️ API returned null data");
+
+          // Optional: assign empty model to avoid UI crash
+          weeklyModel = WeeklyModel();
+        }
       }
-    }catch(e,s){
+    } catch (e, s) {
       debugPrint("Error Handling : $e");
       debugPrint("SnackTrack Error : $s");
-    }finally{
+    } finally {
       isLoading(false);
     }
   }

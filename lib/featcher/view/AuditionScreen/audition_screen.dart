@@ -66,7 +66,7 @@ class _AuditionScreenState extends State<AuditionScreen> {
               SizedBox(height: 60.h,),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: CommonText(title: "Auditions",fSize: 22,fWeight: FontWeight.w700,color: AppColor.primary,),
+                title: CommonText(title: "Tracking",fSize: 22,fWeight: FontWeight.w700,color: AppColor.primary,),
                 trailing: GestureDetector(
                   onTap: () {
                     showDialog(

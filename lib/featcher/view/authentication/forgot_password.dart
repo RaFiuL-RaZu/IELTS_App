@@ -30,30 +30,32 @@ class ForgotPassword extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 12.h,),
-            Center(
-              child: CommonText(
-                align: TextAlign.center,
-                title:
-                "Enter your email address to reset your password.",
-                fSize: 16.sp,
-                fWeight: FontWeight.w500,
-                color: AppColor.secondary,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 12.h,),
+              Center(
+                child: CommonText(
+                  align: TextAlign.center,
+                  title:
+                  "Enter your email address to reset your password.",
+                  fSize: 16.sp,
+                  fWeight: FontWeight.w500,
+                  color: AppColor.secondary,
+                ),
               ),
-            ),
-            SizedBox(height: 20.h),
-            CommonText(title: "Email",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
-            SizedBox(height: 6.h,),
-            CommonTextField(title: "Enter your email",controller: controller.emailController,),
-            Spacer(),
-            CommonButton(titleText: "Get Verification Code",onTap: (){
-             controller.forgotPassword();
-            },),
-            SizedBox(height: 50,),
-          ],
+              SizedBox(height: 20.h),
+              CommonText(title: "Email",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
+              SizedBox(height: 6.h,),
+              CommonTextField(title: "Enter your email",controller: controller.emailController,),
+              SizedBox(height: 80,),
+              CommonButton(titleText: "Get Verification Code",onTap: (){
+               controller.forgotPassword();
+              },),
+              SizedBox(height: 50,),
+            ],
+          ),
         ),
       ),
     );
