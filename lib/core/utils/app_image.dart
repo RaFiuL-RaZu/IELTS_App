@@ -7,7 +7,7 @@ class AppImage {
   static const banner1 = "$baseImages/banner1.png";
   static const banner2 = "$baseImages/banner2.png";
   static const banner3 = "$baseImages/banner3.png";
-  static const String noImage = "$baseImages/noImage.png" ;
+  static const String noImage = "$baseImages/defaultImage.png" ;
   static const String person = "$baseImages/person.jpg" ;
 
 }

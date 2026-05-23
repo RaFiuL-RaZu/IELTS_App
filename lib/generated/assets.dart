@@ -51,6 +51,7 @@ class Assets {
   static const String imageBanner1 = 'assets/image/banner1.png';
   static const String imageBanner2 = 'assets/image/banner2.png';
   static const String imageBanner3 = 'assets/image/banner3.png';
+  static const String imageDefaultImage = 'assets/image/defaultImage.png';
   static const String imageGiphy = 'assets/image/giphy.gif';
   static const String imagePerson = 'assets/image/person.jpg';
   static const String imageSplashImage = 'assets/image/splashImage.png';
