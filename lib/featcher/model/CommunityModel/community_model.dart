@@ -12,7 +12,6 @@ class WeeklyModel {
   DateTime? createdAt;
   DateTime? updatedAt;
 
-  // ✅ NEW FIELD ADDED
   DateTime? weeklyScriptExpiryDate;
 
   WeeklyModel({

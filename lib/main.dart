@@ -6,44 +6,46 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import 'core/constant/prefs_helper.dart';
 
-void main() {
-  action();
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await action();
   runApp(const MyApp());
 }
-action()async{
-  WidgetsFlutterBinding.ensureInitialized();
-  WebViewPlatform.instance;
-  await PrefsHelper.getAllPrefData();
 
+Future<void> action() async {
+  try {
+    WebViewPlatform.instance;
+  } catch (e) {
+    debugPrint("WebView init error: $e");
+  }
+  await PrefsHelper.getAllPrefData();
 }
 
-class MyApp extends StatelessWidget{
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       ensureScreenSize: true,
-      designSize: Size(390, 844),
+      designSize: const Size(390, 844),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (context,child){
+      builder: (context, child) {
         return GetMaterialApp(
           locale: const Locale('en', 'US'),
           fallbackLocale: const Locale('en', 'US'),
-          transitionDuration: Duration(milliseconds: 300),
+          transitionDuration: const Duration(milliseconds: 300),
           debugShowCheckedModeBanner: false,
-          initialRoute: PrefsHelper.token.isNotEmpty
+          initialRoute: (PrefsHelper.token ?? '').isNotEmpty
               ? AppRoutes.navBer
               : AppRoutes.splash,
           getPages: AppRoutes.routes,
-          builder: (context,child){
-            return child!;
+          builder: (context, child) {
+            return child ?? const SizedBox();
           },
         );
       },
     );
   }
 }
-
-
