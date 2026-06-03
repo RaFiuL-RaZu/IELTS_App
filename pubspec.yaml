@@ -33,6 +33,7 @@ dependencies:
   audio_waveforms: ^2.0.2
   url_launcher: ^6.3.2
   flutter_launcher_icons: ^0.14.4
+  google_sign_in: ^7.2.0
 
 dev_dependencies:
   flutter_test:
