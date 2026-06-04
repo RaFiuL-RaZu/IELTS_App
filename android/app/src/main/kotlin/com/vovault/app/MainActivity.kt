@@ -1,4 +1,4 @@
-package com.justtsham.justtsham
+package com.vovault.app
 
 import io.flutter.embedding.android.FlutterActivity
 
