@@ -10,6 +10,7 @@ import '../../model/login_profile_model.dart';
 import '../../view/authentication/navber_screen.dart';
 
 class LoginController extends GetxController {
+  static LoginController get instance => Get.find<LoginController>();
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 

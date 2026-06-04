@@ -9,6 +9,7 @@ import 'package:justtsham/core/widgets/common_text.dart';
 import 'package:justtsham/core/widgets/common_text_field.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
 import 'package:justtsham/featcher/controller/AuthController/login_controller.dart';
+import 'package:justtsham/featcher/controller/AuthController/signup_controller.dart';
 import 'package:justtsham/featcher/view/authentication/create_account.dart';
 import 'package:justtsham/featcher/view/authentication/forgot_password.dart';
 
@@ -17,6 +18,7 @@ class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
   final LoginController controller = Get.put(LoginController());
+  final SignUpController signUpController = Get.put(SignUpController());
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -154,30 +156,39 @@ class LoginScreen extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 22.h),
-                Container(
-                  height: 48.h,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: Colors.white,
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      spacing: 5,
-                      children: [
-                        Image.asset(
-                          AppIcons.google,
-                          height: 20,
-                          width: 20,
-                          fit: BoxFit.fill,
-                        ),
-                        CommonText(
-                          title: "Sign in with Google",
-                          fSize: 18.sp,
-                          fWeight: FontWeight.w600,
-                        ),
-                      ],
+                GestureDetector(
+                  onTap: ()async{
+                    await signUpController.signInWithGoogle();
+
+                    if (signUpController.accessToken.isNotEmpty) {
+                      await signUpController.postGoogle();
+                    }
+                  },
+                  child: Container(
+                    height: 48.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white,
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 5,
+                        children: [
+                          Image.asset(
+                            AppIcons.google,
+                            height: 20,
+                            width: 20,
+                            fit: BoxFit.fill,
+                          ),
+                          CommonText(
+                            title: "Sign in with Google",
+                            fSize: 18.sp,
+                            fWeight: FontWeight.w600,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

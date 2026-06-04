@@ -84,7 +84,6 @@ class CommunityController extends GetxController {
     }
   }
 
-  /// Format time
   String get formattedTime {
     final minutes = (seconds.value ~/ 60).toString().padLeft(2, '0');
     final secs = (seconds.value % 60).toString().padLeft(2, '0');
@@ -92,7 +91,7 @@ class CommunityController extends GetxController {
   }
   RxBool isLoading=false.obs;
 
-  WeeklyModel weeklyModel=WeeklyModel();
+  WeeklyModel? weeklyModel;
 
   Future<void> getCommunity() async {
     isLoading(true);
@@ -111,10 +110,9 @@ class CommunityController extends GetxController {
         if (body['data'] != null) {
           weeklyModel = WeeklyModel.fromJson(body['data']);
         } else {
-          debugPrint("⚠️ API returned null data");
+          debugPrint("API returned null data");
 
-          // Optional: assign empty model to avoid UI crash
-          weeklyModel = WeeklyModel();
+          weeklyModel = null;
         }
       }
     } catch (e, s) {

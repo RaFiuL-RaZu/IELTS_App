@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:justtsham/core/services/api_services.dart';
+import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/featcher/controller/AuthController/signup_controller.dart';
 import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
@@ -100,6 +101,7 @@ var verifyToken="";
         Get.to(() => CompleteProfile());
       } else {
         Get.snackbar('Error', response.message,
+            backgroundColor: AppColor.primary,
             snackPosition: SnackPosition.TOP);
       }
     } catch (e, s) {

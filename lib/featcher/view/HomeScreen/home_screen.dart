@@ -62,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: CommonText(
-                  title: "Good ${getGreeting()}!",
+                  title: "Your voice.Your vault",
                   fSize: 16,
                   fWeight: FontWeight.w500,
                   color: AppColor.secondary,
@@ -102,7 +102,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 12.h),
               Obx(() {
                 if (boxController.isLoading.value) {
                   return Center(
@@ -111,121 +110,127 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
 
                 final data = boxController.weeklyModel;
-                if (data == null) {
-                  return const SizedBox();
-                }
 
-                return Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF180E27), Color(0xFF56397C)],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0xFF6C4DFF).withOpacity(0.20),
-                        offset: Offset(0, 20),
-                        blurRadius: 25,
-                        spreadRadius: -5,
+                if (data == null) {
+                return const SizedBox();
+                }
+                return Column(
+                  children: [
+                    SizedBox(height: 12.h),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF180E27), Color(0xFF56397C)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF6C4DFF).withOpacity(0.20),
+                            offset: Offset(0, 20),
+                            blurRadius: 25,
+                            spreadRadius: -5,
+                          ),
+                          BoxShadow(
+                            color: Color(0xFF6C4DFF).withOpacity(0.20),
+                            offset: Offset(0, 8),
+                            blurRadius: 10,
+                            spreadRadius: -6,
+                          ),
+                        ],
                       ),
-                      BoxShadow(
-                        color: Color(0xFF6C4DFF).withOpacity(0.20),
-                        offset: Offset(0, 8),
-                        blurRadius: 10,
-                        spreadRadius: -6,
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          spacing: 5,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Image.asset(
-                              AppIcons.trophy,
-                              height: 15.h,
-                              width: 15.h,
+                            Row(
+                              spacing: 5,
+                              children: [
+                                Image.asset(
+                                  AppIcons.trophy,
+                                  height: 15.h,
+                                  width: 15.h,
+                                ),
+                                CommonText(
+                                  title: "Weekly Challenge",
+                                  fSize: 12,
+                                  fWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ],
                             ),
+                            SizedBox(height: 9.h),
                             CommonText(
-                              title: "Weekly Challenge",
-                              fSize: 12,
+                              title: data.title ?? "",
+                              maxLine: 2,
+                              fSize: 22,
+                              overflow: TextOverflow.ellipsis,
                               fWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
-                          ],
-                        ),
-                        SizedBox(height: 9.h),
-                        CommonText(
-                          title: data.title ?? "",
-                          maxLine: 2,
-                          fSize: 22,
-                          overflow: TextOverflow.ellipsis,
-                          fWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                        SizedBox(height: 10.h),
-                        CommonText(
-                          title:
-                          data.content ?? "",
-                          fSize: 16,
-                          maxLine: 3,
-                          overflow: TextOverflow.ellipsis,
-                          fWeight: FontWeight.w400,
-                          color: Colors.white,
-                        ),
-                        SizedBox(height: 10.h),
-                        CommonText(
-                          title: data.weeklyScriptExpiryDate != null
-                              ? "${OtherHelper.formatDate(data.weeklyScriptExpiryDate.toString())} remaining"
-                              : "No date available",
-                          fSize: 12,
-                          fWeight: FontWeight.w400,
-                          color: Colors.white,
-                        ),
-                        SizedBox(height: 10.h),
-                        GestureDetector(
-                          onTap: () {
-                            if(data.isPracticed==false){
-                              Get.to(() => CommercialScreen(title:data.content.toString(), id: data.id.toString(), page: 'community',));
-                            }
-                          },
-                          child: Container(
-                            height: 48.h,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              color: Color(0xFF7741C1),
+                            SizedBox(height: 10.h),
+                            CommonText(
+                              title: data.content ?? "",
+                              fSize: 16,
+                              maxLine: 3,
+                              overflow: TextOverflow.ellipsis,
+                              fWeight: FontWeight.w400,
+                              color: Colors.white,
                             ),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                spacing: 5,
-                                children: [
-                                  CommonText(
-                                    title: data.isPracticed==true ? "Completed" : "Submit Your Take",
-                                    fSize: 20.sp,
-                                    fWeight: FontWeight.w500,
-                                    color: Colors.white,
+                            SizedBox(height: 10.h),
+                            CommonText(
+                              title: data.weeklyScriptExpiryDate != null
+                                  ? "${OtherHelper.formatDate(data.weeklyScriptExpiryDate.toString())} remaining"
+                                  : "No date available",
+                              fSize: 12,
+                              fWeight: FontWeight.w400,
+                              color: Colors.white,
+                            ),
+                            SizedBox(height: 10.h),
+                            GestureDetector(
+                              onTap: () {
+                                if (data.isPracticed == false) {
+                                  Get.to(() => CommercialScreen(
+                                    title: data.content.toString(),
+                                    id: data.id.toString(),
+                                    page: 'community',
+                                  ));
+                                }
+                              },
+                              child: Container(
+                                height: 48.h,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: Color(0xFF7741C1),
+                                ),
+                                child: Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    spacing: 5,
+                                    children: [
+                                      CommonText(
+                                        title: data.isPracticed == true
+                                            ? "Completed"
+                                            : "Submit Your Take",
+                                        fSize: 20.sp,
+                                        fWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 );
-                ;
               }),
               SizedBox(height: 20.h),
               Obx(

@@ -14,12 +14,11 @@ class AppUrl{
   static const String socketUrl = "http://10.10.5.47:8888/api/v1";
 
 
-
-
   static const String createAccount ="$baseUrl/users/create";
   static const String verifyEmail ="$baseUrl/users/create-user-verify-otp";
   static const String completeProfile ="$baseUrl/users/complete-my-profile";
   static const String login ="$baseUrl/auth/login";
+  static const String googleLogin ="$baseUrl/auth/create-or-login-google-user";
   static const String myProfile ="$baseUrl/users/get-user-profile";
   static const String resentOtp ="$baseUrl/otp/resend-email-otp?purpose=create";
   static const String updateProfile ="$baseUrl/users/update-my-profile";
