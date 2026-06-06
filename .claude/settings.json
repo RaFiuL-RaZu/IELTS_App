@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -rf /Users/topuroy/.gradle/caches/ && echo \"Gradle caches cleared\")",
+      "Bash(rm -rf ~/Library/Developer/Xcode/DerivedData && echo \"Xcode DerivedData cleared\")"
+    ],
+    "additionalDirectories": [
+      "/Users/topuroy/.gradle/caches",
+      "/Users/topuroy/Library/Developer/Xcode/DerivedData"
+    ]
+  }
+}

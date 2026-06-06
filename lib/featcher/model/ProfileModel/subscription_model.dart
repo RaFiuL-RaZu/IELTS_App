@@ -2,8 +2,8 @@ class SubscriptionModel {
   final String? id;
   final String? title;
   final String? description;
-  final int price;
-  final int durationInDays;
+  final num price;
+  final num durationInDays;
   final List<String> features;
   final bool isActive;
   final DateTime? createdAt;

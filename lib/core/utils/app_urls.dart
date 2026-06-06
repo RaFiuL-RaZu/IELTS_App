@@ -19,6 +19,7 @@ class AppUrl{
   static const String completeProfile ="$baseUrl/users/complete-my-profile";
   static const String login ="$baseUrl/auth/login";
   static const String googleLogin ="$baseUrl/auth/create-or-login-google-user";
+  static const String appleLogin ="$baseUrl/auth/create-or-login-apple-user";
   static const String myProfile ="$baseUrl/users/get-user-profile";
   static const String resentOtp ="$baseUrl/otp/resend-email-otp?purpose=create";
   static const String updateProfile ="$baseUrl/users/update-my-profile";

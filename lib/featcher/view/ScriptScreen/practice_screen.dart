@@ -77,7 +77,7 @@ class PracticeScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CommonText(
-                              title: "Narrator",
+                              title: "Narrator Rafiul",
                               fSize: 15,
                               fWeight: FontWeight.w700,
                               color: AppColor.secondary,
@@ -479,6 +479,10 @@ class PracticeScreen extends StatelessWidget {
                                                   ),
                                                   SizedBox(height: 10.h),
                                                   ProfileBox(
+                                                    onTap: () {
+                                                      Get.back();
+                                                      controller.pickAudioFile();
+                                                    },
                                                     title: 'Google Drive',
                                                     icon: AppIcons.drop,
                                                     boxColor: Color(
@@ -487,6 +491,10 @@ class PracticeScreen extends StatelessWidget {
                                                   ),
                                                   SizedBox(height: 12.h),
                                                   ProfileBox(
+                                                    onTap: () {
+                                                      Get.back();
+                                                      controller.pickAudioFile();
+                                                    },
                                                     title: 'Cloud Drive',
                                                     icon: AppIcons.drop,
                                                     boxColor: Color(
