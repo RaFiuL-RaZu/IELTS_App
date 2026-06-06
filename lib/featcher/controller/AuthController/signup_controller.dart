@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
@@ -285,31 +284,31 @@ class SignUpController extends GetxController {
   
   var appleToken = "";
 
-  Future<String?> signInWithApple() async {
-    try {
-      final credential = await SignInWithApple.getAppleIDCredential(
-        scopes: const [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
-      final identityToken = credential.userIdentifier;
-      if (identityToken != null) {
-        appleToken = identityToken;
-      String applename =
-          (credential.familyName ?? "") + (credential.givenName ?? "");
-      String appleEmail = credential.email ?? "";
-      print("applename=========$applename");
-      print("appleemail=========$appleEmail");
-      print("identityToken=========$identityToken");
-      print("uidtoken=========${credential.userIdentifier}");
-      }
-    } catch (e, s) {
-      debugPrint("Apple Sign-In Error: $e\n$s");
-      return null;
-    }
-    return null;
-  }
+  // Future<String?> signInWithApple() async {
+  //   try {
+  //     final credential = await SignInWithApple.getAppleIDCredential(
+  //       scopes: const [
+  //         AppleIDAuthorizationScopes.email,
+  //         AppleIDAuthorizationScopes.fullName,
+  //       ],
+  //     );
+  //     final identityToken = credential.userIdentifier;
+  //     if (identityToken != null) {
+  //       appleToken = identityToken;
+  //     String applename =
+  //         (credential.familyName ?? "") + (credential.givenName ?? "");
+  //     String appleEmail = credential.email ?? "";
+  //     print("applename=========$applename");
+  //     print("appleemail=========$appleEmail");
+  //     print("identityToken=========$identityToken");
+  //     print("uidtoken=========${credential.userIdentifier}");
+  //     }
+  //   } catch (e, s) {
+  //     debugPrint("Apple Sign-In Error: $e\n$s");
+  //     return null;
+  //   }
+  //   return null;
+  // }
 
   Future<void> postApple() async {
     try {
