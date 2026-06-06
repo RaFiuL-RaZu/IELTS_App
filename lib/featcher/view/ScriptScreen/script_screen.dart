@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
@@ -10,6 +11,7 @@ import 'package:justtsham/featcher/controller/ScriptController/script_controller
 import 'package:justtsham/featcher/model/ScriptModel/script_model.dart';
 import 'package:justtsham/featcher/view/ScriptScreen/practice_screen.dart';
 import '../CummunityScreen/commercial_screen.dart';
+import 'package:justtsham/core/widgets/common_snackber.dart';
 
 class ScriptScreen extends StatefulWidget {
   const ScriptScreen({super.key});
@@ -521,16 +523,26 @@ class _ScriptScreenState extends State<ScriptScreen> {
                                     Get.to(()=>PracticeScreen(content: controller.script.value, title: controller.selectedCategory.value,));
                                   },
                                   titleText: "Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),)),
-                                Container(
-                                  height: 48.h,
-                                  width: 48.w,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(14),
-                                      color: Colors.white,
-                                      border: Border.all(color: Colors.grey.shade300)
-                                  ),
-                                  child: Center(
-                                    child: Icon(Icons.copy,color: Colors.grey.shade400,),
+                                GestureDetector(
+                                  onTap: () async {
+                                    await Clipboard.setData(ClipboardData(text: controller.script.value));
+                                    CommonSnackBar.show(
+                                      title: 'Copied',
+                                      message: 'Script copied to clipboard',
+                                      isSuccess: true,
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 48.h,
+                                    width: 48.w,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(14),
+                                        color: Colors.white,
+                                        border: Border.all(color: Colors.grey.shade300)
+                                    ),
+                                    child: Center(
+                                      child: Icon(Icons.copy,color: Colors.grey.shade400,),
+                                    ),
                                   ),
                                 )
 

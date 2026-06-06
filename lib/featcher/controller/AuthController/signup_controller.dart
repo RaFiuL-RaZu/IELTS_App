@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
@@ -176,8 +176,8 @@ class SignUpController extends GetxController {
   }
   void initSocialAuth() async {
     await _googleSignIn.initialize(
-      serverClientId:
-      '349261530631-b6msia8gkr3pl55gp594juvdptfqn5vg.apps.googleusercontent.com',
+      clientId: '349261530631-lb22ptccon3daclo1938729quhubt3tt.apps.googleusercontent.com', // iOS OAuth client ID from GoogleService-Info.plist (CLIENT_ID field)
+      serverClientId: '349261530631-b6msia8gkr3pl55gp594juvdptfqn5vg.apps.googleusercontent.com',
     );
   }
 
@@ -282,7 +282,108 @@ class SignUpController extends GetxController {
       debugPrint("Error occurred: $e");
     }
   }
+  
+  var appleToken = "";
+
+  Future<String?> signInWithApple() async {
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: const [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+      final identityToken = credential.userIdentifier;
+      if (identityToken != null) {
+        appleToken = identityToken;
+      String applename =
+          (credential.familyName ?? "") + (credential.givenName ?? "");
+      String appleEmail = credential.email ?? "";
+      print("applename=========$applename");
+      print("appleemail=========$appleEmail");
+      print("identityToken=========$identityToken");
+      print("uidtoken=========${credential.userIdentifier}");
+      }
+    } catch (e, s) {
+      debugPrint("Apple Sign-In Error: $e\n$s");
+      return null;
+    }
+    return null;
+  }
+
+  Future<void> postApple() async {
+    try {
+      final body = {
+        "accessToken": appleToken,
+      };
+
+      final response = await ApiService.postApi(AppUrl.appleLogin, body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.body['data'];
+        final loginModel = LoginProfileModel.fromJson(data);
+        LoginController.instance.loginProfileModel = loginModel;
+
+        final token = loginModel.accessToken;
+        PrefsHelper.token = token;
+        VerifyEmailController.instance.verifyToken = token;
+        await initPrefsValue(userData: loginModel);
+
+        if (LoginController.instance.isCheck.value) {
+          await PrefsHelper.getAllPrefData();
+        }
+
+        final hasCompletedProfile = loginModel.user.hasCompletedProfile;
+
+        if (hasCompletedProfile) {
+          CommonSnackBar.show(
+            title: "Success",
+            message: "Login successfully",
+            isSuccess: true,
+          );
+          Get.offAll(() => NavBarScreen());
+        } else {
+          Get.showSnackbar(
+            GetSnackBar(
+              title: "Message",
+              message: "Account created successfully",
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: AppColor.primary,
+              margin: const EdgeInsets.all(10),
+              borderRadius: 8,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          Get.to(() => CompleteProfile());
+        }
+
+        appleToken = '';
+      } else {
+        Get.showSnackbar(
+          GetSnackBar(
+            title: "Error",
+            message: response.message,
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.red,
+            margin: const EdgeInsets.all(10),
+            borderRadius: 8,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        appleToken = '';
+      }
+    } catch (e) {
+      debugPrint("Apple login error: $e");
+    }
+  }
+  
+  
+  
+  
+  
+  
   Future<void> initPrefsValue({required LoginProfileModel userData}) async {
+  
     PrefsHelper.token = userData.accessToken;
     PrefsHelper.userId = userData.user.id;
     PrefsHelper.myName = userData.user.fullName;

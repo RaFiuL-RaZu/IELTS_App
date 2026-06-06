@@ -7,9 +7,7 @@ import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/utils/app_icons.dart';
 import 'package:justtsham/core/widgets/common_text_field.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
-import 'package:justtsham/featcher/controller/AuthController/signup_controller.dart';
 import 'package:justtsham/featcher/controller/AuthController/verify_email_controller.dart';
-import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
 import '../../../core/widgets/common_text.dart';
 
 class CompleteProfile extends StatelessWidget {

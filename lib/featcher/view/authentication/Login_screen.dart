@@ -193,30 +193,38 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 10.h),
-                Container(
-                  height: 48.h,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: Colors.white,
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      spacing: 5,
-                      children: [
-                        Image.asset(
-                          AppIcons.apple,
-                          height: 20,
-                          width: 20,
-                          fit: BoxFit.fill,
-                        ),
-                        CommonText(
-                          title: "Sign in with Apple",
-                          fSize: 18.sp,
-                          fWeight: FontWeight.w600,
-                        ),
-                      ],
+                GestureDetector(
+                  onTap: () async {
+                    await signUpController.signInWithApple();
+                    if (signUpController.appleToken.isNotEmpty) {
+                      await signUpController.postApple();
+                    }
+                  },
+                  child: Container(
+                    height: 48.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white,
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 5,
+                        children: [
+                          Image.asset(
+                            AppIcons.apple,
+                            height: 20,
+                            width: 20,
+                            fit: BoxFit.fill,
+                          ),
+                          CommonText(
+                            title: "Sign in with Apple",
+                            fSize: 18.sp,
+                            fWeight: FontWeight.w600,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

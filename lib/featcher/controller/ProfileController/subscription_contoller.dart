@@ -43,16 +43,12 @@ class SubscriptionController extends GetxController{
   }
   
   Future<void> getSubscription()async{
-    
+
     isLoading(true);
-    
+
     try{
-      
-      Map<String,String> header={
-        'token':PrefsHelper.token
-      };
-      
-      final response=await ApiService.getApi(AppUrl.subscription,header: header);
+
+      final response=await ApiService.getApi(AppUrl.subscription);
 
       if(response.statusCode==200 || response.statusCode==201){
 
@@ -61,15 +57,15 @@ class SubscriptionController extends GetxController{
             data.map((e) => SubscriptionModel.fromJson(e)).toList();
 
       }
-      
+
     }catch(e,s){
       debugPrint("Error Handling :$e");
       debugPrint("SnackTrack Error :$e");
     }finally{
       isLoading(false);
     }
-    
-    
+
+
   }
 
 
@@ -80,11 +76,7 @@ Rx<MyPlanModel> myPlanModel=MyPlanModel().obs;
 
     try{
 
-      Map<String,String> header={
-        'token':PrefsHelper.token
-      };
-
-      final response=await ApiService.getApi(AppUrl.getMyPlan,header: header);
+      final response=await ApiService.getApi(AppUrl.getMyPlan);
 
       if(response.statusCode==200 || response.statusCode==201){
 

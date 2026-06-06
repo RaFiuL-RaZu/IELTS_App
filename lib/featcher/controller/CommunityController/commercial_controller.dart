@@ -3,11 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:justtsham/featcher/controller/AuthController/navber_controller.dart';
 import 'package:justtsham/featcher/controller/CommunityController/community_controller.dart';
 import 'package:justtsham/featcher/controller/ScriptController/script_controller.dart';
-import 'package:justtsham/featcher/view/ScriptScreen/script_screen.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/constant/prefs_helper.dart';
@@ -39,47 +40,40 @@ class CommercialController extends GetxController {
   RxBool isLoading = false.obs;
 
   Future<void> pickAudioFile() async {
-    debugPrint("pickAudioFile called");
-
-
-    var status = await Permission.storage.status;
-    if (!status.isGranted) {
-      debugPrint("Storage permission not granted, requesting...");
-      status = await Permission.storage.request();
-    }
-
-    if (!status.isGranted) {
-      var mediaStatus = await Permission.audio.status;
-      if (!mediaStatus.isGranted) {
-        debugPrint("Audio permission not granted, requesting...");
-        mediaStatus = await Permission.audio.request();
+    if (Platform.isAndroid) {
+      var audioStatus = await Permission.audio.request();
+      if (!audioStatus.isGranted) {
+        final storageStatus = await Permission.storage.request();
+        if (!storageStatus.isGranted) return;
       }
     }
-
-    debugPrint("Storage permission: ${status.isGranted}");
 
     isLoading.value = true;
 
     try {
       FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['mp3', 'wav', 'm4a', 'ogg'],
-        withData: true,
+        allowedExtensions: ['mp3', 'wav', 'm4a', 'aac', 'ogg'],
+        withData: false,
       );
 
-      debugPrint("FilePicker result: ${result != null ? 'has result' : 'null'}");
+      if (result == null) return;
 
-      if (result != null && result.files.single.path != null) {
-        selectedAudioFile = File(result.files.single.path!);
-        audioFileName.value = result.files.single.name;
-        debugPrint("Selected file: ${audioFileName.value}");
+      final file = result.files.single;
+      String? filePath = file.path;
 
-        await _prepareUploadedAudio(result.files.single.path!);
-      } else if (result == null) {
-        debugPrint("User cancelled file picker");
-      } else {
-        debugPrint("No file path in result");
+      if (filePath == null && file.bytes != null) {
+        final tempDir = await getTemporaryDirectory();
+        final tempFile = File('${tempDir.path}/${file.name}');
+        await tempFile.writeAsBytes(file.bytes!);
+        filePath = tempFile.path;
       }
+
+      if (filePath == null) return;
+
+      selectedAudioFile = File(filePath);
+      audioFileName.value = file.name;
+      await _prepareUploadedAudio(filePath);
     } catch (e) {
       debugPrint("Error picking audio file: $e");
     } finally {
@@ -169,12 +163,51 @@ class CommercialController extends GetxController {
 
     _isRequestingPermission = true;
 
-    final status = await Permission.microphone.request();
-
-    _isRequestingPermission = false;
+    PermissionStatus status;
+    try {
+      status = await Permission.microphone.request();
+    } finally {
+      _isRequestingPermission = false;
+    }
 
     if (!status.isGranted) {
-      debugPrint("Permission denied");
+      debugPrint("Permission denied: $status");
+      // On iOS, after first denial status is 'denied' (not permanentlyDenied)
+      // because iOS never re-prompts — user must go to Settings.
+      final bool needSettings =
+          status.isPermanentlyDenied || (Platform.isIOS && status.isDenied);
+
+      if (needSettings) {
+        Get.dialog(
+          AlertDialog(
+            title: const Text('Microphone Permission Required'),
+            content: const Text(
+              'Microphone access is required to record audio.\n\n'
+              'Go to: Settings → Privacy & Security → Microphone → enable this app.\n\n'
+              'Or tap "Open Settings" below.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Get.back();
+                  await openAppSettings();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        Get.snackbar(
+          'Permission Required',
+          'Microphone permission is needed to record audio.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
       return;
     }
 
@@ -324,12 +357,12 @@ class CommercialController extends GetxController {
         debugPrint("Response: ${response.body}");
         debugPrint("Response: ${response.statusCode}");
         if(title=="script"){
-          Get.offAll(()=>ScriptScreen());
+          Get.until((route) => route.isFirst);
+          Get.find<NavBarController>().changeTab(1);
           ScriptController.instance.getScript();
         }else{
           Get.back();
           CommunityController.instance.getCommunity();
-
         }
       }
     } catch (e, s) {
