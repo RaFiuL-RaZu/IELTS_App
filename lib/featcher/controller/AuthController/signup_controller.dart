@@ -15,6 +15,7 @@ import 'package:justtsham/featcher/view/authentication/verify_email.dart';
 import '../../model/login_profile_model.dart';
 import '../../view/authentication/complete_profile.dart';
 import '../../view/authentication/navber_screen.dart';
+import '../NotificationController/notification_controller.dart';
 
 class SignUpController extends GetxController {
   static SignUpController get instance => Get.find<SignUpController>();
@@ -175,7 +176,7 @@ class SignUpController extends GetxController {
   }
   void initSocialAuth() async {
     await _googleSignIn.initialize(
-      clientId: '349261530631-lb22ptccon3daclo1938729quhubt3tt.apps.googleusercontent.com', // iOS OAuth client ID from GoogleService-Info.plist (CLIENT_ID field)
+      // clientId: '349261530631-lb22ptccon3daclo1938729quhubt3tt.apps.googleusercontent.com', // iOS OAuth client ID from GoogleService-Info.plist (CLIENT_ID field)
       serverClientId: '349261530631-b6msia8gkr3pl55gp594juvdptfqn5vg.apps.googleusercontent.com',
     );
   }
@@ -232,7 +233,6 @@ class SignUpController extends GetxController {
         final hasCompletedProfile = loginModel.user.hasCompletedProfile;
 
         if (hasCompletedProfile) {
-
           CommonSnackBar.show(
             title: "Success",
             message: "Login successfully",
@@ -240,6 +240,9 @@ class SignUpController extends GetxController {
           );
 
           Get.offAll(() => NavBarScreen());
+          if (PrefsHelper.token.isNotEmpty) {
+            Get.find<NotificationController>().addToken();
+          }
 
         } else {
 

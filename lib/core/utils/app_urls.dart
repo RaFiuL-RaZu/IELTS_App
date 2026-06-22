@@ -2,16 +2,16 @@
 
 class AppUrl{
    //Live url//
-  static const String baseUrl = "http://13.48.207.202:8889/api/v1";
-  static const String imageUrl = "http://13.48.207.202:8889";
-  static const String socketUrl = "http://10.10.5.47:8888/api/v1";
+  // static const String baseUrl = "http://13.48.207.202:8889/api/v1";
+  // static const String imageUrl = "http://13.48.207.202:8889";
+  // static const String socketUrl = "http://10.10.5.47:8888/api/v1";
 
 
    //Local url//
 
-  // static const String baseUrl = "http://10.10.10.31:8899/api/v1";
-  // static const String imageUrl = "http://10.10.10.31:8899";
-  // static const String socketUrl = "http://10.10.5.47:8888/api/v1";
+  static const String baseUrl = "https://nj3lnpq3-8899.inc1.devtunnels.ms/api/v1";
+  static const String imageUrl = "https://nj3lnpq3-8899.inc1.devtunnels.ms";
+  static const String socketUrl = "http://10.10.5.47:8888/api/v1";
 
 
   static const String createAccount ="$baseUrl/users/create";
@@ -42,6 +42,7 @@ class AppUrl{
   static  String getMyPlan ="$baseUrl/subscriptions/my-subscriptions";
   static  String getHelp ="$baseUrl/setting/help-center";
   static  String getNotify ="$baseUrl/notifications/my-notifications";
+  static  String tokenAdd ="$baseUrl/users/set-or-remove-fcm-token?status=set";
   static  String createFav ="$baseUrl/favorites/add";
   static  String deleteFav ="$baseUrl/favorites/delete";
   static  String getPayment ="$baseUrl/stripe/create-subscription-session";
