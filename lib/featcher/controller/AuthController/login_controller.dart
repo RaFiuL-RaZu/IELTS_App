@@ -7,6 +7,7 @@ import '../../../core/constant/prefs_helper.dart';
 import '../../../core/widgets/common_snackber.dart';
 import '../../model/login_profile_model.dart';
 import '../../view/authentication/navber_screen.dart';
+import '../NotificationController/notification_controller.dart';
 
 class LoginController extends GetxController {
   static LoginController get instance => Get.find<LoginController>();
@@ -31,10 +32,18 @@ class LoginController extends GetxController {
         debugPrint("response${response.body}");
         final data = response.body['data'];
         loginProfileModel = LoginProfileModel.fromJson(data);
-
         await initPrefsValue(userData: loginProfileModel);
+<<<<<<< HEAD
+=======
+        if (isCheck.value) {
+          await PrefsHelper.getAllPrefData();
+        }
+>>>>>>> 9d2f702eb80e94f0dcf78242f49a8fd88a5e90f3
 
         debugPrint("loginToken:${PrefsHelper.token}");
+        if (PrefsHelper.token.isNotEmpty) {
+          await Get.find<NotificationController>().addToken();
+        }
         CommonSnackBar.show(
           title: "Success",
           message: "Login successfully",

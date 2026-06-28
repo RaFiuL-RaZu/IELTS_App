@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,6 +15,7 @@ import 'package:justtsham/featcher/view/authentication/verify_email.dart';
 import '../../model/login_profile_model.dart';
 import '../../view/authentication/complete_profile.dart';
 import '../../view/authentication/navber_screen.dart';
+import '../NotificationController/notification_controller.dart';
 
 class SignUpController extends GetxController {
   static SignUpController get instance => Get.find<SignUpController>();
@@ -176,7 +176,7 @@ class SignUpController extends GetxController {
   }
   void initSocialAuth() async {
     await _googleSignIn.initialize(
-      clientId: '349261530631-lb22ptccon3daclo1938729quhubt3tt.apps.googleusercontent.com', // iOS OAuth client ID from GoogleService-Info.plist (CLIENT_ID field)
+      // clientId: '349261530631-lb22ptccon3daclo1938729quhubt3tt.apps.googleusercontent.com', // iOS OAuth client ID from GoogleService-Info.plist (CLIENT_ID field)
       serverClientId: '349261530631-b6msia8gkr3pl55gp594juvdptfqn5vg.apps.googleusercontent.com',
     );
   }
@@ -231,7 +231,6 @@ class SignUpController extends GetxController {
         final hasCompletedProfile = loginModel.user.hasCompletedProfile;
 
         if (hasCompletedProfile) {
-
           CommonSnackBar.show(
             title: "Success",
             message: "Login successfully",
@@ -239,6 +238,9 @@ class SignUpController extends GetxController {
           );
 
           Get.offAll(() => NavBarScreen());
+          if (PrefsHelper.token.isNotEmpty) {
+            Get.find<NotificationController>().addToken();
+          }
 
         } else {
 
@@ -285,6 +287,7 @@ class SignUpController extends GetxController {
   
   var appleToken = "";
 
+<<<<<<< HEAD
   Future<String?> signInWithApple() async {
     try {
       final credential = await SignInWithApple.getAppleIDCredential(
@@ -311,6 +314,34 @@ class SignUpController extends GetxController {
     return null;
   }
 RxBool isApple=false.obs;
+=======
+  // Future<String?> signInWithApple() async {
+  //   try {
+  //     final credential = await SignInWithApple.getAppleIDCredential(
+  //       scopes: const [
+  //         AppleIDAuthorizationScopes.email,
+  //         AppleIDAuthorizationScopes.fullName,
+  //       ],
+  //     );
+  //     final identityToken = credential.userIdentifier;
+  //     if (identityToken != null) {
+  //       appleToken = identityToken;
+  //     String applename =
+  //         (credential.familyName ?? "") + (credential.givenName ?? "");
+  //     String appleEmail = credential.email ?? "";
+  //     print("applename=========$applename");
+  //     print("appleemail=========$appleEmail");
+  //     print("identityToken=========$identityToken");
+  //     print("uidtoken=========${credential.userIdentifier}");
+  //     }
+  //   } catch (e, s) {
+  //     debugPrint("Apple Sign-In Error: $e\n$s");
+  //     return null;
+  //   }
+  //   return null;
+  // }
+
+>>>>>>> 9d2f702eb80e94f0dcf78242f49a8fd88a5e90f3
   Future<void> postApple() async {
     isApple(true);
     try {

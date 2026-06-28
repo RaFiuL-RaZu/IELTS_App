@@ -110,9 +110,8 @@ var verifyToken="";
     } catch (e, s) {
       debugPrint("Verify OTP Error: $e");
       debugPrint("Stack trace: $s");
-      Get.snackbar('Error', 'Something went wrong',
-          snackPosition: SnackPosition.TOP);
-    } finally {
+      Get.snackbar('Error', 'Something went wrong',snackPosition: SnackPosition.TOP);
+    }finally {
       isLoading(false);
     }
   }
