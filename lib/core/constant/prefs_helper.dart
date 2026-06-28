@@ -8,6 +8,7 @@ class PrefsHelper extends GetxController {
   static String token = "";
   static bool isLogIn = false;
   static bool isVerify = false;
+  static bool hasSeenOnboard = false;
   static bool isNotifications = true;
   static String refreshToken = "";
   static String userId = "";
@@ -36,6 +37,7 @@ class PrefsHelper extends GetxController {
     myRole = preferences.getString("myRole") ?? "";
     isLogIn = preferences.getBool("isLogIn") ?? false;
     isVerify = preferences.getBool("isVerify") ?? false;
+    hasSeenOnboard = preferences.getBool("hasSeenOnboard") ?? false;
     isNotifications = preferences.getBool("isNotifications") ?? true;
     mySubscription = preferences.getString("mySubscription") ?? "shopping";
     localizationCountryCode =
@@ -57,20 +59,26 @@ class PrefsHelper extends GetxController {
   ///<<<======================== Get All Data Form Shared Preference ============>
   static Future<void> removeAllPrefData() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.clear();
-    preferences.setString("token", "");
-    preferences.setString("refreshToken", "");
-    preferences.setString("userId", "");
-    preferences.setString("myImage", "");
-    preferences.setString("myName", "");
-    preferences.setString("myEmail", "");
-    preferences.setBool("isLogIn", false);
-    preferences.setBool("isVerify", false);
-    preferences.setBool("isNotifications", true);
-    preferences.setString("mySubscription", "shopping");
+    await preferences.setString("token", "");
+    await preferences.setString("refreshToken", "");
+    await preferences.setString("userId", "");
+    await preferences.setString("myImage", "");
+    await preferences.setString("myName", "");
+    await preferences.setString("myEmail", "");
+    await preferences.setBool("isLogIn", false);
+    await preferences.setBool("isVerify", false);
+    await preferences.setBool("isNotifications", true);
+    await preferences.setString("mySubscription", "free");
 
-    // Get.offAllNamed(AppRoutes.signIn);
-    getAllPrefData();
+    token = "";
+    refreshToken = "";
+    userId = "";
+    myImage = "";
+    myName = "";
+    myEmail = "";
+    isLogIn = false;
+    isVerify = false;
+    // hasSeenOnboard is intentionally kept — no onboard repeat after logout
   }
 
   ///<<<======================== Get Data Form Shared Preference ==============>

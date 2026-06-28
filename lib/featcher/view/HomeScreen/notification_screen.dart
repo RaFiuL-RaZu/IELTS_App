@@ -71,8 +71,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                       ),
                                     ]
                                 ),child:Padding(
-                                padding: const EdgeInsets.all(14.0),
-                                child: Icon(Icons.favorite_border_outlined,color: Colors.red,),
+                                padding: const EdgeInsets.all(10.0),
+                                child: Icon(Icons.notifications,color: AppColor.primary,),
                               ),
                               ),
                               SizedBox(width: 15.w,),

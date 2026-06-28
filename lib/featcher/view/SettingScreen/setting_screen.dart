@@ -10,6 +10,7 @@ import 'package:justtsham/featcher/controller/ProfileController/profile_controll
 import 'package:justtsham/featcher/view/SettingScreen/privacy_screen.dart';
 import 'package:justtsham/featcher/view/SettingScreen/save_audition.dart';
 import 'package:justtsham/featcher/view/SettingScreen/subscription_page.dart';
+import 'package:justtsham/core/constant/prefs_helper.dart';
 import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
 import '../../../core/widgets/common_text.dart';
 import 'edit_profile.dart';
@@ -174,6 +175,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
                           Get.to(() => EditProfile());
                         },
@@ -184,6 +186,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       ),
                       Divider(color: Colors.grey.shade200),
                       GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
                           Get.to(() => SaveAudition());
                         },
@@ -194,6 +197,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       ),
                       Divider(color: Colors.grey.shade200),
                       GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
                           Get.to(() => SubscriptionPage());
                         },
@@ -204,6 +208,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       ),
                       Divider(color: Colors.grey.shade200),
                       GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
                           Get.to(() => PrivacyScreen());
                         },
@@ -241,6 +246,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
                           Get.to(() => HelpScreen());
                         },
@@ -346,8 +352,9 @@ class _SettingScreenState extends State<SettingScreen> {
                                     ),
                                     Expanded(
                                       child: CommonButton(
-                                        onTap: (){
-                                          Get.offAll(()=>LoginScreen());
+                                        onTap: () async {
+                                          await PrefsHelper.removeAllPrefData();
+                                          Get.offAll(() => LoginScreen());
                                         },
                                         buttonHeight: 50.h,
                                         titleText: "Log Out",

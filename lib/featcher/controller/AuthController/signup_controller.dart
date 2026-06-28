@@ -207,7 +207,9 @@ class SignUpController extends GetxController {
     }
     return null;
   }
+  RxBool isGoogle=false.obs;
   Future<void> postGoogle() async {
+    isGoogle(true);
     try {
       final body = {
         "accessToken": accessToken,
@@ -225,10 +227,6 @@ class SignUpController extends GetxController {
         PrefsHelper.token = token;
         VerifyEmailController.instance.verifyToken = token;
         await initPrefsValue(userData: loginModel);
-
-        if (LoginController.instance.isCheck.value) {
-          await PrefsHelper.getAllPrefData();
-        }
 
         final hasCompletedProfile = loginModel.user.hasCompletedProfile;
 
@@ -280,6 +278,8 @@ class SignUpController extends GetxController {
 
     } catch (e) {
       debugPrint("Error occurred: $e");
+    }finally{
+      isGoogle(false);
     }
   }
   
@@ -293,7 +293,7 @@ class SignUpController extends GetxController {
           AppleIDAuthorizationScopes.fullName,
         ],
       );
-      final identityToken = credential.userIdentifier;
+      final identityToken = credential.identityToken;
       if (identityToken != null) {
         appleToken = identityToken;
       String applename =
@@ -310,8 +310,9 @@ class SignUpController extends GetxController {
     }
     return null;
   }
-
+RxBool isApple=false.obs;
   Future<void> postApple() async {
+    isApple(true);
     try {
       final body = {
         "accessToken": appleToken,
@@ -328,10 +329,6 @@ class SignUpController extends GetxController {
         PrefsHelper.token = token;
         VerifyEmailController.instance.verifyToken = token;
         await initPrefsValue(userData: loginModel);
-
-        if (LoginController.instance.isCheck.value) {
-          await PrefsHelper.getAllPrefData();
-        }
 
         final hasCompletedProfile = loginModel.user.hasCompletedProfile;
 
@@ -374,6 +371,8 @@ class SignUpController extends GetxController {
       }
     } catch (e) {
       debugPrint("Apple login error: $e");
+    }finally{
+      isApple(false);
     }
   }
   
@@ -383,7 +382,6 @@ class SignUpController extends GetxController {
   
   
   Future<void> initPrefsValue({required LoginProfileModel userData}) async {
-  
     PrefsHelper.token = userData.accessToken;
     PrefsHelper.userId = userData.user.id;
     PrefsHelper.myName = userData.user.fullName;
@@ -391,13 +389,11 @@ class SignUpController extends GetxController {
     PrefsHelper.myImage = userData.user.profileImage;
     PrefsHelper.isLogIn = true;
 
-    if (LoginController.instance.isCheck.value) {
-      await PrefsHelper.setString('token', PrefsHelper.token);
-      await PrefsHelper.setString("userId", PrefsHelper.userId);
-      await PrefsHelper.setString("myImage", PrefsHelper.myImage);
-      await PrefsHelper.setString("myName", PrefsHelper.myName);
-      await PrefsHelper.setString("myEmail", PrefsHelper.myEmail);
-      await PrefsHelper.setBool("isLogIn", PrefsHelper.isLogIn);
-    }
+    await PrefsHelper.setString('token', PrefsHelper.token);
+    await PrefsHelper.setString("userId", PrefsHelper.userId);
+    await PrefsHelper.setString("myImage", PrefsHelper.myImage);
+    await PrefsHelper.setString("myName", PrefsHelper.myName);
+    await PrefsHelper.setString("myEmail", PrefsHelper.myEmail);
+    await PrefsHelper.setBool("isLogIn", PrefsHelper.isLogIn);
   }
 }

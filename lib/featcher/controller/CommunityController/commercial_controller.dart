@@ -17,7 +17,7 @@ import '../../../core/utils/app_urls.dart';
 
 class CommercialController extends GetxController {
   final recorderController = RecorderController();
-  late final PlayerController playerController;
+  late PlayerController playerController;
 
   var isRecorded = false.obs;
   var isRecording = false.obs;
@@ -119,13 +119,14 @@ class CommercialController extends GetxController {
     super.onInit();
 
     playerController = PlayerController();
-
+    _setupPlayerListeners();
     debugPrint("Commercial Controller Initialized");
+  }
 
+  void _setupPlayerListeners() {
     playerController.onCurrentDurationChanged.listen((duration) {
       currentPosition.value = duration;
     });
-
     playerController.onPlayerStateChanged.listen((state) {
       playerState.value = state;
     });
@@ -233,7 +234,9 @@ class CommercialController extends GetxController {
 
       if (recordedPath == null) return;
 
-      await playerController.stopPlayer(); // 🔥 ADD THIS
+      playerController.dispose();
+      playerController = PlayerController();
+      _setupPlayerListeners();
 
       await playerController.preparePlayer(path: recordedPath!);
 

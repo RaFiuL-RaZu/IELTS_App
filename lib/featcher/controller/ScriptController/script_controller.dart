@@ -107,7 +107,7 @@ class ScriptController extends GetxController{
     "Video Game",
     "Animation",
     "Commercial",
-    "Sports",
+    "Announcer",
   ];
 
   RxBool isDropdownOpen = false.obs;
@@ -119,7 +119,7 @@ class ScriptController extends GetxController{
     "Video Game",
     "Animation",
     "Commercial",
-    "Sports",
+    "Announcer",
   ];
 
   RxString selectedCategory = "".obs;

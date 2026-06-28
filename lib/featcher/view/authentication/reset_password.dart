@@ -13,6 +13,7 @@ class ResetPassword extends StatelessWidget {
  ResetPassword({super.key});
 
   final ForgotPasswordController controller=Get.put(ForgotPasswordController());
+  final formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,9 @@ class ResetPassword extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: SingleChildScrollView(
+        child: Form(
+          key: formKey,
+          child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -48,17 +51,75 @@ class ResetPassword extends StatelessWidget {
               SizedBox(height: 20.h),
               CommonText(title: "New Password",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
               SizedBox(height: 6.h,),
-              CommonTextField(title: "Password",sIcon: Icon(Icons.visibility_off,color: AppColor.secondary,),controller:controller.passwordController,),
+              Obx(() => CommonTextField(
+                title: "Password",
+                controller: controller.passwordController,
+                obscureText: controller.isPassword.value,
+                sIcon: GestureDetector(
+                  onTap: () {
+                    controller.isPassword.value = !controller.isPassword.value;
+                  },
+                  child: Icon(
+                    controller.isPassword.value ? Icons.visibility_off : Icons.visibility,
+                    size: 18,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "New password is required";
+                  }
+                  if (value.length < 8) {
+                    return "Password must be at least 8 characters";
+                  }
+                  if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                    return "Include at least 1 uppercase letter";
+                  }
+                  if (!RegExp(r'[0-9]').hasMatch(value)) {
+                    return "Include at least 1 number";
+                  }
+                  if (!RegExp(r'[!@#\$&*~%^]').hasMatch(value)) {
+                    return "Include at least 1 special character";
+                  }
+                  return null;
+                },
+              )),
               SizedBox(height: 10.h,),
               CommonText(title: "Confirm New Password",fSize: 16,fWeight: FontWeight.w700,color: AppColor.primary,),
               SizedBox(height: 6.h,),
-              CommonTextField(title: "Confirm password",sIcon: Icon(Icons.visibility_off,color: AppColor.secondary,),controller: controller.confirmPassController,),
+              Obx(() => CommonTextField(
+                title: "Confirm password",
+                controller: controller.confirmPassController,
+                obscureText: controller.isConfirmPassword.value,
+                sIcon: GestureDetector(
+                  onTap: () {
+                    controller.isConfirmPassword.value = !controller.isConfirmPassword.value;
+                  },
+                  child: Icon(
+                    controller.isConfirmPassword.value ? Icons.visibility_off : Icons.visibility,
+                    size: 18,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Confirm password is required";
+                  }
+                  if (value != controller.passwordController.text) {
+                    return "Passwords do not match";
+                  }
+                  return null;
+                },
+              )),
              SizedBox(height: 80,),
               CommonButton(titleText: "Get Verification Code",onTap: (){
-              controller.resetPassword();
+                if (formKey.currentState!.validate()) {
+                  controller.resetPassword();
+                }
               },),
               SizedBox(height: 50,),
             ],
+          ),
           ),
         ),
       ),

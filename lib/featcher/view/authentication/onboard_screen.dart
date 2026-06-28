@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:justtsham/core/constant/prefs_helper.dart';
 import 'package:justtsham/core/utils/app_icons.dart';
 import 'package:justtsham/core/widgets/coomon_button.dart';
 import 'package:justtsham/routes/routes.dart';
@@ -41,13 +42,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
   ];
 
-  void nextPage() {
+  void nextPage() async {
     if (currentIndex < pages.length - 1) {
       _controller.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeIn,
       );
     } else {
+      PrefsHelper.hasSeenOnboard = true;
+      await PrefsHelper.setBool("hasSeenOnboard", true);
       Get.toNamed(AppRoutes.login);
     }
   }

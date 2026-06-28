@@ -4,10 +4,12 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import "package:http/http.dart" as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import '../../featcher/model/Api_response_model.dart';
+import '../../featcher/view/authentication/Login_screen.dart';
 import '../constant/prefs_helper.dart';
 import '../utils/app_string.dart';
 
@@ -250,7 +252,8 @@ class ApiService {
       case 201:
         return ApiResponseModel(200, data['message'], data);
       case 401:
-      // Get.offAllNamed(AppRoutes.signInScreen);
+        PrefsHelper.removeAllPrefData();
+        Get.offAll(() => LoginScreen());
         return ApiResponseModel(response.statusCode, data['message'], data);
       case 400:
         return ApiResponseModel(response.statusCode, data['message'], data);

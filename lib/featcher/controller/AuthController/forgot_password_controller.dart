@@ -17,6 +17,8 @@ class ForgotPasswordController extends GetxController {
   final TextEditingController confirmPassController = TextEditingController();
 
   RxBool isLoading = false.obs;
+  RxBool isPassword = true.obs;
+  RxBool isConfirmPassword = true.obs;
 
   var forgetToken="";
 

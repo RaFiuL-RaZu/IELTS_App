@@ -35,7 +35,9 @@ class LoginScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Form(
@@ -81,49 +83,22 @@ class LoginScreen extends StatelessWidget {
                   validator: (value) => Validator.validatePassword(value),
                 ),
                 SizedBox(height: 10.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Obx(() => Row(
-                          spacing: 10,
-                          children: [
-                            SizedBox(
-                              height: 14.h,
-                              width: 14.h,
-                              child: Checkbox(
-                                value: controller.isCheck.value,
-                                activeColor: AppColor.primary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                                onChanged: (value) {
-                                  controller.isCheck.value = value!;
-                                },
-                              ),
-                            ),
-                            CommonText(
-                              title: "Remember me",
-                              fSize: 14,
-                              fWeight: FontWeight.w400,
-                              color: AppColor.primary,
-                            ),
-                          ],
-                        )),
-                    GestureDetector(
-                      onTap: () {
-                        Get.to(() => ForgotPassword());
-                      },
-                      child: Text(
-                        "Forgot Password",
-                        style: TextStyle(
-                          color: AppColor.primary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          decoration: TextDecoration.underline,
-                        ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: () {
+                      Get.to(() => ForgotPassword());
+                    },
+                    child: Text(
+                      "Forgot Password",
+                      style: TextStyle(
+                        color: AppColor.primary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.underline,
                       ),
                     ),
-                  ],
+                  ),
                 ),
                 SizedBox(height: 20.h),
                 Obx(() => CommonButton(
@@ -156,78 +131,87 @@ class LoginScreen extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 22.h),
-                GestureDetector(
-                  onTap: ()async{
-                    await signUpController.signInWithGoogle();
-
-                    if (signUpController.accessToken.isNotEmpty) {
-                      await signUpController.postGoogle();
-                    }
-                  },
-                  child: Container(
-                    height: 48.h,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: Colors.white,
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: 5,
-                        children: [
-                          Image.asset(
-                            AppIcons.google,
-                            height: 20,
-                            width: 20,
-                            fit: BoxFit.fill,
-                          ),
-                          CommonText(
-                            title: "Sign in with Google",
-                            fSize: 18.sp,
-                            fWeight: FontWeight.w600,
-                          ),
-                        ],
+                Obx(() {
+                  if (signUpController.isGoogle.value) {
+                    return Center(child: CircularProgressIndicator(color: AppColor.primary));
+                  }
+                  return GestureDetector(
+                    onTap: () async {
+                      await signUpController.signInWithGoogle();
+                      if (signUpController.accessToken.isNotEmpty) {
+                        await signUpController.postGoogle();
+                      }
+                    },
+                    child: Container(
+                      height: 48.h,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.white,
+                      ),
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 5,
+                          children: [
+                            Image.asset(
+                              AppIcons.google,
+                              height: 20,
+                              width: 20,
+                              fit: BoxFit.fill,
+                            ),
+                            CommonText(
+                              title: "Sign in with Google",
+                              fSize: 18.sp,
+                              fWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                }),
                 SizedBox(height: 10.h),
-                GestureDetector(
-                  onTap: () async {
-                    await signUpController.signInWithApple();
-                    if (signUpController.appleToken.isNotEmpty) {
-                      await signUpController.postApple();
-                    }
-                  },
-                  child: Container(
-                    height: 48.h,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: Colors.white,
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: 5,
-                        children: [
-                          Image.asset(
-                            AppIcons.apple,
-                            height: 20,
-                            width: 20,
-                            fit: BoxFit.fill,
-                          ),
-                          CommonText(
-                            title: "Sign in with Apple",
-                            fSize: 18.sp,
-                            fWeight: FontWeight.w600,
-                          ),
-                        ],
+                Obx(() {
+                  if (signUpController.isApple.value) {
+                    return Center(child: CircularProgressIndicator(color: AppColor.primary));
+                  }
+                  return GestureDetector(
+                    onTap: () async {
+                      await signUpController.signInWithApple();
+                      if (signUpController.appleToken.isNotEmpty) {
+                        await signUpController.postApple();
+                      }
+                    },
+                    child: Container(
+                      height: 48.h,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.white,
+                      ),
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 5,
+                          children: [
+                            Image.asset(
+                              AppIcons.apple,
+                              height: 20,
+                              width: 20,
+                              fit: BoxFit.fill,
+                            ),
+                            CommonText(
+                              title: "Sign in with Apple",
+                              fSize: 18.sp,
+                              fWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                }),
                 SizedBox(height: 50),
                 Center(
                   child: RichText(
@@ -260,6 +244,7 @@ class LoginScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }

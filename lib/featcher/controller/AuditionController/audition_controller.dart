@@ -28,11 +28,25 @@ class AuditionController extends GetxController {
   }
 
   RxList<ChartData> chartData = <ChartData>[].obs;
+  RxString selectedChartType = 'Booked'.obs;
 
   Rxn<ActivityModel> activityModel = Rxn<ActivityModel>();
 
   void setChartFromModel(ActivityModel model) {
-    final m = model.monthlyActivity;
+    _applyChart(model, selectedChartType.value);
+  }
+
+  void switchChart(String type) {
+    selectedChartType.value = type;
+    if (activityModel.value != null) {
+      _applyChart(activityModel.value!, type);
+    }
+  }
+
+  void _applyChart(ActivityModel model, String type) {
+    final m = type == 'Callback'
+        ? (model.callbackMonthlyActivity ?? model.bookedMonthlyActivity)
+        : (model.bookedMonthlyActivity ?? model.monthlyActivity);
 
     chartData.assignAll([
       ChartData(1, (m?.jan ?? 0).toDouble()),
@@ -74,7 +88,7 @@ class AuditionController extends GetxController {
     "Video Game",
     "Animation",
     "Commercial",
-    "Sports",
+    "Announcer",
   ];
 
   RxString selectedRole = "".obs;
@@ -131,6 +145,7 @@ class AuditionController extends GetxController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.body['data'];
         activityModel.value = ActivityModel.fromJson(data);
+        setChartFromModel(activityModel.value!);
       }
     } catch (e, s) {
       debugPrint("Error: $e");
@@ -184,6 +199,7 @@ class AuditionController extends GetxController {
         debugPrint("Response: ${response.statusCode}");
         Get.back();
         getActivity();
+        getMyHistory();
       }
     } catch (e, s) {
       debugPrint("Error: $e");
@@ -220,6 +236,13 @@ class AuditionController extends GetxController {
     } finally {
       isLoading(false);
     }
+  }
+
+  double get chartMaxY {
+    if (chartData.isEmpty) return 10;
+    final max = chartData.map((e) => e.y).reduce((a, b) => a > b ? a : b);
+    final rounded = ((max / 10).ceil() * 10).toDouble();
+    return rounded < 10 ? 10 : rounded;
   }
 }
 
