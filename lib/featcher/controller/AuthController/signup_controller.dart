@@ -13,6 +13,7 @@ import 'package:justtsham/core/widgets/common_snackber.dart';
 import 'package:justtsham/featcher/controller/AuthController/login_controller.dart';
 import 'package:justtsham/featcher/controller/AuthController/verify_email_controller.dart';
 import 'package:justtsham/featcher/view/authentication/verify_email.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../model/login_profile_model.dart';
 import '../../view/authentication/complete_profile.dart';

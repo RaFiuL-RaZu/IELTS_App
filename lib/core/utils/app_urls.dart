@@ -2,20 +2,15 @@
 
 class AppUrl{
    //Live url//
-  // static const String baseUrl = "http://13.48.207.202:8889/api/v1";
-  // static const String imageUrl = "http://13.48.207.202:8889";
-  // static const String socketUrl = "http://10.10.5.47:8888/api/v1";
+  static const String baseUrl = "http://13.48.207.202:8888/api/v1";
+  static const String imageUrl = "http://13.48.207.202:8888";
+  static const String socketUrl = "http://10.10.5.47:8888/api/v1";
 
 
    //Local url//
 
-  static const String baseUrl = "http://10.10.10.31:8899/api/v1";
-  static const String imageUrl = "http://10.10.10.31:8899";
-  static const String socketUrl = "http://10.10.5.47:8888/api/v1";
-
-  
-  // static const String baseUrl = "https://nj3lnpq3-8899.inc1.devtunnels.ms/api/v1";
-  // static const String imageUrl = "https://nj3lnpq3-8899.inc1.devtunnels.ms";
+  // static const String baseUrl = "http://10.10.10.31:8899/api/v1";
+  // static const String imageUrl = "http://10.10.10.31:8899";
   // static const String socketUrl = "http://10.10.5.47:8888/api/v1";
 
 

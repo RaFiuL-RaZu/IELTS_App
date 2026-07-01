@@ -34,9 +34,6 @@ class LoginController extends GetxController {
         final data = response.body['data'];
         loginProfileModel = LoginProfileModel.fromJson(data);
         await initPrefsValue(userData: loginProfileModel);
-        if (isCheck.value) {
-          await PrefsHelper.getAllPrefData();
-        }
 
         debugPrint("loginToken:${PrefsHelper.token}");
         if (PrefsHelper.token.isNotEmpty) {
