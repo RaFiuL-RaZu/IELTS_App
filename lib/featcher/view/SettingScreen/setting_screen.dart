@@ -9,7 +9,7 @@ import 'package:justtsham/core/widgets/coomon_button.dart';
 import 'package:justtsham/featcher/controller/ProfileController/profile_controller.dart';
 import 'package:justtsham/featcher/view/SettingScreen/privacy_screen.dart';
 import 'package:justtsham/featcher/view/SettingScreen/save_audition.dart';
-import 'package:justtsham/featcher/view/SettingScreen/subscription_page.dart';
+// import 'package:justtsham/featcher/view/SettingScreen/subscription_page.dart'; // subscription tab hidden
 import 'package:justtsham/core/constant/prefs_helper.dart';
 import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
 import '../../../core/widgets/common_text.dart';
@@ -196,17 +196,18 @@ class _SettingScreenState extends State<SettingScreen> {
                         ),
                       ),
                       Divider(color: Colors.grey.shade200),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          Get.to(() => SubscriptionPage());
-                        },
-                        child: ProfileBox(
-                          title: 'Subscription',
-                          icon: AppIcons.crown,
-                        ),
-                      ),
-                      Divider(color: Colors.grey.shade200),
+                      // Subscription tab hidden from settings.
+                      // GestureDetector(
+                      //   behavior: HitTestBehavior.opaque,
+                      //   onTap: () {
+                      //     Get.to(() => SubscriptionPage());
+                      //   },
+                      //   child: ProfileBox(
+                      //     title: 'Subscription',
+                      //     icon: AppIcons.crown,
+                      //   ),
+                      // ),
+                      // Divider(color: Colors.grey.shade200),
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () {

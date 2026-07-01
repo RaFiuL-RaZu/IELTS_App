@@ -2,9 +2,9 @@
 
 class AppUrl{
    //Live url//
-  static const String baseUrl = "http://13.48.207.202:8888/api/v1";
-  static const String imageUrl = "http://13.48.207.202:8888";
-  static const String socketUrl = "http://10.10.5.47:8888/api/v1";
+  static const String baseUrl = "http://51.21.32.203:8899/api/v1";
+  static const String imageUrl = "http://51.21.32.203:8899";
+  static const String socketUrl = "http://51.21.32.203:8899/api/v1";
 
 
    //Local url//

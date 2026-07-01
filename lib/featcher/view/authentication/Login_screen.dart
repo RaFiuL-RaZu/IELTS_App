@@ -112,6 +112,39 @@ class LoginScreen extends StatelessWidget {
                       },
                     )),
                 SizedBox(height: 22.h),
+                SizedBox(height: 15),
+Center(
+  child: GestureDetector(
+    onTap: () {
+      Get.toNamed(AppRoutes.navBer);
+    },
+    child: RichText(
+      text: TextSpan(
+        text: "Continue as a Guest ",
+        style: TextStyle(
+          color: AppColor.primary,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+        children: [
+          TextSpan(
+            text: "Click Here",
+            style: TextStyle(
+              decoration: TextDecoration.underline,
+              color: Colors.teal,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          TextSpan(
+            text: ".",
+          ),
+        ],
+      ),
+    ),
+  ),
+),
+SizedBox(height: 19),
                 Row(
                   children: [
                     Expanded(

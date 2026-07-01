@@ -11,7 +11,8 @@ import 'package:justtsham/featcher/controller/AuthController/signup_controller.d
 import 'package:justtsham/core/constant/prefs_helper.dart';
 import 'package:justtsham/featcher/view/SettingScreen/subscription_page.dart';
 import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
-import 'package:justtsham/featcher/view/authentication/subscription.dart';
+// import 'package:justtsham/featcher/view/authentication/subscription.dart'; // subscription flow hidden
+import 'package:justtsham/featcher/view/authentication/navber_screen.dart';
 
 import '../../../core/widgets/common_snackber.dart';
 import '../../view/authentication/complete_profile.dart';
@@ -223,7 +224,9 @@ RxBool isComplete=false.obs;
           message: "Profile completed successfully",
           isSuccess: true,
         );
-        Get.to(()=>Subscription());
+        // Subscription page hidden from flow — go straight to home after profile completion.
+        // Get.to(()=>Subscription());
+        Get.offAll(() => NavBarScreen());
       } else {
         debugPrint("API ERROR: ${response.message}");
         CommonSnackBar.show(
