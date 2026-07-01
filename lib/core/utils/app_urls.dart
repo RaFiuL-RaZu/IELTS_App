@@ -2,28 +2,21 @@
 
 class AppUrl{
    //Live url//
-<<<<<<< HEAD
-  static const String baseUrl = "http://13.48.207.202:8888/api/v1";
-  static const String imageUrl = "http://13.48.207.202:8888";
-  static const String socketUrl = "http://10.10.5.47:8888/api/v1";
-=======
   // static const String baseUrl = "http://13.48.207.202:8889/api/v1";
   // static const String imageUrl = "http://13.48.207.202:8889";
   // static const String socketUrl = "http://10.10.5.47:8888/api/v1";
->>>>>>> 9d2f702eb80e94f0dcf78242f49a8fd88a5e90f3
 
 
    //Local url//
 
-<<<<<<< HEAD
-  // static const String baseUrl = "http://10.10.10.31:8899/api/v1";
-  // static const String imageUrl = "http://10.10.10.31:8899";
-  // static const String socketUrl = "http://10.10.5.47:8888/api/v1";
-=======
-  static const String baseUrl = "https://nj3lnpq3-8899.inc1.devtunnels.ms/api/v1";
-  static const String imageUrl = "https://nj3lnpq3-8899.inc1.devtunnels.ms";
+  static const String baseUrl = "http://10.10.10.31:8899/api/v1";
+  static const String imageUrl = "http://10.10.10.31:8899";
   static const String socketUrl = "http://10.10.5.47:8888/api/v1";
->>>>>>> 9d2f702eb80e94f0dcf78242f49a8fd88a5e90f3
+
+  
+  // static const String baseUrl = "https://nj3lnpq3-8899.inc1.devtunnels.ms/api/v1";
+  // static const String imageUrl = "https://nj3lnpq3-8899.inc1.devtunnels.ms";
+  // static const String socketUrl = "http://10.10.5.47:8888/api/v1";
 
 
   static const String createAccount ="$baseUrl/users/create";

@@ -15,6 +15,7 @@ class LoginController extends GetxController {
   TextEditingController passwordController = TextEditingController();
 
   RxBool isLoading = false.obs;
+  RxBool isCheck=false.obs;
 
   LoginProfileModel loginProfileModel = LoginProfileModel.fromJson({});
 
@@ -33,12 +34,9 @@ class LoginController extends GetxController {
         final data = response.body['data'];
         loginProfileModel = LoginProfileModel.fromJson(data);
         await initPrefsValue(userData: loginProfileModel);
-<<<<<<< HEAD
-=======
         if (isCheck.value) {
           await PrefsHelper.getAllPrefData();
         }
->>>>>>> 9d2f702eb80e94f0dcf78242f49a8fd88a5e90f3
 
         debugPrint("loginToken:${PrefsHelper.token}");
         if (PrefsHelper.token.isNotEmpty) {

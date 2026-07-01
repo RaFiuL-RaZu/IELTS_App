@@ -36,10 +36,19 @@ class NotificationService {
 
   Future<void> _initLocalNotification() async {
     const AndroidInitializationSettings androidSettings =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const InitializationSettings initSettings =
-    InitializationSettings(android: androidSettings);
+    const DarwinInitializationSettings iosSettings =
+        DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+
+    const InitializationSettings initSettings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
 
     await _localNotifications.initialize(
       settings: initSettings,
@@ -50,7 +59,7 @@ class NotificationService {
 
     await _localNotifications
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(
       const AndroidNotificationChannel(
         'channel_id',
@@ -115,7 +124,7 @@ class NotificationService {
 
     if (token != null && token.isNotEmpty) {
       getToken = token;
-      debugPrint("FCM Token: $getToken");
+      debugPrint("[FCM]: $getToken");
     }
   }
 

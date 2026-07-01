@@ -252,8 +252,10 @@ class ApiService {
       case 201:
         return ApiResponseModel(200, data['message'], data);
       case 401:
-        PrefsHelper.removeAllPrefData();
-        Get.offAll(() => LoginScreen());
+        if (PrefsHelper.isLogIn) {
+          PrefsHelper.removeAllPrefData();
+          Get.offAll(() => LoginScreen());
+        }
         return ApiResponseModel(response.statusCode, data['message'], data);
       case 400:
         return ApiResponseModel(response.statusCode, data['message'], data);
