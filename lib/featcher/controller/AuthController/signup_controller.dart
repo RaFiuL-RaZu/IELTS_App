@@ -11,6 +11,7 @@ import 'package:justtsham/core/widgets/common_snackber.dart';
 import 'package:justtsham/featcher/controller/AuthController/login_controller.dart';
 import 'package:justtsham/featcher/controller/AuthController/verify_email_controller.dart';
 import 'package:justtsham/featcher/view/authentication/verify_email.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../model/login_profile_model.dart';
 import '../../view/authentication/complete_profile.dart';
@@ -287,7 +288,6 @@ class SignUpController extends GetxController {
   
   var appleToken = "";
 
-<<<<<<< HEAD
   Future<String?> signInWithApple() async {
     try {
       final credential = await SignInWithApple.getAppleIDCredential(
@@ -314,34 +314,6 @@ class SignUpController extends GetxController {
     return null;
   }
 RxBool isApple=false.obs;
-=======
-  // Future<String?> signInWithApple() async {
-  //   try {
-  //     final credential = await SignInWithApple.getAppleIDCredential(
-  //       scopes: const [
-  //         AppleIDAuthorizationScopes.email,
-  //         AppleIDAuthorizationScopes.fullName,
-  //       ],
-  //     );
-  //     final identityToken = credential.userIdentifier;
-  //     if (identityToken != null) {
-  //       appleToken = identityToken;
-  //     String applename =
-  //         (credential.familyName ?? "") + (credential.givenName ?? "");
-  //     String appleEmail = credential.email ?? "";
-  //     print("applename=========$applename");
-  //     print("appleemail=========$appleEmail");
-  //     print("identityToken=========$identityToken");
-  //     print("uidtoken=========${credential.userIdentifier}");
-  //     }
-  //   } catch (e, s) {
-  //     debugPrint("Apple Sign-In Error: $e\n$s");
-  //     return null;
-  //   }
-  //   return null;
-  // }
-
->>>>>>> 9d2f702eb80e94f0dcf78242f49a8fd88a5e90f3
   Future<void> postApple() async {
     isApple(true);
     try {

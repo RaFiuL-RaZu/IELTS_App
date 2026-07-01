@@ -240,7 +240,6 @@ class CreateAccount extends StatelessWidget {
                 );
                }),
                 SizedBox(height: 10.h),
-<<<<<<< HEAD
                 Obx(() {
                   if (controller.isApple.value) {
                     return Center(child: CircularProgressIndicator(color: AppColor.primary));
@@ -289,7 +288,6 @@ class CreateAccount extends StatelessWidget {
                     ),
                   );
                 }),
-=======
                 // GestureDetector(
                 //   onTap: () async {
                 //     if (!controller.isChecked.value) {
@@ -333,7 +331,6 @@ class CreateAccount extends StatelessWidget {
                 //     ),
                 //   ),
                 // ),
->>>>>>> 9d2f702eb80e94f0dcf78242f49a8fd88a5e90f3
                 SizedBox(height: 30),
                 Center(
                   child: RichText(
