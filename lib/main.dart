@@ -41,9 +41,7 @@ class MyApp extends StatelessWidget {
           fallbackLocale: const Locale('en', 'US'),
           transitionDuration: const Duration(milliseconds: 300),
           debugShowCheckedModeBanner: false,
-          initialRoute: (PrefsHelper.token ?? '').isNotEmpty
-              ? AppRoutes.navBer
-              : AppRoutes.splash,
+          initialRoute: AppRoutes.splash,
           getPages: AppRoutes.routes,
           builder: (context, child) {
             return child ?? const SizedBox();

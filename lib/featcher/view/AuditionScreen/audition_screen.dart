@@ -355,6 +355,9 @@ class _AuditionScreenState extends State<AuditionScreen> {
                      crossAxisAlignment: CrossAxisAlignment.start,
                      children: [
                        Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
                          children: [
                            Image.asset(AppIcons.progress,height: 16.h,width: 16.w,),
                            SizedBox(width: 8),
@@ -368,64 +371,84 @@ class _AuditionScreenState extends State<AuditionScreen> {
                            ),
                          ],
                        ),
+                       Obx(() => DropdownButton<String>(
+                         value: controller.selectedChartType.value,
+                         underline: const SizedBox(),
+                         isDense: true,
+                         icon: const Icon(Icons.arrow_drop_down, size: 20),
+                         items: const [
+                           DropdownMenuItem(value: 'Booked', child: Text('Booked', style: TextStyle(fontSize: 13))),
+                           DropdownMenuItem(value: 'Callback', child: Text('Callback', style: TextStyle(fontSize: 13))),
+                         ],
+                         onChanged: (val) {
+                           if (val != null) controller.switchChart(val);
+                         },
+                       ))
+                        ],
+                       ),
                        const SizedBox(height: 20),
 
-                       SizedBox(
+                       Obx(() => SizedBox(
+                         key: ValueKey(controller.selectedChartType.value),
                          height: 180,
                          child: SfCartesianChart(
                            plotAreaBorderWidth: 0,
 
                            primaryXAxis: NumericAxis(
-                             minimum: 1,
-                             maximum: 12,
+                             minimum: 0.5,
+                             maximum: 12.5,
                              interval: 1,
-                             majorGridLines:
-                             const MajorGridLines(width: 0),
+                             majorGridLines: const MajorGridLines(width: 0),
                              axisLine: const AxisLine(width: 0),
+                             axisLabelFormatter: (details) {
+                               final val = details.value.toInt();
+                               if (val < 1 || val > 12) return ChartAxisLabel('', details.textStyle);
+                               return ChartAxisLabel(
+                                 val.toString().padLeft(2, '0'),
+                                 details.textStyle,
+                               );
+                             },
                            ),
 
                            primaryYAxis: NumericAxis(
                              minimum: 0,
-                             maximum: 40,
-                             interval: 10,
+                             maximum: controller.chartMaxY,
+                             interval: controller.chartMaxY / 4,
                              axisLine: const AxisLine(width: 0),
-                             majorTickLines:
-                             const MajorTickLines(size: 0),
+                             majorTickLines: const MajorTickLines(size: 0),
                              majorGridLines: MajorGridLines(
                                width: 1,
-                               color: Colors.grey.withOpacity(0.2),
+                               color: Colors.grey.withValues(alpha: 0.2),
                              ),
                            ),
 
-                           tooltipBehavior:
-                           TooltipBehavior(enable: true),
+                           tooltipBehavior: TooltipBehavior(enable: true),
 
                            series: [
                              SplineAreaSeries<ChartData, int>(
                                dataSource: controller.chartData,
                                xValueMapper: (d, _) => d.x,
                                yValueMapper: (d, _) => d.y,
+                               splineType: SplineType.monotonic,
                                gradient: LinearGradient(
                                  colors: [
-                                   Colors.deepPurple.withOpacity(0.4),
-                                   Colors.deepPurple.withOpacity(0.05),
+                                   Colors.deepPurple.withValues(alpha: 0.4),
+                                   Colors.deepPurple.withValues(alpha: 0.05),
                                  ],
                                  begin: Alignment.topCenter,
                                  end: Alignment.bottomCenter,
                                ),
                              ),
-
-                             /// LINE
                              SplineSeries<ChartData, int>(
                                dataSource: controller.chartData,
                                xValueMapper: (d, _) => d.x,
                                yValueMapper: (d, _) => d.y,
+                               splineType: SplineType.monotonic,
                                color: Colors.deepPurple,
                                width: 3,
                              ),
                            ],
 
-                           /// VERTICAL LINE
                            annotations: [
                              CartesianChartAnnotation(
                                widget: Container(
@@ -434,12 +457,12 @@ class _AuditionScreenState extends State<AuditionScreen> {
                                  color: Colors.grey,
                                ),
                                coordinateUnit: CoordinateUnit.point,
-                               x: 10,
-                               y: 20,
+                               x: DateTime.now().month,
+                               y: controller.chartMaxY / 2,
                              ),
                            ],
                          ),
-                       ),
+                       )),
                      ],
                    ),
                  );

@@ -75,7 +75,16 @@ class BoxController extends GetxController {
       }
     } catch (e) {
       isPlaying.value = false;
+      currentUrl.value = "";
       debugPrint("Audio Error: $e");
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('404') || msg.contains('not found') || msg.contains('-1100')) {
+        Get.snackbar("Audio Unavailable", "This audio file is no longer available.",
+            snackPosition: SnackPosition.TOP, duration: Duration(seconds: 2));
+      } else {
+        Get.snackbar("Playback Error", "Could not play this audio.",
+            snackPosition: SnackPosition.TOP, duration: Duration(seconds: 2));
+      }
     }
   }
 

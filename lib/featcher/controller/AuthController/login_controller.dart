@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/services/api_services.dart';
 import 'package:justtsham/core/utils/app_urls.dart';
-import 'package:justtsham/core/utils/validator.dart';
 
 import '../../../core/constant/prefs_helper.dart';
 import '../../../core/widgets/common_snackber.dart';
@@ -16,7 +15,7 @@ class LoginController extends GetxController {
   TextEditingController passwordController = TextEditingController();
 
   RxBool isLoading = false.obs;
-  RxBool isCheck = false.obs;
+  RxBool isCheck=false.obs;
 
   LoginProfileModel loginProfileModel = LoginProfileModel.fromJson({});
 
@@ -35,9 +34,6 @@ class LoginController extends GetxController {
         final data = response.body['data'];
         loginProfileModel = LoginProfileModel.fromJson(data);
         await initPrefsValue(userData: loginProfileModel);
-        if (isCheck.value) {
-          await PrefsHelper.getAllPrefData();
-        }
 
         debugPrint("loginToken:${PrefsHelper.token}");
         if (PrefsHelper.token.isNotEmpty) {
@@ -73,14 +69,12 @@ class LoginController extends GetxController {
     PrefsHelper.myImage = userData.user.profileImage;
     PrefsHelper.isLogIn = true;
 
-    if (isCheck.value) {
-      await PrefsHelper.setString('token', PrefsHelper.token);
-      await PrefsHelper.setString("userId", PrefsHelper.userId);
-      await PrefsHelper.setString("myImage", PrefsHelper.myImage);
-      await PrefsHelper.setString("myName", PrefsHelper.myName);
-      await PrefsHelper.setString("myEmail", PrefsHelper.myEmail);
-      await PrefsHelper.setBool("isLogIn", PrefsHelper.isLogIn);
-    }
+    await PrefsHelper.setString('token', PrefsHelper.token);
+    await PrefsHelper.setString("userId", PrefsHelper.userId);
+    await PrefsHelper.setString("myImage", PrefsHelper.myImage);
+    await PrefsHelper.setString("myName", PrefsHelper.myName);
+    await PrefsHelper.setString("myEmail", PrefsHelper.myEmail);
+    await PrefsHelper.setBool("isLogIn", PrefsHelper.isLogIn);
   }
 
 }

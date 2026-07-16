@@ -24,14 +24,16 @@ class CommunityModel {
   factory CommunityModel.fromJson(Map<String, dynamic> json) {
     return CommunityModel(
       id: json['_id'],
-      user: json['userId'] != null
-          ? UserModel.fromJson(json['userId'])
-          : null,
+      user: json['creatorId'] != null
+          ? UserModel.fromJson(json['creatorId'])
+          : json['userId'] != null
+              ? UserModel.fromJson(json['userId'])
+              : null,
       category: json['category'],
       duration: json['duration'],
       toneStyle: json['toneStyle'],
-      content: json['content'],
-      audioFile: json['audioFile'],
+      content: json['content'] ?? json['title'],
+      audioFile: json['auditionFile'] ?? json['audioFile'],
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,

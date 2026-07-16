@@ -1,5 +1,7 @@
 class ActivityModel {
   final MonthlyActivity? monthlyActivity;
+  final MonthlyActivity? bookedMonthlyActivity;
+  final MonthlyActivity? callbackMonthlyActivity;
   final int? totalCallBack;
   final int? totalSubmitted;
   final int? totalBooked;
@@ -9,6 +11,8 @@ class ActivityModel {
 
   ActivityModel({
     this.monthlyActivity,
+    this.bookedMonthlyActivity,
+    this.callbackMonthlyActivity,
     this.totalCallBack,
     this.totalSubmitted,
     this.totalBooked,
@@ -21,6 +25,12 @@ class ActivityModel {
     return ActivityModel(
       monthlyActivity: json['monthlyActivity'] != null
           ? MonthlyActivity.fromJson(json['monthlyActivity'])
+          : null,
+      bookedMonthlyActivity: json['bookedMonthlyActivity'] != null
+          ? MonthlyActivity.fromJson(json['bookedMonthlyActivity'])
+          : null,
+      callbackMonthlyActivity: json['callbackMonthlyActivity'] != null
+          ? MonthlyActivity.fromJson(json['callbackMonthlyActivity'])
           : null,
       totalCallBack: json['totalCallBack'] ?? 0,
       totalSubmitted: json['totalSubmitted'] ?? 0,

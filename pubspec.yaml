@@ -2,7 +2,11 @@ name: justtsham
 description: "A new Flutter project."
 publish_to: 'none'
 
+<<<<<<< HEAD
 version: 1.0.0+2
+=======
+version: 1.0.0+7
+>>>>>>> 91aaaa70450097fa434588a522fe5c962e68c72f
 
 environment:
   sdk: ^3.8.1

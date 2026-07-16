@@ -8,9 +8,12 @@ class WaveformProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: Size(double.infinity, 20), // 👈 কম height
-      painter: WavePainter(progress),
+    return SizedBox(
+      height: 20,
+      width: double.infinity,
+      child: CustomPaint(
+        painter: WavePainter(progress),
+      ),
     );
   }
 }

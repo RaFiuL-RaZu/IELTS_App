@@ -289,16 +289,12 @@ class CommercialScreen extends StatelessWidget {
                               );
                             } else {
                               return GestureDetector(
-                                onTapDown: (_) async {
-                                  debugPrint("TAP DOWN");
-                                  await controller.startRecording();
-                                },
-                                onTapUp: (_) async {
-                                  debugPrint("TAP UP");
-                                  await controller.stopRecording();
-                                },
-                                onTapCancel: () async {
-                                  await controller.stopRecording();
+                                onTap: () async {
+                                  if (controller.isRecording.value) {
+                                    await controller.stopRecording();
+                                  } else {
+                                    await controller.startRecording();
+                                  }
                                 },
                                 child: Obx(() {
                                   return Container(

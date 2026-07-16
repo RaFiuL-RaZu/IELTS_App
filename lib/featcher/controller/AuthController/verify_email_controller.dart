@@ -8,7 +8,11 @@ import 'package:justtsham/core/services/api_services.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/featcher/controller/AuthController/signup_controller.dart';
+import 'package:justtsham/core/constant/prefs_helper.dart';
+import 'package:justtsham/featcher/view/SettingScreen/subscription_page.dart';
 import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
+// import 'package:justtsham/featcher/view/authentication/subscription.dart'; // subscription flow hidden
+import 'package:justtsham/featcher/view/authentication/navber_screen.dart';
 
 import '../../../core/widgets/common_snackber.dart';
 import '../../view/authentication/complete_profile.dart';
@@ -153,10 +157,11 @@ var verifyToken="";
   }
 
 
-
+RxBool isComplete=false.obs;
   Future<void> completeProfile() async {
+     isComplete(true);
     try {
-      isLoading(true);
+    
 
       debugPrint("COMPLETE PROFILE API");
 
@@ -191,12 +196,37 @@ var verifyToken="";
       debugPrint("bodyImage: $selectedImage");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.body['data'];
+        final email = data['email'] ?? '';
+        final apiFullName = (data['fullName'] as String?)?.trim() ?? '';
+        final fullName = apiFullName.isNotEmpty
+            ? apiFullName
+            : PrefsHelper.myName.isNotEmpty
+                ? PrefsHelper.myName
+                : SignUpController.instance.nameController.text.trim();
+
+        final userId = data['_id'] ?? '';
+
+        PrefsHelper.token = verifyToken;
+        PrefsHelper.myEmail = email;
+        PrefsHelper.myName = fullName;
+        PrefsHelper.userId = userId;
+        PrefsHelper.isLogIn = true;
+
+        await PrefsHelper.setString("token", verifyToken);
+        await PrefsHelper.setString("myEmail", email);
+        await PrefsHelper.setString("myName", fullName);
+        await PrefsHelper.setString("userId", userId);
+        await PrefsHelper.setBool("isLogIn", true);
+
         CommonSnackBar.show(
           title: "Success",
           message: "Profile completed successfully",
           isSuccess: true,
         );
-        Get.offAll(()=>LoginScreen());
+        // Subscription page hidden from flow — go straight to home after profile completion.
+        // Get.to(()=>Subscription());
+        Get.offAll(() => NavBarScreen());
       } else {
         debugPrint("API ERROR: ${response.message}");
         CommonSnackBar.show(
@@ -215,7 +245,7 @@ var verifyToken="";
         isSuccess: false,
       );
     } finally {
-      isLoading(false);
+       isComplete(false);
     }
   }
 

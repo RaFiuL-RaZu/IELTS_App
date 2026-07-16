@@ -482,33 +482,36 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               child: Row(
                                 children: [
-                                  Obx(() {
-                                    final url =
-                                        AppUrl.imageUrl + list.auditionFile;
-
-                                    final isPlaying =
-                                        controller.currentUrl.value == url &&
-                                        controller.isPlaying.value;
-
-                                    return GestureDetector(
-                                      onTap: () => controller.togglePlay(url),
-                                      child: Container(
-                                        height: 39.h,
-                                        width: 39.h,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xff3C2A5D),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Icon(
-                                          isPlaying
-                                              ? Icons.pause
-                                              : Icons.play_arrow,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                    );
-                                  }),
+                                  list.auditionFile.isEmpty
+                                      ? Container(
+                                          height: 39.h,
+                                          width: 39.h,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey.shade300,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(Icons.play_arrow, color: Colors.white, size: 20),
+                                        )
+                                      : Obx(() {
+                                          final url = AppUrl.imageUrl + list.auditionFile;
+                                          final isPlaying = controller.currentUrl.value == url && controller.isPlaying.value;
+                                          return GestureDetector(
+                                            onTap: () => controller.togglePlay(url),
+                                            child: Container(
+                                              height: 39.h,
+                                              width: 39.h,
+                                              decoration: const BoxDecoration(
+                                                color: Color(0xff3C2A5D),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                isPlaying ? Icons.pause : Icons.play_arrow,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
+                                          );
+                                        }),
 
                                   SizedBox(width: 10.w),
 

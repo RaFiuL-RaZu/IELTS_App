@@ -47,6 +47,7 @@ class PrivacyScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: (){
                           Get.to(()=>ChangePassword());
                         },
@@ -57,6 +58,7 @@ class PrivacyScreen extends StatelessWidget {
                       ),
                       Divider(color: Colors.grey.shade200,),
                       GestureDetector(
+                         behavior: HitTestBehavior.opaque,
                         onTap: (){
                           Get.to(()=>DeleteAccount());
                         },

@@ -121,7 +121,7 @@ class HomeController extends GetxController {
     "Video Game",
     "Animation",
     "Commercial",
-    "Sports",
+    "Announcer",
   ];
 
   void selectItem(int index) {
@@ -172,18 +172,23 @@ class HomeController extends GetxController {
         header: header,
       );
 
+      debugPrint("HOME STATUS: ${response.statusCode}");
+      debugPrint("HOME BODY: ${response.body}");
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.body['data']['auditions'];
+        debugPrint("HOME AUDITIONS COUNT: ${data?.length}");
 
         auditionList.value = List<AuditionModel>.from(
           data.map((e) => AuditionModel.fromJson(e)),
         );
 
         applyFilter();
+        debugPrint("FILTERED LIST COUNT: ${filteredList.length}");
       }
     } catch (e, s) {
-      debugPrint("Error: $e");
-      debugPrint("StackTrace: $s");
+      debugPrint("Home Error: $e");
+      debugPrint("Home StackTrace: $s");
     } finally {
       isLoading(false);
     }

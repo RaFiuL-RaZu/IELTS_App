@@ -160,9 +160,11 @@ class CompleteProfile extends StatelessWidget {
                 ),
               ),
              SizedBox(height: 80,),
-              CommonButton(titleText: "Complete Setup",onTap: (){
+             Obx(()=> CommonButton(
+              isLoading: controller.isComplete.value,
+              titleText: "Complete Setup",onTap: (){
                controller.completeProfile();
-              },),
+              },),),
               SizedBox(height: 50,),
             ],
           ),

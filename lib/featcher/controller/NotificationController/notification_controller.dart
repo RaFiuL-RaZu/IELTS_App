@@ -25,7 +25,7 @@ class NotificationController extends GetxController {
     };
 
     Map<String, dynamic> body = {
-      "fcmToken": _service.getToken ?? ""
+      "fcmToken": _service.getToken
     };
 
     final response = await ApiService.postApi(
