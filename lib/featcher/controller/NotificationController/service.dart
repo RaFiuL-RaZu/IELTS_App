@@ -31,7 +31,7 @@ class NotificationService {
       sound: true,
     );
 
-    print("Permission: ${settings.authorizationStatus}");
+    debugPrint("Permission: ${settings.authorizationStatus}");
   }
 
   Future<void> _initLocalNotification() async {

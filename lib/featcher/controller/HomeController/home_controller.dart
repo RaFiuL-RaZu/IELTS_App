@@ -1,4 +1,3 @@
-
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,8 +10,6 @@ import 'package:justtsham/featcher/model/HomeModel/comment_model.dart';
 import '../../model/HomeModel/audition_model.dart';
 
 class HomeController extends GetxController {
-
-
   final AudioPlayer player = AudioPlayer();
 
   RxString currentUrl = "".obs;
@@ -98,14 +95,12 @@ class HomeController extends GetxController {
     super.onClose();
   }
 
-
   /// ================= UI STATES =================
 
   RxInt activeCommentIndex = (-1).obs;
 
   void toggleCommentField(int index) {
-    activeCommentIndex.value =
-    activeCommentIndex.value == index ? -1 : index;
+    activeCommentIndex.value = activeCommentIndex.value == index ? -1 : index;
   }
 
   void hideCommentField() {
@@ -138,10 +133,9 @@ class HomeController extends GetxController {
 
   RxList<AuditionModel> auditionList = <AuditionModel>[].obs;
   RxList<AuditionModel> filteredList = <AuditionModel>[].obs;
-  
+
   // Track liked items
   RxSet<String> likedItemIds = <String>{}.obs;
-
 
   String normalize(String text) {
     return text
@@ -171,12 +165,12 @@ class HomeController extends GetxController {
     isLoading(true);
 
     try {
-      Map<String, String> header = {
-        "token": PrefsHelper.token,
-      };
+      Map<String, String> header = {"token": PrefsHelper.token};
 
-      final response =
-      await ApiService.getApi(AppUrl.getHomeAudition, header: header);
+      final response = await ApiService.getApi(
+        AppUrl.getHomeAudition,
+        header: header,
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.body['data']['auditions'];
@@ -195,19 +189,18 @@ class HomeController extends GetxController {
     }
   }
 
-
   RxList<CommentModel> commentList = <CommentModel>[].obs;
-  RxBool isComment=false.obs;
+  RxBool isComment = false.obs;
   Future<void> getComment({required String id}) async {
     isComment(true);
 
     try {
-      Map<String, String> header = {
-        "token": PrefsHelper.token,
-      };
+      Map<String, String> header = {"token": PrefsHelper.token};
 
-      final response =
-      await ApiService.getApi(AppUrl.getComment(id: id), header: header);
+      final response = await ApiService.getApi(
+        AppUrl.getComment(id: id),
+        header: header,
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.body['data']['comment'];
@@ -226,18 +219,14 @@ class HomeController extends GetxController {
     }
   }
 
-   RxBool isFavourite=false.obs;
+  RxBool isFavourite = false.obs;
   Future<bool> addBookMark({required String id}) async {
     isFavourite.value = true;
 
     try {
-      final header = {
-        "token": PrefsHelper.token,
-      };
+      final header = {"token": PrefsHelper.token};
 
-      final body = {
-        "auditionId": id,
-      };
+      final body = {"auditionId": id};
 
       final response = await ApiService.postApi(
         AppUrl.createFav,
@@ -251,21 +240,15 @@ class HomeController extends GetxController {
     }
   }
 
-
-   RxBool isUnFav=false.obs;
-
+  RxBool isUnFav = false.obs;
 
   Future<bool> deleteBookMark({required String id}) async {
     isUnFav.value = true;
 
     try {
-      final header = {
-        "token": PrefsHelper.token,
-      };
+      final header = {"token": PrefsHelper.token};
 
-      final body = {
-        "auditionId": id,
-      };
+      final body = {"auditionId": id};
 
       final response = await ApiService.deleteApi(
         AppUrl.deleteFav,
@@ -281,16 +264,60 @@ class HomeController extends GetxController {
     }
   }
 
+  RxBool isInterested = false.obs;
+  Future<bool> notInterested({required String id}) async {
+    isInterested.value = true;
+
+    try {
+      final header = {"token": PrefsHelper.token};
+      final body = {"action": "notInterested"};
+
+      final response = await ApiService.patchApi(
+        AppUrl.interested(id: id),
+        body: body,
+        header: header,
+      );
+
+      if (response.statusCode == 200) {
+        filteredList.removeWhere((item) => item.id == id);
+        return true;
+      }
+
+      return false;
+    } finally {
+      isInterested.value = false;
+    }
+  }
+
+  Future<bool> deleteComment({required String id}) async {
+    isInterested.value = true;
+
+    try {
+      final header = {"token": PrefsHelper.token};
+      Map<String, String> body = {};
+
+      final response = await ApiService.deleteApi(
+        AppUrl.deleteComment(id: id),
+        body: body,
+        header: header,
+      );
+
+      if (response.statusCode == 200) {
+        commentList.removeWhere((item) => item.id == id);
+        return true;
+      }
+
+      return false;
+    } finally {
+      isInterested.value = false;
+    }
+  }
 
   Future<void> postComment({required String id}) async {
     try {
-      Map<String, String> header = {
-        "token": PrefsHelper.token,
-      };
+      Map<String, String> header = {"token": PrefsHelper.token};
 
-      Map<String, String> body = {
-        'comment': commentController.text.trim()
-      };
+      Map<String, String> body = {'comment': commentController.text.trim()};
 
       final response = await ApiService.postApi(
         AppUrl.postComment(id: id),
@@ -316,8 +343,8 @@ class HomeController extends GetxController {
             commentCount: auditionList[index].commentCount + 1,
             createdAt: auditionList[index].createdAt,
             updatedAt: auditionList[index].updatedAt,
-              isLiked: auditionList[index].isLiked.value,
-              isFavorite: auditionList[index].isFavorite.value
+            isLiked: auditionList[index].isLiked.value,
+            isFavorite: auditionList[index].isFavorite.value,
           );
           auditionList[index] = updatedItem;
           applyFilter();
@@ -329,9 +356,7 @@ class HomeController extends GetxController {
     }
   }
 
-
-
-  RxBool isLiked=false.obs;
+  RxBool isLiked = false.obs;
   Future<void> createLike({required String id}) async {
     try {
       final response = await ApiService.postApi(

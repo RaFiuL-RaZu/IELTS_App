@@ -598,21 +598,73 @@ class _AuditionScreenState extends State<AuditionScreen> {
                            ],
                          ),
 
-                         trailing: Container(
-                           height: 24.h,
-                           width: 93.w,
-                           decoration: BoxDecoration(
-                             borderRadius: BorderRadius.circular(20),
-                             color:getStatusColor(list.status ?? ""),
-                           ),
-                           child: Center(
-                             child: CommonText(
-                               title: list.status ?? "",
-                               fSize: 12,
-                               fWeight: FontWeight.w700,
-                               color: getStatusText(list.status ?? ""),
+                         trailing: Row(
+                           mainAxisSize: MainAxisSize.min,
+                           children: [
+                             Container(
+                               height: 24.h,
+                               width: 93.w,
+                               decoration: BoxDecoration(
+                                 borderRadius: BorderRadius.circular(20),
+                                 color:getStatusColor(list.status ?? ""),
+                               ),
+                               child: Center(
+                                 child: CommonText(
+                                   title: list.status ?? "",
+                                   fSize: 12,
+                                   fWeight: FontWeight.w700,
+                                   color: getStatusText(list.status ?? ""),
+                                 ),
+                               ),
                              ),
-                           ),
+                             const SizedBox(width: 1),
+                             PopupMenuButton<String>(
+                               color: Colors.white,
+                               surfaceTintColor: Colors.white,
+                               elevation: 4,
+                               padding: EdgeInsets.zero,
+                               constraints: const BoxConstraints(
+                                 minWidth: 24,
+                                 minHeight: 24,
+                               ),
+                               shape: RoundedRectangleBorder(
+                                 borderRadius: BorderRadius.circular(12),
+                               ),
+                               icon: const Icon(
+                                 Icons.more_vert,
+                                 size: 20,
+                               ),
+                               onSelected: (value) async {
+                                 if (value == "delete") {
+                                   await controller.notInterested(id: list.id);
+                                 }
+                               },
+                               itemBuilder: (context) => [
+                                 PopupMenuItem<String>(
+                                   value: "delete",
+                                   padding: EdgeInsets.zero,
+                                   child: SizedBox(
+                                     width: 150,
+                                     height: 30,
+                                     child: const Padding(
+                                       padding: EdgeInsets.symmetric(horizontal: 16),
+                                       child: Align(
+                                         alignment: Alignment.centerLeft,
+                                         child: Text(
+                                           "Delete",
+                                           style: TextStyle(
+                                             fontSize: 14,
+                                             fontWeight: FontWeight.w500,
+                                             color: Colors.black,
+                                           ),
+                                         ),
+                                       ),
+                                     ),
+                                   ),
+                                 ),
+                               ],
+                             )
+                           ],
                          ),
                        ),
                      );

@@ -2,9 +2,9 @@
 
 class AppUrl{
    //Live url//
-  // static const String baseUrl = "http://13.48.207.202:8889/api/v1";
-  // static const String imageUrl = "http://13.48.207.202:8889";
-  // static const String socketUrl = "http://10.10.5.47:8888/api/v1";
+  // static const String baseUrl = "http://51.21.32.203:8899/api/v1";
+  // static const String imageUrl = "http://51.21.32.203:8899/";
+  // static const String socketUrl = "http://51.21.32.203:9988/api/v1";
 
 
    //Local url//
@@ -47,6 +47,9 @@ class AppUrl{
   static  String deleteFav ="$baseUrl/favorites/delete";
   static  String getPayment ="$baseUrl/stripe/create-subscription-session";
   static  String postComment({required String id}) =>"$baseUrl/comments/create/$id";
+  static  String interested({required String id}) =>"$baseUrl/auditions/not-interested-or-delete/$id";
+  static  String interestedCommunity({required String id}) =>"$baseUrl/community/not-interested-or-delete/$id";
+  static  String deleteComment({required String id}) =>"$baseUrl/comments/delete/$id";
   static  String createLike({required String id}) =>"$baseUrl/likes/audition-toggle-like/$id";
   static  String getComment({required String id}) =>"$baseUrl/comments/all-comment/$id";
 

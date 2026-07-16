@@ -126,6 +126,8 @@ class CommunityController extends GetxController {
 
 
 
+
+
   @override
   void onClose() {
     timer?.cancel();

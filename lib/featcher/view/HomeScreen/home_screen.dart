@@ -308,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ListTile(
-                              contentPadding: EdgeInsets.zero,
+                              contentPadding: const EdgeInsets.only(left: 0, right: 0),
                               leading: ClipOval(
                                 child: (list.creator.profileImage.isNotEmpty ?? false)
                                     ? CommonImage(
@@ -343,21 +343,74 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fWeight: FontWeight.w500,
                                 color: AppColor.primary,
                               ),
-                              trailing: Container(
-                                height: 24.h,
-                                width: 93.w,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Color(0xFFE5E2FD),
-                                ),
-                                child: Center(
-                                  child: CommonText(
-                                    title: list.category,
-                                    fSize: 12,
-                                    fWeight: FontWeight.w500,
-                                    color: AppColor.primary,
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Container(
+                                    height: 24.h,
+                                    padding: const EdgeInsets.symmetric(horizontal:10),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: const Color(0xFFE5E2FD),
+                                    ),
+                                    child: Center(
+                                      child: CommonText(
+                                        title: list.category,
+                                        fSize: 12,
+                                        fWeight: FontWeight.w500,
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 1),
+                                  PopupMenuButton<String>(
+                                    color: Colors.white,
+                                    surfaceTintColor: Colors.white,
+                                    elevation: 4,
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(
+                                      minWidth: 24,
+                                      minHeight: 24,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    icon: const Icon(
+                                      Icons.more_vert,
+                                      size: 20,
+                                    ),
+                                    onSelected: (value) async {
+                                      if (value == "not_interested") {
+                                        await controller.notInterested(id: list.id);
+                                      }
+                                    },
+                                    itemBuilder: (context) => [
+                                      PopupMenuItem<String>(
+                                        value: "not_interested",
+                                        padding: EdgeInsets.zero,
+                                        child: SizedBox(
+                                          width: 150,
+                                          height: 30,
+                                          child: const Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 16),
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                "Not Interested",
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ],
                               ),
                             ),
                             SizedBox(height: 10.h),
@@ -612,6 +665,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   index) {
                                 return const SizedBox.shrink();
                               }
+                              if (controller.isComment.value) {
+                                return const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 20),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              }
 
                               return Column(
                                 children: [
@@ -648,21 +709,65 @@ class _HomeScreenState extends State<HomeScreen> {
                                             child: Padding(
                                               padding: const EdgeInsets.all(8.0),
                                               child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   CommonText(
-                                                    title:
-                                                        comment.user?.fullName ??
-                                                        "",
+                                                    title: comment.user?.fullName ?? "",
                                                     fSize: 14,
                                                     fWeight: FontWeight.w500,
                                                   ),
-                                                  CommonText(
-                                                    title: comment.comment ?? "",
-                                                    fSize: 14,
-                                                    fWeight: FontWeight.w400,
-                                                  ),
+
+                                                  GestureDetector(
+                                                    onTapDown: (details) async {
+                                                      final value = await showMenu<String>(
+                                                        context: context,
+                                                        color: Colors.white,
+                                                        position: RelativeRect.fromLTRB(
+                                                          details.globalPosition.dx,
+                                                          details.globalPosition.dy,
+                                                          details.globalPosition.dx,
+                                                          0,
+                                                        ),
+                                                        items: const [
+                                                          PopupMenuItem<String>(
+                                                            value: "delete",
+                                                            height: 24,
+                                                            padding: EdgeInsets.zero,
+                                                            child: Align(
+                                                              alignment: Alignment.centerLeft,
+                                                              child: Padding(
+                                                                padding: EdgeInsets.only(left: 12),
+                                                                child: Text(
+                                                                  "Delete",
+                                                                  style: TextStyle(
+                                                                    fontSize: 13,
+                                                                    fontWeight: FontWeight.w500,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      );
+
+                                                      if (value == "delete") {
+                                                        final success = await controller.deleteComment(
+                                                          id: comment.id.toString(),
+                                                        );
+
+                                                        if (success) {
+                                                          controller.commentList.removeWhere(
+                                                                (item) => item.id == comment.id,
+                                                          );
+                                                        }
+                                                      }
+                                                    },
+                                                    child: CommonText(
+                                                      title: comment.comment ?? "",
+                                                      fSize: 14,
+                                                      fWeight: FontWeight.w400,
+                                                    ),
+                                                  )
                                                 ],
                                               ),
                                             ),

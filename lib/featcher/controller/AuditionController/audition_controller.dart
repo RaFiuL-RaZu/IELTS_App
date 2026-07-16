@@ -221,6 +221,30 @@ class AuditionController extends GetxController {
       isLoading(false);
     }
   }
+  RxBool isInterested = false.obs;
+  Future<bool> notInterested({required String id}) async {
+    isInterested.value = true;
+
+    try {
+      final header = {"token": PrefsHelper.token};
+      final body = {"action": "delete"};
+
+      final response = await ApiService.patchApi(
+        AppUrl.interested(id: id),
+        body: body,
+        header: header,
+      );
+
+      if (response.statusCode == 200) {
+        myHistoryList.removeWhere((item) => item.id == id);
+        return true;
+      }
+
+      return false;
+    } finally {
+      isInterested.value = false;
+    }
+  }
 }
 
 class ChartData {

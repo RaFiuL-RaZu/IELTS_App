@@ -6,6 +6,7 @@ import 'package:justtsham/featcher/controller/CommunityController/community_cont
 import 'package:justtsham/featcher/controller/HomeController/home_controller.dart';
 import 'package:justtsham/featcher/model/CommunityModel/weekly_model.dart';
 
+import '../../../core/constant/prefs_helper.dart';
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_icons.dart';
 import '../../../core/utils/app_image.dart';
@@ -256,21 +257,62 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   fWeight: FontWeight.w500,
                                   color: AppColor.primary,
                                 ),
-                                trailing: Container(
-                                  height: 24.h,
-                                  width: 93.w,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: Color(0xFFE5E2FD),
-                                  ),
-                                  child: Center(
-                                    child: CommonText(
-                                      title: list.category.toString(),
-                                      fSize: 12,
-                                      fWeight: FontWeight.w500,
-                                      color: AppColor.primary,
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Container(
+                                      height: 24.h,
+                                      padding: const EdgeInsets.symmetric(horizontal:10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: const Color(0xFFE5E2FD),
+                                      ),
+                                      child: Center(
+                                        child: CommonText(
+                                          title: list.category.toString(),
+                                          fSize: 12,
+                                          fWeight: FontWeight.w500,
+                                          color: AppColor.primary,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    const SizedBox(width: 1),
+                                    PopupMenuButton<String>(
+                                      color: Colors.white,
+                                      surfaceTintColor: Colors.white,
+                                      icon: const Icon(Icons.more_vert),
+                                      onSelected: (value) async {
+                                        final success = await boxController.notInterestedCommunity(
+                                          id: list.id.toString(),
+                                          action: value,
+                                        );
+
+                                        if (success) {
+                                          debugPrint("$value Success");
+                                        }
+                                      },
+                                      itemBuilder: (context) => [
+                                        PopupMenuItem<String>(
+                                          value: PrefsHelper.userId == list.user!.id.toString()
+                                              ? "delete"
+                                              : "notInterested",
+                                          child: SizedBox(
+                                            width: 150,
+                                            child: Text(
+                                              PrefsHelper.userId == list.user!.id.toString()
+                                                  ? "Delete"
+                                                  : "Not Interested",
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  ],
                                 ),
                               ),
                               SizedBox(height: 10.h),

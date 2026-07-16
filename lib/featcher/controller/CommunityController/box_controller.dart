@@ -157,4 +157,35 @@ class BoxController extends GetxController {
     }
   }
 
+
+  RxBool isInterested=false.obs;
+  Future<bool> notInterestedCommunity({required String id, required String action}) async {
+    isInterested.value = true;
+
+    try {
+      final header = {
+        "token": PrefsHelper.token,
+      };
+      final body = {
+        "action": action
+      };
+
+      final response = await ApiService.patchApi(
+          AppUrl.interestedCommunity(id: id),
+          body:body,
+          header: header
+
+      );
+
+      if (response.statusCode == 200) {
+        communityList.removeWhere((item) => item.id == id);
+        return true;
+      }
+
+      return false;
+    } finally {
+      isInterested.value = false;
+    }
+  }
+
 }

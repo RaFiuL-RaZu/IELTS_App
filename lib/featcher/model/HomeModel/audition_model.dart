@@ -13,7 +13,7 @@ class AuditionModel {
   RxBool isLiked; // 👈 IMPORTANT
   RxBool isFavorite;
 
-  final int commentCount;
+  late final int commentCount;
   final DateTime createdAt;
   final DateTime updatedAt;
 
