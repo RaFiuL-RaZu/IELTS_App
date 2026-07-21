@@ -302,7 +302,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                             child: Text(
                                               PrefsHelper.userId == list.user!.id.toString()
                                                   ? "Delete"
-                                                  : "Not Interested",
+                                                  : "Report",
                                               style: const TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500,

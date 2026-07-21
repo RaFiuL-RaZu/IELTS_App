@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
+import 'package:justtsham/featcher/view/SettingScreen/block_screen.dart';
 import 'package:justtsham/featcher/view/SettingScreen/change_password.dart';
 import '../../../core/widgets/common_text.dart';
 import 'delete_account.dart';
@@ -54,6 +55,17 @@ class PrivacyScreen extends StatelessWidget {
                         child: ProfileBox(
                           title: 'Change Password',
                           icon: Icons.lock,
+                        ),
+                      ),
+                      Divider(color: Colors.grey.shade200,),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: (){
+                          Get.to(()=>BlockScreen());
+                        },
+                        child: ProfileBox(
+                          title: 'Block User ',
+                          icon: Icons.people,
                         ),
                       ),
                       Divider(color: Colors.grey.shade200,),

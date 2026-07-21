@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:justtsham/featcher/controller/NotificationController/notification_controller.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -178,7 +180,9 @@ class SignUpController extends GetxController {
   }
   void initSocialAuth() async {
     await _googleSignIn.initialize(
-      clientId: '349261530631-lb22ptccon3daclo1938729quhubt3tt.apps.googleusercontent.com', // iOS OAuth client ID from GoogleService-Info.plist (CLIENT_ID field)
+      clientId: Platform.isIOS
+          ? '349261530631-lb22ptccon3daclo1938729quhubt3tt.apps.googleusercontent.com'
+          : null,
       serverClientId: '349261530631-b6msia8gkr3pl55gp594juvdptfqn5vg.apps.googleusercontent.com',
     );
   }

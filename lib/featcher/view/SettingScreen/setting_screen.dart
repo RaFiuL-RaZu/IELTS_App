@@ -11,6 +11,7 @@ import 'package:justtsham/featcher/view/SettingScreen/privacy_screen.dart';
 import 'package:justtsham/featcher/view/SettingScreen/save_audition.dart';
 // import 'package:justtsham/featcher/view/SettingScreen/subscription_page.dart'; // subscription tab hidden
 import 'package:justtsham/core/constant/prefs_helper.dart';
+import 'package:justtsham/featcher/view/SettingScreen/terms_conditions.dart';
 import 'package:justtsham/featcher/view/authentication/Login_screen.dart';
 import '../../../core/widgets/common_text.dart';
 import 'edit_profile.dart';
@@ -246,6 +247,18 @@ class _SettingScreenState extends State<SettingScreen> {
                     spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          Get.to(() => TermsOfUseScreen());
+                        },
+                        child: ProfileBox(
+                          title: 'Terms & Conditions',
+                          icon: AppIcons.faq,
+                        ),
+                      ),
+                      Divider(thickness: 1,color: Colors.grey.shade300,),
+
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () {

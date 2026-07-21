@@ -206,46 +206,46 @@ SizedBox(height: 19),
                   );
                 }),
                 SizedBox(height: 10.h),
-                Obx(() {
-                  if (signUpController.isApple.value) {
-                    return Center(child: CircularProgressIndicator(color: AppColor.primary));
-                  }
-                  return GestureDetector(
-                    onTap: () async {
-                      await signUpController.signInWithApple();
-                      if (signUpController.appleToken.isNotEmpty) {
-                        await signUpController.postApple();
-                      }
-                    },
-                    child: Container(
-                      height: 48.h,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Colors.white,
-                      ),
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          spacing: 5,
-                          children: [
-                            Image.asset(
-                              AppIcons.apple,
-                              height: 20,
-                              width: 20,
-                              fit: BoxFit.fill,
-                            ),
-                            CommonText(
-                              title: "Sign in with Apple",
-                              fSize: 18.sp,
-                              fWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }),
+                // Obx(() {
+                //   if (signUpController.isApple.value) {
+                //     return Center(child: CircularProgressIndicator(color: AppColor.primary));
+                //   }
+                //   return GestureDetector(
+                //     onTap: () async {
+                //       await signUpController.signInWithApple();
+                //       if (signUpController.appleToken.isNotEmpty) {
+                //         await signUpController.postApple();
+                //       }
+                //     },
+                //     child: Container(
+                //       height: 48.h,
+                //       width: double.infinity,
+                //       decoration: BoxDecoration(
+                //         borderRadius: BorderRadius.circular(16),
+                //         color: Colors.white,
+                //       ),
+                //       child: Center(
+                //         child: Row(
+                //           mainAxisAlignment: MainAxisAlignment.center,
+                //           spacing: 5,
+                //           children: [
+                //             Image.asset(
+                //               AppIcons.apple,
+                //               height: 20,
+                //               width: 20,
+                //               fit: BoxFit.fill,
+                //             ),
+                //             CommonText(
+                //               title: "Sign in with Apple",
+                //               fSize: 18.sp,
+                //               fWeight: FontWeight.w600,
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //     ),
+                //   );
+                // }),
                 SizedBox(height: 50),
                 Center(
                   child: RichText(

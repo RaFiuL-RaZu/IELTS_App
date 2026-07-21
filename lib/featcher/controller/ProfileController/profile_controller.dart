@@ -11,6 +11,7 @@ import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/featcher/model/ProfileModel/my_profile_model.dart';
 
 import '../../../core/widgets/common_snackber.dart';
+import '../../model/ProfileModel/block_user_model.dart';
 
 class ProfileController extends GetxController {
 
@@ -88,7 +89,6 @@ class ProfileController extends GetxController {
     }
   }
 
-
   Future<void> updateProfile() async {
     try {
       isLoading(true);
@@ -152,6 +152,67 @@ class ProfileController extends GetxController {
         message: "Something went wrong",
         isSuccess: false,
       );
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  final RxList<BlockUser> blockList = <BlockUser>[].obs;
+
+  Future<void> userBlock() async {
+    isLoading(true);
+
+    try {
+      Map<String, String> header = {
+        "token": PrefsHelper.token,
+      };
+
+      final response = await ApiService.getApi(
+        AppUrl.blockList,
+        header: header,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final List data = response.body['data']['result'];
+
+        blockList.value = data
+            .map((e) => BlockUser.fromJson(e))
+            .toList();
+      }
+    } catch (e, s) {
+      debugPrint("Error: $e");
+      debugPrint("StackTrace: $s");
+    } finally {
+      isLoading(false);
+    }
+  }
+
+
+  Future<void> unblockUser({required String id}) async {
+    isLoading(true);
+
+    try {
+      Map<String, String> header = {
+        "token": PrefsHelper.token,
+      };
+
+      final response = await ApiService.deleteApi(
+        AppUrl.unblockUser(id: id),
+        header: header,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        blockList.removeWhere((e) => e.id == id);
+       await userBlock();
+
+        Get.snackbar(
+          "Success",
+          "User unblocked successfully.",
+        );
+      }
+    } catch (e, s) {
+      debugPrint("Error: $e");
+      debugPrint("StackTrace: $s");
     } finally {
       isLoading(false);
     }

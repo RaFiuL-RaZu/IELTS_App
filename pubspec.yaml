@@ -2,11 +2,7 @@ name: justtsham
 description: "A new Flutter project."
 publish_to: 'none'
 
-<<<<<<< HEAD
 version: 1.0.0+2
-=======
-version: 1.0.0+7
->>>>>>> 91aaaa70450097fa434588a522fe5c962e68c72f
 
 environment:
   sdk: ^3.8.1
@@ -42,6 +38,7 @@ dependencies:
   firebase_core: ^4.11.0
   flutter_local_notifications: ^22.0.1
   firebase_messaging: ^16.4.0
+  flutter_html: ^3.0.0
 
 dev_dependencies:
   flutter_test:

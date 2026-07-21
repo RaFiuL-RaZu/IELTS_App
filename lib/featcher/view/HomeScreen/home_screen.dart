@@ -309,23 +309,86 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             ListTile(
                               contentPadding: const EdgeInsets.only(left: 0, right: 0),
-                              leading: ClipOval(
-                                child: (list.creator.profileImage.isNotEmpty ?? false)
-                                    ? CommonImage(
-                                  imageSrc: AppUrl.imageUrl + list.creator.profileImage,
-                                  imageType: ImageType.network,
-                                  height: 50,
-                                  width: 50,
-                                  fill: BoxFit.cover,
-                                )
-                                    : Container(
-                                  height: 50,
-                                  width: 50,
-                                  color: Colors.grey.shade300,
-                                  child: const Icon(
-                                    Icons.person,
-                                    size: 18,
-                                    color: Colors.white,
+                              leading: GestureDetector(
+                                onTap: () {
+                                  Get.dialog(
+                                    AlertDialog(
+                                      backgroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      title: const Text("User Options"),
+                                      content: const Text(
+                                        "Are you not interested in this person's posts?",
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Get.back(),
+                                          child: const Text("Cancel"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Get.back();
+
+                                            Get.dialog(
+                                              AlertDialog(
+                                                backgroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                title: const Text("Block User"),
+                                                content: const Text(
+                                                  "Blocking this user will prevent you from seeing their posts and interactions.",
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Get.back(),
+                                                    child: const Text("Cancel"),
+                                                  ),
+                                                  ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: Colors.red,
+                                                    ),
+                                                    onPressed: () {
+                                                      Get.back();
+                                                      controller.userBlock(id: list.creator.id);
+                                                    },
+                                                    child: const Text(
+                                                      "Block",
+                                                      style: TextStyle(color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          child: const Text(
+                                            "Block User",
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                child: ClipOval(
+                                  child: (list.creator.profileImage.isNotEmpty ?? false)
+                                      ? CommonImage(
+                                    imageSrc: AppUrl.imageUrl + list.creator.profileImage,
+                                    imageType: ImageType.network,
+                                    height: 50,
+                                    width: 50,
+                                    fill: BoxFit.cover,
+                                  )
+                                      : Container(
+                                    height: 50,
+                                    width: 50,
+                                    color: Colors.grey.shade300,
+                                    child: const Icon(
+                                      Icons.person,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -397,7 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             child: Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(
-                                                "Not Interested",
+                                                "Report",
                                                 style: TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w500,

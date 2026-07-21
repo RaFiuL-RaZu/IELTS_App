@@ -294,6 +294,36 @@ class HomeController extends GetxController {
     }
   }
 
+  RxBool isBlock=false.obs;
+  Future<bool> userBlock({required String id}) async {
+    isBlock.value = true;
+
+    try {
+      final header = {"token": PrefsHelper.token};
+      final body = {};
+
+      final response = await ApiService.postApi(
+        AppUrl.userBlock(id: id),
+        body,
+        header: header,
+      );
+
+      if (response.statusCode == 200) {
+        getHomeData();
+        Get.snackbar(
+          "Blocked",
+          "User has been blocked successfully.",
+        );
+        return true;
+
+      }
+
+      return false;
+    } finally {
+      isBlock.value = false;
+    }
+  }
+
   Future<bool> deleteComment({required String id}) async {
     isInterested.value = true;
 
