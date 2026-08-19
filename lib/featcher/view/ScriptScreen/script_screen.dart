@@ -41,7 +41,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
             children: [
               SizedBox(height: 60.h),
               CommonText(
-                title: "Scripts",
+                title: "IELTS Practice",
                 fSize: 22,
                 fWeight: FontWeight.w800,
                 color: AppColor.primary,
@@ -58,8 +58,8 @@ class _ScriptScreenState extends State<ScriptScreen> {
                 child: Center(
                   child: Row(
                     children: [
-                      _tabButton("Library", 0, AppIcons.book),
-                      _tabButton("Script Generator", 1, AppIcons.star),
+                      _tabButton("Cue Cards", 0, AppIcons.book),
+                      _tabButton("Topic Generator", 1, AppIcons.star),
                     ],
                   ),
                 ),
@@ -71,7 +71,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
                         children: [
                           CommonTextField(
                             controller: controller.searchController,
-                            title: "Search scripts...",
+                            title: "Search cue cards & topics...",
                             onChanged: (value) {
                               controller.searchScripts(value);
                             },
@@ -423,7 +423,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
                           SizedBox(height: 20.h,),
                           Obx(()=>CommonButton(
                             isLoading: controller.isLoading.value,
-                            titleText: " Generate Script",
+                            titleText: "Generate Cue Card",
                             onTap: (){
                               controller.createScript();
                             },

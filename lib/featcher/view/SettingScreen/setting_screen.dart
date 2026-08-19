@@ -192,7 +192,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           Get.to(() => SaveAudition());
                         },
                         child: ProfileBox(
-                          title: 'Saved Audios',
+                          title: 'Saved Cue Cards & Audios',
                           icon: AppIcons.fav,
                         ),
                       ),
@@ -340,7 +340,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                 CommonText(
                                   align: TextAlign.center,
                                   title:
-                                      "Are you sure you want to log out of your VO Vault account? You'll need to sign back in to access your auditions.",
+                                      "Are you sure you want to log out of your IELTS Vault account? You'll need to sign back in to access your practice tests and cue cards.",
                                   fSize: 14,
                                   fWeight: FontWeight.w500,
                                   color: AppColor.secondary,

@@ -24,9 +24,9 @@ class SplashScreen extends StatelessWidget {
             children: [
               Image.asset(AppImage.splashImage,height: 156.h,width: 160.w,fit: BoxFit.fill,),
               SizedBox(height: 15.h,),
-              CommonText(title: "VO Vault",fSize: 30.sp,fWeight: FontWeight.w800,color: AppColor.primary,),
+              CommonText(title: "IELTS Vault",fSize: 30.sp,fWeight: FontWeight.w800,color: AppColor.primary,),
               SizedBox(height: 15.h,),
-              CommonText(title: "Your Voice, Amplified.",fSize: 16.sp,fWeight: FontWeight.w500,color: AppColor.secondary,),
+              CommonText(title: "Ace Your IELTS Preparation",fSize: 16.sp,fWeight: FontWeight.w500,color: AppColor.secondary,),
               SizedBox(height: 50.h,),
               Image.asset(AppImage.gif,color: AppColor.primary,width: 202,height: 30,fit: BoxFit.cover,),
 

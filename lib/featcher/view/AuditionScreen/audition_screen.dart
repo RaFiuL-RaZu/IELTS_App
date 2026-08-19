@@ -66,7 +66,7 @@ class _AuditionScreenState extends State<AuditionScreen> {
               SizedBox(height: 60.h,),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: CommonText(title: "Tracking",fSize: 22,fWeight: FontWeight.w700,color: AppColor.primary,),
+                title: CommonText(title: "Mock Tests & Progress",fSize: 22,fWeight: FontWeight.w700,color: AppColor.primary,),
                 trailing: GestureDetector(
                   onTap: () {
                     showDialog(
@@ -98,7 +98,7 @@ class _AuditionScreenState extends State<AuditionScreen> {
                                    Row(
                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                      children: [
-                                       CommonText(title: "New Audition",fSize: 18,fWeight: FontWeight.w700,color: AppColor.primary,),
+                                       CommonText(title: "Log Mock Test",fSize: 18,fWeight: FontWeight.w700,color: AppColor.primary,),
                                        IconButton(onPressed: (){
                                          Get.back();
                                        }, icon: Icon(Icons.close,color: AppColor.primary,size: 24,)),
@@ -304,7 +304,7 @@ class _AuditionScreenState extends State<AuditionScreen> {
                                     SizedBox(height: 16.h,),
                                     Obx(()=>CommonButton(
                                       isLoading: controller.isLoading.value,
-                                      titleText: "Save Audition",onTap: (){
+                                      titleText: "Save Mock Test",onTap: (){
                                       controller.createAudition();
                                     },),)
 

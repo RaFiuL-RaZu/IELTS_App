@@ -45,7 +45,7 @@ class CreateAccount extends StatelessWidget {
                 Center(
                   child: CommonText(
                     align: TextAlign.center,
-                    title: "Join VO Vault and start your journey.",
+                    title: "Join IELTS Vault and start your preparation.",
                     fSize: 16.sp,
                     fWeight: FontWeight.w500,
                     color: AppColor.secondary,
@@ -243,54 +243,54 @@ class CreateAccount extends StatelessWidget {
                 );
                }),
                 SizedBox(height: 10.h),
-                // Obx(() {
-                //   if (controller.isApple.value) {
-                //     return Center(child: CircularProgressIndicator(color: AppColor.primary));
-                //   }
-                //   return GestureDetector(
-                //     onTap: () async {
-                //       if (!controller.isChecked.value) {
-                //         Get.snackbar(
-                //           'Hey',
-                //           'You must agree to the Terms and Conditions',
-                //           snackPosition: SnackPosition.TOP,
-                //         );
-                //         return;
-                //       }
-                //       await controller.signInWithApple();
-                //       if (controller.appleToken.isNotEmpty) {
-                //         await controller.postApple();
-                //       }
-                //     },
-                //     child: Container(
-                //       height: 48.h,
-                //       width: double.infinity,
-                //       decoration: BoxDecoration(
-                //         borderRadius: BorderRadius.circular(16),
-                //         color: Colors.white,
-                //       ),
-                //       child: Center(
-                //         child: Row(
-                //           mainAxisAlignment: MainAxisAlignment.center,
-                //           spacing: 5,
-                //           children: [
-                //             Image.asset(
-                //               AppIcons.apple,
-                //               height: 20,
-                //               width: 20,
-                //               fit: BoxFit.fill,
-                //             ),
-                //             CommonText(
-                //               title: "Sign up with Apple",
-                //               fSize: 18.sp,
-                //               fWeight: FontWeight.w600,
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //     ),
-                //   );
-                // }),
+                Obx(() {
+                  if (controller.isApple.value) {
+                    return Center(child: CircularProgressIndicator(color: AppColor.primary));
+                  }
+                  return GestureDetector(
+                    onTap: () async {
+                      if (!controller.isChecked.value) {
+                        Get.snackbar(
+                          'Hey',
+                          'You must agree to the Terms and Conditions',
+                          snackPosition: SnackPosition.TOP,
+                        );
+                        return;
+                      }
+                      await controller.signInWithApple();
+                      if (controller.appleToken.isNotEmpty) {
+                        await controller.postApple();
+                      }
+                    },
+                    child: Container(
+                      height: 48.h,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.white,
+                      ),
+                                        child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 5,
+                          children: [
+                            Image.asset(
+                              AppIcons.apple,
+                              height: 20,
+                              width: 20,
+                              fit: BoxFit.fill,
+                            ),
+                            CommonText(
+                              title: "Sign up with Apple",
+                              fSize: 18.sp,
+                              fWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }),
                 // GestureDetector(
                 //   onTap: () async {
                 //     if (!controller.isChecked.value) {

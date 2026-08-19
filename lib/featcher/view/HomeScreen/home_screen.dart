@@ -62,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: CommonText(
-                  title: "Your voice.Your vault",
+                  title: "Speak Confidently. Ace IELTS.",
                   fSize: 16,
                   fWeight: FontWeight.w500,
                   color: AppColor.secondary,
@@ -155,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   width: 15.h,
                                 ),
                                 CommonText(
-                                  title: "Weekly Challenge",
+                                  title: "Weekly IELTS Challenge",
                                   fSize: 12,
                                   fWeight: FontWeight.w700,
                                   color: Colors.white,
@@ -215,7 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       CommonText(
                                         title: data.isPracticed == true
                                             ? "Completed"
-                                            : "Submit Your Take",
+                                            : "Practice Cue Card",
                                         fSize: 20.sp,
                                         fWeight: FontWeight.w500,
                                         color: Colors.white,

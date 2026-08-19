@@ -52,8 +52,8 @@ class NavBarController extends GetxController {
 
   final List<String> label = [
     "Home",
-    "Scripts",
-    "Tracking",
+    "Practice",
+    "Mock Tests",
     "Community",
     "Settings",
   ];

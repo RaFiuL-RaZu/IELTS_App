@@ -50,7 +50,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
             children: [
               SizedBox(height: 60.h),
               CommonText(
-                title: "Community",
+                title: "IELTS Community",
                 fSize: 22,
                 fWeight: FontWeight.w800,
                 color: AppColor.primary,

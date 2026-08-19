@@ -25,20 +25,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       "image": AppImage.banner1,
       "icon": AppIcons.icon3,
-      "title": "Practice Your Voice Acting",
-      "desc": "Record, save, and refine your takes with real-time waveform feedback.",
+      "title": "Practice Speaking Cue Cards",
+      "desc": "Record your responses, review sample Band 8+ answers, and get real-time audio waveform feedback.",
     },
     {
       "image": AppImage.banner3,
       "icon": AppIcons.icon2,
-      "title": "Track Auditions",
-      "desc": "Monitor your booking ratio, manage callbacks, and organize projects.",
+      "title": "Track Mock Tests & Bands",
+      "desc": "Monitor your band score progress, manage upcoming test dates, and evaluate your preparation.",
     },
     {
       "image": AppImage.banner2,
       "icon": AppIcons.icon1,
-      "title": "Share Demos",
-      "desc": "Get feedback from the community and participate in weekly challenges.",
+      "title": "IELTS Study Community",
+      "desc": "Share speaking recordings and essays to get peer feedback and expert band ratings.",
     },
   ];
 
