@@ -8,6 +8,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:justtsham/core/constant/prefs_helper.dart';
+import 'package:justtsham/core/data/ielts_data.dart';
 import 'package:justtsham/core/services/api_services.dart';
 import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/featcher/model/ScriptModel/script_model.dart';
@@ -17,6 +18,7 @@ class ScriptController extends GetxController{
   static ScriptController get instance=>Get.put(ScriptController());
 
   var expandedIndex = (-1).obs;
+  RxInt activeSkillTab = 0.obs; // 0: Speaking, 1: Listening, 2: Reading, 3: Writing
 
   void toggleExpand(int index) {
     if (expandedIndex.value == index) {
@@ -101,25 +103,23 @@ class ScriptController extends GetxController{
 
   List<String> items = [
     "All",
-    "E-Learning",
-    "Character",
-    "Narration",
-    "Video Game",
-    "Animation",
-    "Commercial",
-    "Announcer",
+    "Technology & AI",
+    "Work & Study",
+    "Environment & Nature",
+    "Travel & Culture",
+    "People & Society",
+    "Events & Experiences",
   ];
 
   RxBool isDropdownOpen = false.obs;
 
   List<String> categories = [
-    "E-Learning",
-    "Character",
-    "Narration",
-    "Video Game",
-    "Animation",
-    "Commercial",
-    "Announcer",
+    "Technology & AI",
+    "Work & Study",
+    "Environment & Nature",
+    "Travel & Culture",
+    "People & Society",
+    "Events & Experiences",
   ];
 
   RxString selectedCategory = "".obs;
@@ -136,11 +136,11 @@ class ScriptController extends GetxController{
   RxBool isToneDropdownOpen = false.obs;
 
   List<String> toneList = [
-    "Energetic",
-    "Dramatic",
+    "Formal / Academic",
     "Conversational",
-    "Authoritative",
-    "Quirky",
+    "Descriptive",
+    "Analytical",
+    "Persuasive",
   ];
 
   RxString selectedTone = "".obs;
@@ -157,80 +157,59 @@ class ScriptController extends GetxController{
 
   RxList<ScriptModel> scriptList=<ScriptModel>[].obs;
 
+  void _loadDefaultIeltsCueCards() {
+    final localList = IeltsData.cueCards.map((cue) {
+      final bullets = cue.bulletPoints.map((b) => "• $b").join("\n");
+      final part3 = cue.part3Questions.isNotEmpty
+          ? "\n\nPart 3 Discussion Questions:\n" +
+              cue.part3Questions.map((q) => "Q: $q").join("\n")
+          : "";
+      final vocab = cue.band8Vocabulary.isNotEmpty
+          ? "\n\nBand 8+ Vocabulary:\n" + cue.band8Vocabulary.join(", ")
+          : "";
+
+      final fullContent =
+          "Prompt Points:\n$bullets\n\nBand 8.5 Model Answer:\n${cue.sampleAnswer}$part3$vocab";
+
+      return ScriptModel(
+        id: cue.id,
+        title: cue.title,
+        category: cue.topicCategory,
+        content: fullContent,
+        createdAt: DateTime.now(),
+      );
+    }).toList();
+
+    scriptList.value = localList;
+    filteredScriptList.value = localList;
+  }
+
   Future<void> getScript() async {
-    debugPrint("GetScript");
+    _loadDefaultIeltsCueCards();
+    isLoading(false);
+  }
 
+
+
+
+
+
+  var script = "".obs;
+  Future<void> createScript() async {
     isLoading(true);
+    await Future.delayed(const Duration(milliseconds: 300));
 
-    try {
-      Map<String, String> header = {
-        "token": PrefsHelper.token
-      };
+    final cat = selectedCategory.value.isNotEmpty ? selectedCategory.value : "Technology & AI";
+    final tone = selectedTone.value.isNotEmpty ? selectedTone.value : "Band 8.0 Fluent";
+    final dur = selectedTime.value.isNotEmpty ? selectedTime.value : "2 Min";
 
-      final response =
-      await ApiService.getApi(AppUrl.getScript, header: header);
+    script.value = "Describe a significant experience with $cat.\n\n"
+        "You should say:\n"
+        "• What this was and when it happened\n"
+        "• Who was involved with you\n"
+        "• What key steps were taken\n"
+        "• And explain why this experience made a lasting impact on your perspective ($tone style, target duration: $dur).";
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-
-        final data = response.body['data']['result'];
-
-        if (data is List) {
-          scriptList.value =
-              data.map((e) => ScriptModel.fromJson(e)).toList();
-          filteredScriptList.value=scriptList;
-        }
-        debugPrint("API FULL RESPONSE: ${response.body}");
-        debugPrint("SCRIPT LIST LENGTH: ${scriptList.length}");
-        debugPrint("FILTER LIST LENGTH: ${filteredScriptList.length}");
-      }
-    } catch (e, s) {
-      debugPrint("Error: $e");
-      debugPrint("Stack: $s");
-    } finally {
-      isLoading(false);
-    }
+    isLoading(false);
   }
-
-
-
-
-
-
-  var script="".obs;
-  Future<void> createScript()async{
-    isLoading(true);
-    try{
-
-      Map<String,String> header={
-        "token":PrefsHelper.token
-      };
-
-      Map<String,dynamic> body={
-        "category": selectedCategory.value,
-        "tone": selectedTone.value,
-        "duration": selectedTime.value
-      };
-
-      debugPrint("Script: $body");
-
-
-      final response= await ApiService.postApi(AppUrl.createScript,body,header: header);
-
-      if(response.statusCode==200 || response.statusCode==201) {
-        final data = response.body['data'];
-        script.value=data;
-
-      }
-
-
-    }catch(e,s){
-      debugPrint("DebugPrint : $e");
-      debugPrint("SnackTrack : $s");
-    }finally{
-      isLoading(false);
-    }
-
-
-  }
-
-  }
+}

@@ -30,7 +30,7 @@ class WavePainter extends CustomPainter {
       ..strokeWidth = 2;
 
     final paintActive = Paint()
-      ..color = Colors.deepPurple
+      ..color = const Color(0xFF00897B)
       ..strokeWidth = 2;
 
     int barCount = 40;

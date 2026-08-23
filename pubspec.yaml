@@ -35,10 +35,9 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
   google_sign_in: ^7.2.0
   sign_in_with_apple: ^6.1.4
-  firebase_core: ^4.11.0
   flutter_local_notifications: ^22.0.1
-  firebase_messaging: ^16.4.0
   flutter_html: ^3.0.0
+  flutter_tts: ^4.2.2
 
 dev_dependencies:
   flutter_test:

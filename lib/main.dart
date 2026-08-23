@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -6,12 +5,13 @@ import 'package:justtsham/routes/routes.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import 'core/constant/prefs_helper.dart';
+import 'core/services/ielts_local_storage_service.dart';
 import 'featcher/controller/NotificationController/notification_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   Get.put(NotificationController());
+  Get.put(IeltsProgressController());
   await action();
   runApp(const MyApp());
 }

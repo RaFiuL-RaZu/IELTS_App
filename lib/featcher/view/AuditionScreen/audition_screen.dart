@@ -1,706 +1,412 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:justtsham/core/constant/other_helper.dart';
-import 'package:justtsham/core/utils/app_colors.dart';
-import 'package:justtsham/core/utils/app_icons.dart';
-import 'package:justtsham/core/widgets/common_text.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import '../../../core/widgets/common_text_field.dart';
-import '../../../core/widgets/coomon_button.dart';
-import '../../controller/AuditionController/audition_controller.dart';
+import 'package:justtsham/core/services/ielts_local_storage_service.dart';
+import 'package:justtsham/featcher/controller/AuthController/navber_controller.dart';
+import 'package:justtsham/featcher/view/HomeScreen/ielts_band_calculator_modal.dart';
+import 'package:justtsham/featcher/view/ScriptScreen/ielts_listening_practice_screen.dart';
+import 'package:justtsham/featcher/view/ScriptScreen/ielts_reading_practice_screen.dart';
 
-class AuditionScreen extends StatefulWidget {
+class AuditionScreen extends StatelessWidget {
   const AuditionScreen({super.key});
 
   @override
-  State<AuditionScreen> createState() => _AuditionScreenState();
-}
-
-class _AuditionScreenState extends State<AuditionScreen> {
-  final AuditionController controller=Get.put(AuditionController());
-
-
-  Color getStatusColor(String action) {
-    switch (action.toLowerCase().trim()) {
-      case "call backed":
-        return const Color(0xFFFEF9C2);
-      case "rejected":
-        return const Color(0xFFFFE2E2);
-      case "submitted":
-        return const Color(0xFFDBEAFE);
-      default:
-        return const Color(0xFFFEF9C2);
-    }
-  }
-
-  Color getStatusText(String action) {
-    switch (action.toLowerCase().trim()) {
-      case "call backed":
-        return const Color(0xFFA65F00);
-      case "rejected":
-        return const Color(0xFFE7000B);
-      case "submitted":
-        return const Color(0xFF155DFC);
-      default:
-        return const Color(0xFF155DFC);
-    }
-  }
-  @override
-  void initState() {
-    controller.getActivity();
-    controller.getMyHistory();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final progressCtrl = Get.find<IeltsProgressController>();
+
     return Scaffold(
-      backgroundColor: AppColor.background,
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        toolbarHeight: 65.h,
+        title: const Text(
+          "Cambridge Mock Exam Center",
+          style: TextStyle(
+            color: Color(0xFF0F172A),
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 60.h,),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: CommonText(title: "Mock Tests & Progress",fSize: 22,fWeight: FontWeight.w700,color: AppColor.primary,),
-                trailing: GestureDetector(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return Dialog(
-                          insetPadding: EdgeInsets.symmetric(horizontal: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Container(
-                            height: 660.h,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.white,
-                              border: Border.all(color: Color(0xFFFFE2E2)),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 10,
-                              ),
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                   Row(
-                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                     children: [
-                                       CommonText(title: "Log Mock Test",fSize: 18,fWeight: FontWeight.w700,color: AppColor.primary,),
-                                       IconButton(onPressed: (){
-                                         Get.back();
-                                       }, icon: Icon(Icons.close,color: AppColor.primary,size: 24,)),
-                                     ],
-                                   ),
-                                    SizedBox(height: 12.h),
-                                    SizedBox(height: 7.h),
-                                    CommonText(
-                                      title: "Project Name",
-                                      fSize: 16,
-                                      fWeight: FontWeight.w600,
-                                      color: AppColor.primary,
-                                    ),
-                                    SizedBox(height: 10.h),
-                                    CommonTextField(title: "e.g. Disney Animation",controller: controller.projectController,),
-                                    SizedBox(height: 10.h),
-                                    CommonText(
-                                      title: "Role Name",
-                                      fSize: 16,
-                                      fWeight: FontWeight.w600,
-                                      color: AppColor.primary,
-                                    ),
-                                    SizedBox(height: 10.h),
-                                    Obx(() => Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        CommonTextField(
-                                          readOnly: true,
-                                          onTap: controller.toggleRoleDropdown,
-                                          title: controller.selectedRole.value.isEmpty
-                                              ? "e.g. Hero Character"
-                                              : controller.selectedRole.value,
-                                          sIcon: const Icon(
-                                            Icons.arrow_drop_down,
-                                            color: Color(0xFF99A1AF),
-                                          ),
-                                        ),
-
-                                        if (controller.isRoleDropdownOpen.value)
-                                          Container(
-                                            margin: const EdgeInsets.only(top: 5),
-                                            padding: const EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(12),
-                                              border: Border.all(color: Colors.grey.shade300),
-                                            ),
-                                            child: Column(
-                                              children: controller.roleList.map((item) {
-                                                return GestureDetector(
-                                                  onTap: () => controller.selectRole(item),
-                                                  child: Container(
-                                                    width: double.infinity,
-                                                    padding: const EdgeInsets.symmetric(vertical: 12),
-                                                    child: Text(item),
-                                                  ),
-                                                );
-                                              }).toList(),
-                                            ),
-                                          ),
-                                      ],
-                                    )),
-                                    SizedBox(height: 10.h),
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      spacing: 10,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              CommonText(
-                                                title: "Date",
-                                                fSize: 16,
-                                                fWeight: FontWeight.w600,
-                                                color: AppColor.primary,
-                                              ),
-                                              SizedBox(height: 10.h),
-                                              Obx(() => CommonTextField(
-                                                readOnly: true,
-                                                onTap: () => controller.pickDate(context),
-                                                title: controller.selectedDate.value,
-                                                prefixIcon: const Icon(
-                                                  Icons.calendar_month,
-                                                  color: Color(0xFF99A1AF),
-                                                ),
-                                              ))
-                                            ],
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              CommonText(
-                                                title: "Status",
-                                                fSize: 16,
-                                                fWeight: FontWeight.w600,
-                                                color: AppColor.primary,
-                                              ),
-                                              SizedBox(height: 10.h),
-                                              Obx(() => Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  CommonTextField(
-                                                      readOnly: true,
-                                                      onTap: controller.toggleCallbackDropdown,
-                                                      title: controller.selectedCallback.value.isEmpty
-                                                          ? "Call back"
-                                                          : controller.selectedCallback.value,
-                                                      sIcon: const Icon(
-                                                        Icons.arrow_drop_down,
-                                                        color: Color(0xFF99A1AF),
-                                                      ),
-                                                    ),
-                                                  if (controller.isCallbackDropdownOpen.value)
-                                                    Container(
-                                                      margin: const EdgeInsets.only(top: 5),
-                                                      padding: const EdgeInsets.all(10),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.white,
-                                                        borderRadius: BorderRadius.circular(12),
-                                                        border: Border.all(color: Colors.grey.shade300),
-                                                      ),
-                                                      child: Column(
-                                                        children: controller.callbackList.map((item) {
-                                                          return GestureDetector(
-                                                            onTap: () => controller.selectCallback(item),
-                                                            child: Container(
-                                                              width: double.infinity,
-                                                              padding: const EdgeInsets.symmetric(vertical: 12),
-                                                              child: Text(item),
-                                                            ),
-                                                          );
-                                                        }).toList(),
-                                                      ),
-                                                    ),
-
-                                                ],
-                                              ))
-                                            ],
-                                          ),
-                                        ),
-
-                                      ],
-                                    ),
-                                    SizedBox(height: 10.h),
-                                    CommonText(
-                                      title: "Audio File",
-                                      fSize: 16,
-                                      fWeight: FontWeight.w600,
-                                      color: AppColor.primary,
-                                    ),
-                                    SizedBox(height: 10.h,),
-                                    GestureDetector(
-                                      onTap: controller.pickAudioFile,
-                                      child: Container(
-                                        height: 153.h,
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(color: const Color(0xFF99A1AF)),
-                                          borderRadius: BorderRadius.circular(16),
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Container(
-                                              height: 48.h,
-                                              width: 48.w,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(50),
-                                                color: const Color(0xFFE5E2FD),
-                                              ),
-                                              child: Center(
-                                                child: Image.asset(
-                                                  AppIcons.upload,
-                                                  height: 24,
-                                                  width: 24,
-                                                  fit: BoxFit.fill,
-                                                ),
-                                              ),
-                                            ),
-
-                                            Obx(() => CommonText(
-                                              title: controller.audioFileName.value.isEmpty
-                                                  ? "Select Audio File"
-                                                  : controller.audioFileName.value,
-                                              fSize: 14,
-                                              fWeight: FontWeight.w500,
-                                              color: AppColor.primary,
-                                            )),
-
-                                            const CommonText(
-                                              title: "MP3, WAV up to 10MB",
-                                              fSize: 12,
-                                              fWeight: FontWeight.w400,
-                                              color: Color(0xFF99A1AF),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(height: 16.h,),
-                                    Obx(()=>CommonButton(
-                                      isLoading: controller.isLoading.value,
-                                      titleText: "Save Mock Test",onTap: (){
-                                      controller.createAudition();
-                                    },),)
-
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  child: Container(
-                    height: 40.h,
-                    width: 40.w,
-                    decoration: BoxDecoration(
-                        color: AppColor.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 3,
-                          ),
-                        ]
-                    ),child:Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Center(child: Icon(Icons.add,color: Colors.white,size: 18,)),
-                  ),
-                  ),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Hero Mock Exam Simulation Card
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(22.w),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(26),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1E1B4B), Color(0xFF312E81), Color(0xFF4338CA)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ),
-              SizedBox(height: 12.h,),
-              Obx((){
-               if(controller.isLoading.value){
-                 return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
-               }else if(controller.activityModel.value == null){
-                 return Center(child: CommonText(title: "No Data Found"),);
-               }else{
-                 return  Container(
-                   padding: EdgeInsets.all(16),
-                   decoration: BoxDecoration(
-                     borderRadius: BorderRadius.circular(20),
-                     gradient: LinearGradient(
-                       colors: [Color(0xFFEDEBFF), Color(0xFFF7F6FF)],
-                     ),
-                   ),
-                   child: Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     children: [
-                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                         children: [
-                           Image.asset(AppIcons.progress,height: 16.h,width: 16.w,),
-                           SizedBox(width: 8),
-                           Text(
-                             "MONTHLY ACTIVITY",
-                             style: TextStyle(
-                               fontSize: 14,
-                               fontWeight: FontWeight.w700,
-                               color: Colors.black54,
-                             ),
-                           ),
-                         ],
-                       ),
-                       Obx(() => DropdownButton<String>(
-                         value: controller.selectedChartType.value,
-                         underline: const SizedBox(),
-                         isDense: true,
-                         icon: const Icon(Icons.arrow_drop_down, size: 20),
-                         items: const [
-                           DropdownMenuItem(value: 'Booked', child: Text('Booked', style: TextStyle(fontSize: 13))),
-                           DropdownMenuItem(value: 'Callback', child: Text('Callback', style: TextStyle(fontSize: 13))),
-                         ],
-                         onChanged: (val) {
-                           if (val != null) controller.switchChart(val);
-                         },
-                       ))
-                        ],
-                       ),
-                       const SizedBox(height: 20),
-
-                       Obx(() => SizedBox(
-                         key: ValueKey(controller.selectedChartType.value),
-                         height: 180,
-                         child: SfCartesianChart(
-                           plotAreaBorderWidth: 0,
-
-                           primaryXAxis: NumericAxis(
-                             minimum: 0.5,
-                             maximum: 12.5,
-                             interval: 1,
-                             majorGridLines: const MajorGridLines(width: 0),
-                             axisLine: const AxisLine(width: 0),
-                             axisLabelFormatter: (details) {
-                               final val = details.value.toInt();
-                               if (val < 1 || val > 12) return ChartAxisLabel('', details.textStyle);
-                               return ChartAxisLabel(
-                                 val.toString().padLeft(2, '0'),
-                                 details.textStyle,
-                               );
-                             },
-                           ),
-
-                           primaryYAxis: NumericAxis(
-                             minimum: 0,
-                             maximum: controller.chartMaxY,
-                             interval: controller.chartMaxY / 4,
-                             axisLine: const AxisLine(width: 0),
-                             majorTickLines: const MajorTickLines(size: 0),
-                             majorGridLines: MajorGridLines(
-                               width: 1,
-                               color: Colors.grey.withValues(alpha: 0.2),
-                             ),
-                           ),
-
-                           tooltipBehavior: TooltipBehavior(enable: true),
-
-                           series: [
-                             SplineAreaSeries<ChartData, int>(
-                               dataSource: controller.chartData,
-                               xValueMapper: (d, _) => d.x,
-                               yValueMapper: (d, _) => d.y,
-                               splineType: SplineType.monotonic,
-                               gradient: LinearGradient(
-                                 colors: [
-                                   Colors.deepPurple.withValues(alpha: 0.4),
-                                   Colors.deepPurple.withValues(alpha: 0.05),
-                                 ],
-                                 begin: Alignment.topCenter,
-                                 end: Alignment.bottomCenter,
-                               ),
-                             ),
-                             SplineSeries<ChartData, int>(
-                               dataSource: controller.chartData,
-                               xValueMapper: (d, _) => d.x,
-                               yValueMapper: (d, _) => d.y,
-                               splineType: SplineType.monotonic,
-                               color: Colors.deepPurple,
-                               width: 3,
-                             ),
-                           ],
-
-                           annotations: [
-                             CartesianChartAnnotation(
-                               widget: Container(
-                                 width: 1,
-                                 height: double.infinity,
-                                 color: Colors.grey,
-                               ),
-                               coordinateUnit: CoordinateUnit.point,
-                               x: DateTime.now().month,
-                               y: controller.chartMaxY / 2,
-                             ),
-                           ],
-                         ),
-                       )),
-                     ],
-                   ),
-                 );
-               }
-             }),
-              SizedBox(height: 20.h,),
-          Obx(() {
-            final activity = controller.activityModel.value;
-
-            if (activity == null) {
-              return const SizedBox();
-            }
-
-            return Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 15),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      gradient: LinearGradient(
-                        colors: [Colors.white, Color(0x4D6C4DFF)],
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Image.asset(AppIcons.round, height: 16.h, width: 16.w),
-                            SizedBox(width: 8),
-                            Text("Booked"),
-                          ],
-                        ),
-                        SizedBox(height: 7.h),
-
-                        CommonText(
-                          title: "${activity.totalBooked}",
-                          fSize: 24,
-                          fWeight: FontWeight.w800,
-                          color: AppColor.primary,
-                        ),
-
-                        SizedBox(height: 10.h),
-
-                        CommonText(
-                          title: "${activity.thisMonthTotalBook} this month",
-                          fSize: 12,
-                          fWeight: FontWeight.w500,
-                          color: Color(0xFF00C950),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(width: 5,),
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 15),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      gradient: LinearGradient(
-                        colors: [Colors.white, Color(0x4DF0B100)],
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Image.asset(AppIcons.docs, height: 16.h, width: 16.w),
-                            SizedBox(width: 8),
-                            Text("Callbacks"),
-                          ],
-                        ),
-                        SizedBox(height: 7.h),
-
-                        CommonText(
-                          title: activity.totalCallBack.toString(),
-                          fSize: 24,
-                          fWeight: FontWeight.w800,
-                          color: AppColor.primary,
-                        ),
-
-                        SizedBox(height: 10.h),
-
-                        CommonText(
-                          title: "out of ${activity.totalAuditionCount} auditions",
-                          fSize: 12,
-                          fWeight: FontWeight.w500,
-                          color: AppColor.secondary,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            );
-          }),
-              SizedBox(height: 12.h,),
-              Row(
-                children: [
-                  Image.asset(AppIcons.history,height: 20.h,width: 20.w,),
-                  SizedBox(width: 8),
-                  Text(
-                    " History",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppColor.primary,
-                    ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF312E81).withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   ),
                 ],
               ),
-              SizedBox(height: 12.h,),
-             Obx((){
-               if(controller.isLoading.value){
-                 return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
-               }else if(controller.myHistoryList.isEmpty){
-                 return Center(child: CommonText(title: "No Data Found"),);
-               }else{
-                 return  ListView.builder(
-                   itemCount: controller.myHistoryList.length,
-                   shrinkWrap: true,
-                   physics: const NeverScrollableScrollPhysics(),
-                   padding: EdgeInsets.zero,
-                   itemBuilder: (context, index) {
-                     final list = controller.myHistoryList[index];
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          "⏱️ FULL 2H 45M SIMULATION",
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
+                            color: Color(0xFFA5B4FC),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          "Academic Test 1",
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 18.h),
+                  const Text(
+                    "Official Cambridge Timed Mock",
+                    style: TextStyle(
+                      fontSize: 21,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 6.h),
+                  const Text(
+                    "Simulate authentic exam conditions: Listening (30m) + Reading (60m) + Writing (60m) + Speaking (15m).",
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      color: Color(0xFFC7D2FE),
+                      height: 1.4,
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.snackbar(
+                              "Full Mock Exam Started! ⏱️",
+                              "Section 1: Listening Test is ready. Time allocated: 30 minutes.",
+                              backgroundColor: const Color(0xFF312E81),
+                              colorText: Colors.white,
+                              snackPosition: SnackPosition.TOP,
+                            );
+                            Get.to(() => const IeltsListeningPracticeScreen(
+                              sectionTitle: "Cambridge Full Mock 1 - Listening",
+                              sectionNumber: "Section 1-4 Complete",
+                              audioSnippet: "Examiner: You will hear a number of different recordings and you will have to answer questions on what you hear...",
+                            ));
+                          },
+                          child: Container(
+                            height: 46.h,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.play_arrow_rounded, color: Color(0xFF312E81), size: 22),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Start Full Mock Test",
+                                  style: TextStyle(color: Color(0xFF312E81), fontWeight: FontWeight.w800, fontSize: 13.5),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      GestureDetector(
+                        onTap: () => IeltsBandCalculatorModal.show(context),
+                        child: Container(
+                          height: 46.h,
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: Colors.white.withOpacity(0.3)),
+                          ),
+                          child: const Center(
+                            child: Icon(Icons.calculate_outlined, color: Colors.white, size: 22),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
 
-                     return Container(
-                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                       margin: const EdgeInsets.only(bottom: 10),
-                       decoration: BoxDecoration(
-                         borderRadius: BorderRadius.circular(24),
-                         color: Colors.white,
-                       ),
-                       child: ListTile(
-                         contentPadding: EdgeInsets.zero,
+            SizedBox(height: 28.h),
 
-                         title: Column(
-                           crossAxisAlignment: CrossAxisAlignment.start,
-                           children: [
-                             CommonText(
-                               title: list.title,
-                               fSize: 16,
-                               fWeight: FontWeight.w700,
-                               color: AppColor.primary,
-                             ),
-                             SizedBox(height: 4.h),
-                             CommonText(
-                               title: "${list.category} .${OtherHelper.formatDate(list.createdAt.toString())}",
-                               fSize: 12,
-                               fWeight: FontWeight.w500,
-                               color: AppColor.secondary,
-                             ),
-                           ],
-                         ),
+            // Sectional Breakdown
+            const Text(
+              "Section-by-Section Mock Modules",
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+            SizedBox(height: 14.h),
 
-                         trailing: Row(
-                           mainAxisSize: MainAxisSize.min,
-                           children: [
-                             Container(
-                               height: 24.h,
-                               width: 93.w,
-                               decoration: BoxDecoration(
-                                 borderRadius: BorderRadius.circular(20),
-                                 color:getStatusColor(list.status ?? ""),
-                               ),
-                               child: Center(
-                                 child: CommonText(
-                                   title: list.status ?? "",
-                                   fSize: 12,
-                                   fWeight: FontWeight.w700,
-                                   color: getStatusText(list.status ?? ""),
-                                 ),
-                               ),
-                             ),
-                             const SizedBox(width: 1),
-                             PopupMenuButton<String>(
-                               color: Colors.white,
-                               surfaceTintColor: Colors.white,
-                               elevation: 4,
-                               padding: EdgeInsets.zero,
-                               constraints: const BoxConstraints(
-                                 minWidth: 24,
-                                 minHeight: 24,
-                               ),
-                               shape: RoundedRectangleBorder(
-                                 borderRadius: BorderRadius.circular(12),
-                               ),
-                               icon: const Icon(
-                                 Icons.more_vert,
-                                 size: 20,
-                               ),
-                               onSelected: (value) async {
-                                 if (value == "delete") {
-                                   await controller.notInterested(id: list.id);
-                                 }
-                               },
-                               itemBuilder: (context) => [
-                                 PopupMenuItem<String>(
-                                   value: "delete",
-                                   padding: EdgeInsets.zero,
-                                   child: SizedBox(
-                                     width: 150,
-                                     height: 30,
-                                     child: const Padding(
-                                       padding: EdgeInsets.symmetric(horizontal: 16),
-                                       child: Align(
-                                         alignment: Alignment.centerLeft,
-                                         child: Text(
-                                           "Delete",
-                                           style: TextStyle(
-                                             fontSize: 14,
-                                             fontWeight: FontWeight.w500,
-                                             color: Colors.black,
-                                           ),
-                                         ),
-                                       ),
-                                     ),
-                                   ),
-                                 ),
-                               ],
-                             )
-                           ],
-                         ),
-                       ),
-                     );
-                   },
-                 );
-               }
-             })
+            _buildSectionTile(
+              icon: Icons.headset_rounded,
+              color: const Color(0xFF00695C),
+              bgColor: const Color(0xFFE0F2F1),
+              title: "Listening Module Test",
+              duration: "30 Minutes • 4 Sections • 40 Questions",
+              bandScore: "Target: Band 8.5",
+              onTap: () {
+                Get.to(() => const IeltsListeningPracticeScreen(
+                  sectionTitle: "Cambridge Mock Test 1 - Audio Section",
+                  sectionNumber: "Listening Test 1",
+                  audioSnippet: "Agent: Welcome to Cambridge English Assessment Listening Test 1...",
+                ));
+              },
+            ),
+            SizedBox(height: 12.h),
+            _buildSectionTile(
+              icon: Icons.menu_book_rounded,
+              color: const Color(0xFF6A1B9A),
+              bgColor: const Color(0xFFF3E5F5),
+              title: "Academic Reading Module Test",
+              duration: "60 Minutes • 3 Passages • 40 Questions",
+              bandScore: "Target: Band 8.0",
+              onTap: () {
+                Get.to(() => const IeltsReadingPracticeScreen(
+                  passageTitle: "Cambridge Mock Test 1 - Academic Passage",
+                  passageText: "The Technological Evolution of Renewable Energy grids across European metropolitan centers.",
+                  difficulty: "Challenging (Band 8.0)",
+                ));
+              },
+            ),
+            SizedBox(height: 12.h),
+            _buildSectionTile(
+              icon: Icons.edit_note_rounded,
+              color: const Color(0xFFE65100),
+              bgColor: const Color(0xFFFFF3E0),
+              title: "Writing Module Test (Task 1 & 2)",
+              duration: "60 Minutes • 2 Tasks • Min 400 Words",
+              bandScore: "Target: Band 7.5",
+              onTap: () => Get.find<NavBarController>().changeTab(1),
+            ),
+            SizedBox(height: 12.h),
+            _buildSectionTile(
+              icon: Icons.mic_rounded,
+              color: const Color(0xFF0284C7),
+              bgColor: const Color(0xFFE0F2FE),
+              title: "Speaking Interview Simulator",
+              duration: "11-14 Minutes • Part 1, 2 & 3",
+              bandScore: "Target: Band 8.0",
+              onTap: () => Get.find<NavBarController>().changeTab(1),
+            ),
 
+            SizedBox(height: 28.h),
 
+            // Performance History
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Mock Exam Score History",
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                Obx(() => Text(
+                  "${progressCtrl.testHistory.length} Tests Logged",
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                )),
+              ],
+            ),
+            SizedBox(height: 14.h),
 
-            ],
-          ),
+            Obx(() {
+              final history = progressCtrl.testHistory;
+              if (history.isEmpty) {
+                return Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(20.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: const Center(child: Text("No mock tests recorded yet.", style: TextStyle(color: Color(0xFF64748B)))),
+                );
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: history.length,
+                itemBuilder: (context, index) {
+                  final item = history[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 12.h),
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.analytics_outlined, color: Color(0xFF312E81), size: 20),
+                        ),
+                        SizedBox(width: 14.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.testName,
+                                style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: 3.h),
+                              Text(
+                                "${item.date} • ${item.score}/${item.totalQuestions} Marks (${item.accuracy}%)",
+                                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE0E7FF),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            "Band ${item.bandScore}",
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF312E81)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }),
+            SizedBox(height: 20.h),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTile({
+    required IconData icon,
+    required Color color,
+    required Color bgColor,
+    required String title,
+    required String duration,
+    required String bandScore,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            offset: const Offset(0, 2),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          SizedBox(width: 14.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                ),
+                SizedBox(height: 3.h),
+                Text(
+                  duration,
+                  style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 8.w),
+          GestureDetector(
+            onTap: onTap,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                "Take Test",
+                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

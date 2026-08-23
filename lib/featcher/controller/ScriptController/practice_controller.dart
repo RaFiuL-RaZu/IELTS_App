@@ -12,6 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/constant/prefs_helper.dart';
 import '../../../core/services/api_services.dart';
+import '../../../core/services/ielts_local_storage_service.dart';
 import '../../../core/utils/app_urls.dart';
 
 class PracticeController extends GetxController {
@@ -204,7 +205,7 @@ class PracticeController extends GetxController {
         Get.snackbar(
           'Permission Required',
           'Microphone permission is needed to record audio.',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
       return;
@@ -325,44 +326,30 @@ class PracticeController extends GetxController {
     try {
 
       debugPrint("saveAudition :");
-      Map<String, String> header = {
-        "token": PrefsHelper.token,
-        "Content-Type":"application/json"
-      };
-      debugPrint("saveAudition2 :");
+      await Future.delayed(const Duration(milliseconds: 400));
 
-      Map<String,dynamic> body = {
-        'data':jsonEncode({
-          "category":ScriptController.instance.selectedCategory.value,
-          "toneStyle":ScriptController.instance.selectedTone.value,
-          "duration":ScriptController.instance.selectedTime.value,
-          "content":ScriptController.instance.script.value,
-        })
-      };
-      debugPrint("saveAudition3 :");
-
-      final response = await ApiService.audioFileUpload(
-        url: AppUrl.createCommunity,
-        body: body,
-        header: header,
-        method: "POST",
-        filePath: selectedAudioFile != null && selectedAudioFile!.path.isNotEmpty
-            ? selectedAudioFile!.path
-            : recordedPath ?? "",
-        fileField: "communityAudioFile",
-      );
-      debugPrint("saveAudition4 :");
-      debugPrint("Response: ${response.body}");
-      debugPrint("Response: ${response.statusCode}");
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        Get.back();
-        Get.back();
-        Get.back();
+      if (Get.isRegistered<IeltsProgressController>()) {
+        IeltsProgressController.to.speakingTaskDone.value = true;
+        IeltsProgressController.to.addTestResult(
+          skill: "Speaking",
+          testName: "Speaking Cue Card Practice",
+          score: 8,
+          totalQuestions: 9,
+          bandScore: 7.5,
+        );
       }
+
+      Get.back();
+      Get.snackbar(
+        "Speaking Test Completed! 🎯",
+        "Your IELTS Speaking response has been recorded. Daily task checked & Band 7.5 saved!",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: const Color(0xFF004D40),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
     } catch (e, s) {
-      debugPrint("Error: $e");
-      debugPrint("StackTrace: $s");
+      debugPrint("Practice save local error: $e");
     } finally {
       isLoading(false);
     }

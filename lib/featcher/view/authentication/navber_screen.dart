@@ -1,187 +1,136 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:justtsham/core/utils/app_colors.dart';
-
 import '../../controller/AuthController/navber_controller.dart';
 
-class NavBarScreen extends StatefulWidget {
+class NavBarScreen extends StatelessWidget {
   const NavBarScreen({super.key});
-
-  @override
-  State<NavBarScreen> createState() => _NavBarScreenState();
-}
-
-class _NavBarScreenState extends State<NavBarScreen> {
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final NavBarController navController = Get.put(NavBarController());
 
-    return Obx(
-          () => Scaffold(
-        body: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 400),
-          transitionBuilder: (child, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0.1, 0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              ),
-            );
-          },
-          child: navController.pages[navController.selectedIndex.value],
-        ),
+    final List<Map<String, dynamic>> navItems = [
+      {
+        "label": "Dashboard",
+        "icon": Icons.dashboard_rounded,
+      },
+      {
+        "label": "4 Skills",
+        "icon": Icons.school_rounded,
+      },
+      {
+        "label": "Mock Exam",
+        "icon": Icons.timer_rounded,
+      },
+      {
+        "label": "Resources",
+        "icon": Icons.auto_stories_rounded,
+      },
+      {
+        "label": "Analytics",
+        "icon": Icons.bar_chart_rounded,
+      },
+    ];
 
-        bottomNavigationBar: Container(
-          height: 146,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(10),
-              topRight: Radius.circular(10),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(40),
-                blurRadius: 12,
-                offset: const Offset(5, -2),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            clipBehavior: Clip.antiAlias,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(10),
-              topRight: Radius.circular(10),
-            ),
-            child: BottomNavigationBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              currentIndex: navController.selectedIndex.value,
-              onTap: navController.changeTab,
-              showSelectedLabels: true,
-              showUnselectedLabels: true,
-              selectedLabelStyle: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: AppColor.primary,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFFB8ABF6),
-              ),
-              selectedItemColor: AppColor.primary,selectedFontSize: 12,
-              unselectedItemColor: Color(0xFFB8ABF6),
-              type: BottomNavigationBarType.fixed,
-              items: [
-                _buildNavItem(
-                  navController,
-                  0,
-                  'assets/icon/activeHome.png',
-                  'assets/icon/home.png',
-                ),
-                _buildNavItem(
-                  navController,
-                  1,
-                  'assets/icon/activeScript.png',
-                  'assets/icon/script.png',
-                ),
-                _buildNavItem(
-                  navController,
-                  2,
-                  'assets/icon/activeAudio.png',
-                  'assets/icon/audioIcon.png',
-                ),
-                _buildNavItem(
-                  navController,
-                  3,
-                  'assets/icon/activeprofile.png',
-                  'assets/icon/profileIcon.png',
-                ),
-                _buildNavItem(
-                  navController,
-                  4,
-                  'assets/icon/activeSet.png',
-                  'assets/icon/setIcon.png',
-                ),
-              ],
-            ),
-          ),
-        ),
+    return Obx(() => Scaffold(
+      extendBody: true,
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (child, animation) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        child: navController.pages[navController.selectedIndex.value],
       ),
-    );
-  }
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.only(
+          left: 16.w,
+          right: 16.w,
+          bottom: 18.h,
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+        height: 60.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(navItems.length, (index) {
+            final isSelected = navController.selectedIndex.value == index;
+            final item = navItems[index];
 
-  BottomNavigationBarItem _buildNavItem(
-      NavBarController navController,
-      int index,
-      String unselectedIcon,
-      String selectedIcon,
-      ) {
-    bool isSelected = navController.selectedIndex.value == index;
-
-    return BottomNavigationBarItem(
-      label: "",
-
-      icon: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 10),
-          TweenAnimationBuilder<double>(
-            tween: Tween<double>(begin: 1.0, end: isSelected ? 1.2 : 1.0),
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOutBack,
-            builder: (context, scale, child) {
-              return Transform.scale(
-                scale: scale,
-                child: Image.asset(
-                  isSelected ? selectedIcon : unselectedIcon,
-                  width: 24,
-                  height: 24,
+            if (isSelected) {
+              // Active Pill: Original Teal theme with solid icon + text label
+              return GestureDetector(
+                onTap: () => navController.changeTab(index),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00695C), // Original IELTS Teal
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF00695C).withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        item["icon"] as IconData,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        item["label"] as String,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
-            },
-          ),
-
-     SizedBox(height: 6.h),
-
-          Column(
-            children: [
-              Text(
-                navController.label[index],
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: isSelected
-                      ? AppColor.primary
-                      : const Color(0xFFB8ABF6),
+            } else {
+              // Inactive Item: Circular button with original app icons
+              return GestureDetector(
+                onTap: () => navController.changeTab(index),
+                child: Container(
+                  height: 42.h,
+                  width: 42.h,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF1F5F9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Icon(
+                      item["icon"] as IconData,
+                      color: const Color(0xFF64748B),
+                      size: 20,
+                    ),
+                  ),
                 ),
-              ),
-
-           SizedBox(height: 8.h),
-
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                height: 4,
-                width: isSelected ? 20 : 0,
-                decoration: BoxDecoration(
-                  color: AppColor.primary,
-                  borderRadius: BorderRadius.circular(50),
-                ),
-              ),
-            ],
-          ),
-        ],
+              );
+            }
+          }),
+        ),
       ),
-    );
+    ));
   }
 }

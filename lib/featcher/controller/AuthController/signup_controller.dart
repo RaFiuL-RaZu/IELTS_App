@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter/material.dart';
 import 'package:justtsham/featcher/controller/NotificationController/notification_controller.dart';
@@ -8,6 +10,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:justtsham/core/constant/prefs_helper.dart';
 import 'package:justtsham/core/services/api_services.dart';
+import 'package:justtsham/core/services/ielts_local_storage_service.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
 import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/core/utils/validator.dart';
@@ -51,12 +54,12 @@ class SignUpController extends GetxController {
   }
 
   List<String> items = [
-    "Commercial",
-    "Animation ",
-    "Video Game ",
-    "Narration ",
-    "Character ",
-    "E-Learning ",
+    "Speaking",
+    "Writing",
+    "Listening",
+    "Reading",
+    "Cue Cards",
+    "Vocabulary",
   ];
 
   final TextEditingController nameController = TextEditingController();
@@ -130,37 +133,66 @@ class SignUpController extends GetxController {
     isLoading(true);
 
     try {
-      Map<String, String> header = {"Content-Type": "application/json"};
-      Map<String, dynamic> body = {
-        "email": emailController.text.trim(),
-        "fullName": nameController.text.trim(),
-        "password": passwordController.text.trim(),
-      };
-      final response = await ApiService.postApi(
-        AppUrl.createAccount,
-        header: header,
-        body,
-      );
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        accountToken = response.body['data'];
-        CommonSnackBar.show(title: "Success", message: "OTP sent successfully", isSuccess: true);
-        Get.to(() => VerifyEmail());
-        VerifyEmailController.instance.startResendCountdown();
-      } else {
-        Get.snackbar(
-          'Error',
-          response.message,
-          snackPosition: SnackPosition.TOP,
-        );
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      final fullName = nameController.text.trim();
+      final email = emailController.text.trim().toLowerCase();
+      final password = passwordController.text.trim();
+
+      final prefs = await SharedPreferences.getInstance();
+      final usersJson = prefs.getString('registered_users_db');
+      List<Map<String, dynamic>> registeredUsers = [];
+
+      if (usersJson != null && usersJson.isNotEmpty) {
+        final List decoded = jsonDecode(usersJson);
+        registeredUsers = decoded.map((e) => Map<String, dynamic>.from(e)).toList();
       }
-    } catch (e, s) {
-      debugPrint("Error $e");
-      debugPrint("Stack trace $s");
-      Get.snackbar(
-        'Error',
-        'Something went wrong',
-        snackPosition: SnackPosition.TOP,
+
+      // Check if email already registered
+      final exists = registeredUsers.any((u) => (u['email'] as String).toLowerCase() == email);
+      if (exists) {
+        CommonSnackBar.show(
+          title: "Already Registered ⚠️",
+          message: "An account with $email already exists. Please log in instead!",
+          isSuccess: false,
+        );
+        return;
+      }
+
+      // Save new user account
+      registeredUsers.add({
+        "name": fullName,
+        "email": email,
+        "password": password,
+      });
+      await prefs.setString('registered_users_db', jsonEncode(registeredUsers));
+
+      PrefsHelper.token = "ielts_master_token_${DateTime.now().millisecondsSinceEpoch}";
+      PrefsHelper.userId = "user_${DateTime.now().millisecondsSinceEpoch}";
+      PrefsHelper.myName = fullName;
+      PrefsHelper.myEmail = email;
+      PrefsHelper.myImage = selectedImage.value;
+      PrefsHelper.isLogIn = true;
+
+      await PrefsHelper.setString('token', PrefsHelper.token);
+      await PrefsHelper.setString("userId", PrefsHelper.userId);
+      await PrefsHelper.setString("myName", PrefsHelper.myName);
+      await PrefsHelper.setString("myEmail", PrefsHelper.myEmail);
+      await PrefsHelper.setBool("isLogIn", true);
+
+      if (Get.isRegistered<IeltsProgressController>()) {
+        await IeltsProgressController.to.updateCandidateName(fullName);
+      }
+
+      CommonSnackBar.show(
+        title: "Account Created! 🎉",
+        message: "Welcome to IELTS Master, $fullName",
+        isSuccess: true,
       );
+
+      Get.offAll(() => const NavBarScreen());
+    } catch (e, s) {
+      debugPrint("Signup Error: $e");
     } finally {
       isLoading(false);
     }
@@ -213,180 +245,54 @@ class SignUpController extends GetxController {
     }
     return null;
   }
-  RxBool isGoogle=false.obs;
+  RxBool isGoogle = false.obs;
   Future<void> postGoogle() async {
     isGoogle(true);
-    try {
-      final body = {
-        "accessToken": accessToken,
-      };
+    await Future.delayed(const Duration(milliseconds: 300));
+    PrefsHelper.token = "google_token_${DateTime.now().millisecondsSinceEpoch}";
+    PrefsHelper.myName = "Google User";
+    PrefsHelper.myEmail = "user@gmail.com";
+    PrefsHelper.isLogIn = true;
+    await PrefsHelper.setBool("isLogIn", true);
+    await PrefsHelper.setString("token", PrefsHelper.token);
+    await PrefsHelper.setString("myName", PrefsHelper.myName);
+    await PrefsHelper.setString("myEmail", PrefsHelper.myEmail);
 
-      final response = await ApiService.postApi(AppUrl.googleLogin, body);
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-
-        final data = response.body['data'];
-        final loginModel = LoginProfileModel.fromJson(data);
-        LoginController.instance.loginProfileModel = loginModel;
-
-        final token = loginModel.accessToken;
-        PrefsHelper.token = token;
-        VerifyEmailController.instance.verifyToken = token;
-        await initPrefsValue(userData: loginModel);
-
-        final hasCompletedProfile = loginModel.user.hasCompletedProfile;
-         debugPrint("loginToken:${PrefsHelper.token}");
-        if (PrefsHelper.token.isNotEmpty) {
-          await Get.find<NotificationController>().addToken();
-        }
-        if (hasCompletedProfile) {
-          CommonSnackBar.show(
-            title: "Success",
-            message: "Login successfully",
-            isSuccess: true,
-          );
-
-          Get.offAll(() => NavBarScreen());
-
-        } else {
-
-          Get.showSnackbar(
-            GetSnackBar(
-              title: "Message",
-              message: "Account created successfully",
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: AppColor.primary,
-              margin: EdgeInsets.all(10),
-              borderRadius: 8,
-              duration: Duration(seconds: 2),
-            ),
-          );
-
-          Get.to(() => CompleteProfile());
-        }
-
-        accessToken = '';
-
-      } else {
-
-        Get.showSnackbar(
-          GetSnackBar(
-            title: "Error",
-            message: response.message,
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.red,
-            margin: const EdgeInsets.all(10),
-            borderRadius: 8,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-
-        accessToken = '';
-      }
-
-    } catch (e) {
-      debugPrint("Error occurred: $e");
-    }finally{
-      isGoogle(false);
-    }
+    CommonSnackBar.show(
+      title: "Success",
+      message: "Signed in with Google",
+      isSuccess: true,
+    );
+    Get.offAll(() => NavBarScreen());
+    isGoogle(false);
   }
-  
+
   var appleToken = "";
 
   Future<String?> signInWithApple() async {
-    try {
-      final credential = await SignInWithApple.getAppleIDCredential(
-        scopes: const [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
-      final identityToken = credential.identityToken;
-      if (identityToken != null) {
-        appleToken = identityToken;
-      String applename =
-          (credential.familyName ?? "") + (credential.givenName ?? "");
-      String appleEmail = credential.email ?? "";
-      print("applename=========$applename");
-      print("appleemail=========$appleEmail");
-      print("identityToken=========$identityToken");
-      print("uidtoken=========${credential.userIdentifier}");
-      }
-    } catch (e, s) {
-      debugPrint("Apple Sign-In Error: $e\n$s");
-      return null;
-    }
     return null;
   }
-RxBool isApple=false.obs;
+
+  RxBool isApple = false.obs;
   Future<void> postApple() async {
     isApple(true);
-    try {
-      final body = {
-        "accessToken": appleToken,
-      };
+    await Future.delayed(const Duration(milliseconds: 300));
+    PrefsHelper.token = "apple_token_${DateTime.now().millisecondsSinceEpoch}";
+    PrefsHelper.myName = "Apple User";
+    PrefsHelper.myEmail = "user@apple.com";
+    PrefsHelper.isLogIn = true;
+    await PrefsHelper.setBool("isLogIn", true);
+    await PrefsHelper.setString("token", PrefsHelper.token);
+    await PrefsHelper.setString("myName", PrefsHelper.myName);
+    await PrefsHelper.setString("myEmail", PrefsHelper.myEmail);
 
-      final response = await ApiService.postApi(AppUrl.appleLogin, body);
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = response.body['data'];
-        final loginModel = LoginProfileModel.fromJson(data);
-        LoginController.instance.loginProfileModel = loginModel;
-
-        final token = loginModel.accessToken;
-        PrefsHelper.token = token;
-        VerifyEmailController.instance.verifyToken = token;
-        await initPrefsValue(userData: loginModel);
-
-        final hasCompletedProfile = loginModel.user.hasCompletedProfile;
-
-        debugPrint("loginToken:${PrefsHelper.token}");
-        if (PrefsHelper.token.isNotEmpty) {
-          await Get.find<NotificationController>().addToken();
-        }
-
-        if (hasCompletedProfile) {
-          CommonSnackBar.show(
-            title: "Success",
-            message: "Login successfully",
-            isSuccess: true,
-          );
-          Get.offAll(() => NavBarScreen());
-        } else {
-          Get.showSnackbar(
-            GetSnackBar(
-              title: "Message",
-              message: "Account created successfully",
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: AppColor.primary,
-              margin: const EdgeInsets.all(10),
-              borderRadius: 8,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-          Get.to(() => CompleteProfile());
-        }
-
-        appleToken = '';
-      } else {
-        Get.showSnackbar(
-          GetSnackBar(
-            title: "Error",
-            message: response.message,
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.red,
-            margin: const EdgeInsets.all(10),
-            borderRadius: 8,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-        appleToken = '';
-      }
-    } catch (e) {
-      debugPrint("Apple login error: $e");
-    }finally{
-      isApple(false);
-    }
+    CommonSnackBar.show(
+      title: "Success",
+      message: "Signed in with Apple",
+      isSuccess: true,
+    );
+    Get.offAll(() => NavBarScreen());
+    isApple(false);
   }
   
   

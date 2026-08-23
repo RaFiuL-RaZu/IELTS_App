@@ -31,9 +31,25 @@ class BoxController extends GetxController {
   }
 
   void _initAudioListener() {
+    player.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        _handlePlaybackComplete();
+      } else if (!state.playing &&
+          state.processingState != ProcessingState.buffering &&
+          state.processingState != ProcessingState.loading) {
+        isPlaying.value = false;
+      }
+    });
+
     player.positionStream.listen((pos) {
       position.value = pos;
       updateProgress();
+
+      if (duration.value > Duration.zero &&
+          pos >= duration.value &&
+          duration.value.inMilliseconds > 0) {
+        _handlePlaybackComplete();
+      }
     });
 
     player.durationStream.listen((dur) {
@@ -43,6 +59,14 @@ class BoxController extends GetxController {
     });
   }
 
+  void _handlePlaybackComplete() {
+    isPlaying.value = false;
+    progress.value = 0.0;
+    position.value = Duration.zero;
+    player.pause();
+    player.seek(Duration.zero);
+  }
+
   void updateProgress() {
     if (duration.value.inMilliseconds == 0) return;
 
@@ -50,28 +74,42 @@ class BoxController extends GetxController {
         position.value.inMilliseconds / duration.value.inMilliseconds;
   }
 
-  Future<void> togglePlay(String url) async {
+  Future<void> togglePlay(String rawUrl) async {
     try {
-      debugPrint("url : $url");
+      final url = AppUrl.getFullUrl(rawUrl);
+      if (url.isEmpty) return;
 
+      // 1. Switching to a new audio track
       if (currentUrl.value != url) {
         currentUrl.value = url;
         isPlaying.value = true;
+        progress.value = 0.0;
+        position.value = Duration.zero;
 
         await player.stop();
-
         await player.setUrl(url);
-
-        await player.play();
+        player.play();
         return;
       }
 
-      if (player.playing) {
+      // 2. If finished, replay immediately from beginning
+      if (player.processingState == ProcessingState.completed ||
+          (duration.value > Duration.zero && position.value >= duration.value)) {
+        isPlaying.value = true;
+        progress.value = 0.0;
+        position.value = Duration.zero;
+        await player.seek(Duration.zero);
+        player.play();
+        return;
+      }
+
+      // 3. Instant toggle for current track (0ms UI latency)
+      if (isPlaying.value) {
         isPlaying.value = false;
-        await player.pause();
+        player.pause();
       } else {
         isPlaying.value = true;
-        await player.play();
+        player.play();
       }
     } catch (e) {
       isPlaying.value = false;
@@ -80,10 +118,10 @@ class BoxController extends GetxController {
       final msg = e.toString().toLowerCase();
       if (msg.contains('404') || msg.contains('not found') || msg.contains('-1100')) {
         Get.snackbar("Audio Unavailable", "This audio file is no longer available.",
-            snackPosition: SnackPosition.TOP, duration: Duration(seconds: 2));
+            snackPosition: SnackPosition.TOP, duration: const Duration(seconds: 2));
       } else {
         Get.snackbar("Playback Error", "Could not play this audio.",
-            snackPosition: SnackPosition.TOP, duration: Duration(seconds: 2));
+            snackPosition: SnackPosition.TOP, duration: const Duration(seconds: 2));
       }
     }
   }
@@ -123,78 +161,82 @@ class BoxController extends GetxController {
 
   List<String> items = [
     "All",
-    "E-Learning",
-    "Character",
-    "Narration",
-    "Video Game",
-    "Animation",
-    "Commercial",
-    "Sports",
+    "Technology & AI",
+    "Work & Study",
+    "Environment & Nature",
+    "Travel & Culture",
+    "People & Society",
+    "Events & Experiences",
   ];
 
   RxBool isLoading = false.obs;
 
   RxList<CommunityModel> communityList = <CommunityModel>[].obs;
 
+  /// ================= LOCAL DATA =================
 
+  void _loadDefaultCommunity() {
+    final now = DateTime.now();
+    communityList.value = [
+      CommunityModel(
+        id: "comm_1",
+        category: "Technology & AI",
+        duration: "02:15",
+        toneStyle: "Band 8.5 Academic",
+        content: "Describe an AI tool you find useful - Comprehensive response focusing on natural language processing.",
+        audioFile: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        createdAt: now.subtract(const Duration(hours: 3)),
+        updatedAt: now,
+        user: UserModel(
+          id: "u_1",
+          fullName: "Sarah Jenkins (Band 8.5)",
+          profileImage: "",
+        ),
+      ),
+      CommunityModel(
+        id: "comm_2",
+        category: "Work & Study",
+        duration: "01:58",
+        toneStyle: "Band 8.0 Fluent",
+        content: "Describe an ambitious career goal - Discussion on sustainable engineering.",
+        audioFile: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        createdAt: now.subtract(const Duration(hours: 8)),
+        updatedAt: now,
+        user: UserModel(
+          id: "u_2",
+          fullName: "Daniel Rahman (Band 8.0)",
+          profileImage: "",
+        ),
+      ),
+      CommunityModel(
+        id: "comm_3",
+        category: "Travel & Culture",
+        duration: "02:20",
+        toneStyle: "Band 9.0 Native-like",
+        content: "Describe an unforgettable journey - Backpacking through the high passes of the Himalayas.",
+        audioFile: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+        createdAt: now.subtract(const Duration(days: 1)),
+        updatedAt: now,
+        user: UserModel(
+          id: "u_3",
+          fullName: "Michael Chang (Band 9.0)",
+          profileImage: "",
+        ),
+      ),
+    ];
+  }
 
   /// ================= API =================
 
   Future<void> getBoxData() async {
-    isLoading(true);
-
-    try {
-      Map<String, String> header = {
-        "token": PrefsHelper.token,
-      };
-
-      final response =
-      await ApiService.getApi(AppUrl.getCommunityData, header: header);
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = response.body['data']['communityList'];
-
-        communityList.value = List<CommunityModel>.from(
-          data.map((e) => CommunityModel.fromJson(e)),
-        );
-      }
-    } catch (e, s) {
-      debugPrint("Error: $e");
-      debugPrint("StackTrace: $s");
-    } finally {
-      isLoading(false);
-    }
+    _loadDefaultCommunity();
+    isLoading(false);
   }
-
 
   RxBool isInterested=false.obs;
   Future<bool> notInterestedCommunity({required String id, required String action}) async {
-    isInterested.value = true;
-
-    try {
-      final header = {
-        "token": PrefsHelper.token,
-      };
-      final body = {
-        "action": action
-      };
-
-      final response = await ApiService.patchApi(
-          AppUrl.interestedCommunity(id: id),
-          body:body,
-          header: header
-
-      );
-
-      if (response.statusCode == 200) {
-        communityList.removeWhere((item) => item.id == id);
-        return true;
-      }
-
-      return false;
-    } finally {
-      isInterested.value = false;
-    }
+    communityList.removeWhere((item) => item.id == id);
+    return true;
   }
 
 }

@@ -1,13 +1,10 @@
-import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:justtsham/core/constant/prefs_helper.dart';
-import 'package:justtsham/core/services/api_services.dart';
 import 'package:justtsham/core/utils/app_urls.dart';
+import 'package:justtsham/featcher/model/HomeModel/audition_model.dart';
 import 'package:justtsham/featcher/model/HomeModel/comment_model.dart';
-
-import '../../model/HomeModel/audition_model.dart';
 
 class HomeController extends GetxController {
   final AudioPlayer player = AudioPlayer();
@@ -36,9 +33,25 @@ class HomeController extends GetxController {
   }
 
   void _initAudioListener() {
+    player.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        _handlePlaybackComplete();
+      } else if (!state.playing &&
+          state.processingState != ProcessingState.buffering &&
+          state.processingState != ProcessingState.loading) {
+        isPlaying.value = false;
+      }
+    });
+
     player.positionStream.listen((pos) {
       position.value = pos;
       updateProgress();
+
+      if (duration.value > Duration.zero &&
+          pos >= duration.value &&
+          duration.value.inMilliseconds > 0) {
+        _handlePlaybackComplete();
+      }
     });
 
     player.durationStream.listen((dur) {
@@ -48,6 +61,14 @@ class HomeController extends GetxController {
     });
   }
 
+  void _handlePlaybackComplete() {
+    isPlaying.value = false;
+    progress.value = 0.0;
+    position.value = Duration.zero;
+    player.pause();
+    player.seek(Duration.zero);
+  }
+
   void updateProgress() {
     if (duration.value.inMilliseconds == 0) return;
 
@@ -55,26 +76,42 @@ class HomeController extends GetxController {
         position.value.inMilliseconds / duration.value.inMilliseconds;
   }
 
-  Future<void> togglePlay(String url) async {
+  Future<void> togglePlay(String rawUrl) async {
     try {
-      debugPrint("url : $url");
+      final url = AppUrl.getFullUrl(rawUrl);
+      if (url.isEmpty) return;
 
+      // 1. Switching to a new audio track
       if (currentUrl.value != url) {
         currentUrl.value = url;
         isPlaying.value = true;
+        progress.value = 0.0;
+        position.value = Duration.zero;
 
         await player.stop();
         await player.setUrl(url);
-        await player.play();
+        player.play();
         return;
       }
 
-      if (player.playing) {
+      // 2. If finished, replay immediately from beginning
+      if (player.processingState == ProcessingState.completed ||
+          (duration.value > Duration.zero && position.value >= duration.value)) {
+        isPlaying.value = true;
+        progress.value = 0.0;
+        position.value = Duration.zero;
+        await player.seek(Duration.zero);
+        player.play();
+        return;
+      }
+
+      // 3. Instant toggle for current track (0ms UI latency)
+      if (isPlaying.value) {
         isPlaying.value = false;
-        await player.pause();
+        player.pause();
       } else {
         isPlaying.value = true;
-        await player.play();
+        player.play();
       }
     } catch (e) {
       isPlaying.value = false;
@@ -115,13 +152,12 @@ class HomeController extends GetxController {
 
   List<String> items = [
     "All",
-    "E-Learning",
-    "Character",
-    "Narration",
-    "Video Game",
-    "Animation",
-    "Commercial",
-    "Announcer",
+    "Technology & AI",
+    "Work & Study",
+    "Environment & Nature",
+    "Travel & Culture",
+    "People & Society",
+    "Events & Experiences",
   ];
 
   void selectItem(int index) {
@@ -143,6 +179,7 @@ class HomeController extends GetxController {
         .replaceAll("-", "")
         .replaceAll("_", "")
         .replaceAll(" ", "")
+        .replaceAll("&", "")
         .trim();
   }
 
@@ -159,39 +196,92 @@ class HomeController extends GetxController {
     }).toList();
   }
 
+  void _loadDefaultIeltsAuditions() {
+    final now = DateTime.now();
+    final List<AuditionModel> sampleList = [
+      AuditionModel(
+        id: "ielts_sample_1",
+        title: "AI Tools in Higher Education",
+        category: "Technology & AI",
+        auditionFile: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        status: "active",
+        isLiked: false,
+        likeCount: 42,
+        commentCount: 9,
+        createdAt: now,
+        updatedAt: now,
+        creator: Creator(
+          id: "creator_1",
+          fullName: "Sarah Jenkins",
+          profileImage: "",
+          createdAt: now,
+        ),
+      ),
+      AuditionModel(
+        id: "ielts_sample_2",
+        title: "Overcoming Study Milestones",
+        category: "Work & Study",
+        auditionFile: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        status: "active",
+        isLiked: false,
+        likeCount: 38,
+        commentCount: 7,
+        createdAt: now,
+        updatedAt: now,
+        creator: Creator(
+          id: "creator_2",
+          fullName: "Daniel Rahman",
+          profileImage: "",
+          createdAt: now,
+        ),
+      ),
+      AuditionModel(
+        id: "ielts_sample_3",
+        title: "Community Reforestation",
+        category: "Environment & Nature",
+        auditionFile: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+        status: "active",
+        isLiked: false,
+        likeCount: 56,
+        commentCount: 14,
+        createdAt: now,
+        updatedAt: now,
+        creator: Creator(
+          id: "creator_3",
+          fullName: "Elena Rostova",
+          profileImage: "",
+          createdAt: now,
+        ),
+      ),
+      AuditionModel(
+        id: "ielts_sample_4",
+        title: "Backpacking Himalayan Journey",
+        category: "Travel & Culture",
+        auditionFile: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+        status: "active",
+        isLiked: true,
+        likeCount: 89,
+        commentCount: 21,
+        createdAt: now,
+        updatedAt: now,
+        creator: Creator(
+          id: "creator_4",
+          fullName: "Michael Chang",
+          profileImage: "",
+          createdAt: now,
+        ),
+      ),
+    ];
+
+    auditionList.value = sampleList;
+    applyFilter();
+  }
+
   /// ================= API =================
 
   Future<void> getHomeData() async {
-    isLoading(true);
-
-    try {
-      Map<String, String> header = {"token": PrefsHelper.token};
-
-      final response = await ApiService.getApi(
-        AppUrl.getHomeAudition,
-        header: header,
-      );
-
-      debugPrint("HOME STATUS: ${response.statusCode}");
-      debugPrint("HOME BODY: ${response.body}");
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = response.body['data']['auditions'];
-        debugPrint("HOME AUDITIONS COUNT: ${data?.length}");
-
-        auditionList.value = List<AuditionModel>.from(
-          data.map((e) => AuditionModel.fromJson(e)),
-        );
-
-        applyFilter();
-        debugPrint("FILTERED LIST COUNT: ${filteredList.length}");
-      }
-    } catch (e, s) {
-      debugPrint("Home Error: $e");
-      debugPrint("Home StackTrace: $s");
-    } finally {
-      isLoading(false);
-    }
+    _loadDefaultIeltsAuditions();
+    isLoading(false);
   }
 
   RxList<CommentModel> commentList = <CommentModel>[].obs;
@@ -199,229 +289,118 @@ class HomeController extends GetxController {
   Future<void> getComment({required String id}) async {
     isComment(true);
 
-    try {
-      Map<String, String> header = {"token": PrefsHelper.token};
-
-      final response = await ApiService.getApi(
-        AppUrl.getComment(id: id),
-        header: header,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = response.body['data']['comment'];
-
-        commentList.value = List<CommentModel>.from(
-          data.map((e) => CommentModel.fromJson(e)),
-        );
-
-        applyFilter();
-      }
-    } catch (e, s) {
-      debugPrint("Error: $e");
-      debugPrint("StackTrace: $s");
-    } finally {
-      isComment(false);
-    }
+    commentList.value = [
+      CommentModel(
+        id: "local_c1",
+        auditionId: id,
+        comment: "Great fluency and lexical coherence! Natural pronunciation.",
+        createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+        updatedAt: DateTime.now().subtract(const Duration(hours: 2)),
+        user: UserModel(
+          id: "local_u1",
+          fullName: "David Miller (Band 8.0)",
+          profileImage: "",
+        ),
+      ),
+      CommentModel(
+        id: "local_c2",
+        auditionId: id,
+        comment: "Excellent use of complex grammar structures.",
+        createdAt: DateTime.now().subtract(const Duration(hours: 5)),
+        updatedAt: DateTime.now().subtract(const Duration(hours: 5)),
+        user: UserModel(
+          id: "local_u2",
+          fullName: "Sophia Chen (Band 8.5)",
+          profileImage: "",
+        ),
+      ),
+    ];
+    isComment(false);
   }
 
   RxBool isFavourite = false.obs;
   Future<bool> addBookMark({required String id}) async {
-    isFavourite.value = true;
-
-    try {
-      final header = {"token": PrefsHelper.token};
-
-      final body = {"auditionId": id};
-
-      final response = await ApiService.postApi(
-        AppUrl.createFav,
-        body,
-        header: header,
-      );
-
-      return response.statusCode == 200;
-    } finally {
-      isFavourite.value = false;
+    final index = auditionList.indexWhere((item) => item.id == id);
+    if (index != -1) {
+      auditionList[index].isFavorite.value = true;
     }
+    return true;
   }
 
   RxBool isUnFav = false.obs;
 
   Future<bool> deleteBookMark({required String id}) async {
-    isUnFav.value = true;
-
-    try {
-      final header = {"token": PrefsHelper.token};
-
-      final body = {"auditionId": id};
-
-      final response = await ApiService.deleteApi(
-        AppUrl.deleteFav,
-        header: header,
-        body: body,
-      );
-
-      return response.statusCode == 200;
-    } catch (e) {
-      return false;
-    } finally {
-      isUnFav.value = false;
+    final index = auditionList.indexWhere((item) => item.id == id);
+    if (index != -1) {
+      auditionList[index].isFavorite.value = false;
     }
+    return true;
   }
 
   RxBool isInterested = false.obs;
   Future<bool> notInterested({required String id}) async {
-    isInterested.value = true;
-
-    try {
-      final header = {"token": PrefsHelper.token};
-      final body = {"action": "notInterested"};
-
-      final response = await ApiService.patchApi(
-        AppUrl.interested(id: id),
-        body: body,
-        header: header,
-      );
-
-      if (response.statusCode == 200) {
-        filteredList.removeWhere((item) => item.id == id);
-        return true;
-      }
-
-      return false;
-    } finally {
-      isInterested.value = false;
-    }
+    filteredList.removeWhere((item) => item.id == id);
+    return true;
   }
 
   RxBool isBlock=false.obs;
   Future<bool> userBlock({required String id}) async {
-    isBlock.value = true;
-
-    try {
-      final header = {"token": PrefsHelper.token};
-      final body = {};
-
-      final response = await ApiService.postApi(
-        AppUrl.userBlock(id: id),
-        body,
-        header: header,
-      );
-
-      if (response.statusCode == 200) {
-        getHomeData();
-        Get.snackbar(
-          "Blocked",
-          "User has been blocked successfully.",
-        );
-        return true;
-
-      }
-
-      return false;
-    } finally {
-      isBlock.value = false;
-    }
+    filteredList.removeWhere((item) => item.creator.id == id);
+    Get.snackbar("Blocked", "User has been blocked successfully.");
+    return true;
   }
 
   Future<bool> deleteComment({required String id}) async {
-    isInterested.value = true;
-
-    try {
-      final header = {"token": PrefsHelper.token};
-      Map<String, String> body = {};
-
-      final response = await ApiService.deleteApi(
-        AppUrl.deleteComment(id: id),
-        body: body,
-        header: header,
-      );
-
-      if (response.statusCode == 200) {
-        commentList.removeWhere((item) => item.id == id);
-        return true;
-      }
-
-      return false;
-    } finally {
-      isInterested.value = false;
-    }
+    commentList.removeWhere((item) => item.id == id);
+    return true;
   }
 
   Future<void> postComment({required String id}) async {
-    try {
-      Map<String, String> header = {"token": PrefsHelper.token};
+    final text = commentController.text.trim();
+    if (text.isEmpty) return;
 
-      Map<String, String> body = {'comment': commentController.text.trim()};
+    // Add locally
+    commentList.insert(
+      0,
+      CommentModel(
+        id: "local_${DateTime.now().millisecondsSinceEpoch}",
+        auditionId: id,
+        comment: text,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        user: UserModel(
+          id: "me",
+          fullName: PrefsHelper.myName.isEmpty ? "You" : PrefsHelper.myName,
+          profileImage: "",
+        ),
+      ),
+    );
 
-      final response = await ApiService.postApi(
-        AppUrl.postComment(id: id),
-        body,
-        header: header,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        commentController.clear();
-        hideCommentField();
-
-        final index = auditionList.indexWhere((item) => item.id == id);
-        if (index != -1) {
-          final updatedItem = AuditionModel(
-            id: auditionList[index].id,
-            creator: auditionList[index].creator,
-            title: auditionList[index].title,
-            category: auditionList[index].category,
-            reminderDate: auditionList[index].reminderDate,
-            status: auditionList[index].status,
-            auditionFile: auditionList[index].auditionFile,
-            likeCount: auditionList[index].likeCount,
-            commentCount: auditionList[index].commentCount + 1,
-            createdAt: auditionList[index].createdAt,
-            updatedAt: auditionList[index].updatedAt,
-            isLiked: auditionList[index].isLiked.value,
-            isFavorite: auditionList[index].isFavorite.value,
-          );
-          auditionList[index] = updatedItem;
-          applyFilter();
-        }
-      }
-    } catch (e, s) {
-      debugPrint("Error: $e");
-      debugPrint("StackTrace: $s");
+    final index = auditionList.indexWhere((item) => item.id == id);
+    if (index != -1) {
+      auditionList[index].commentCount++;
+      auditionList.refresh();
     }
+
+    commentController.clear();
+    hideCommentField();
   }
 
   RxBool isLiked = false.obs;
   Future<void> createLike({required String id}) async {
-    try {
-      final response = await ApiService.postApi(
-        AppUrl.createLike(id: id),
-        {},
-        header: {"token": PrefsHelper.token},
-      );
+    final index = auditionList.indexWhere((item) => item.id == id);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = response.body['data'];
-        final liked = data?['liked'] ?? false;
+    if (index != -1) {
+      final item = auditionList[index];
+      final newLikedState = !item.isLiked.value;
+      item.isLiked.value = newLikedState;
 
-        final index = auditionList.indexWhere((item) => item.id == id);
-
-        if (index != -1) {
-          final item = auditionList[index];
-
-          item.isLiked.value = liked;
-
-          if (liked) {
-            item.likeCount++;
-          } else {
-            if (item.likeCount > 0) item.likeCount--;
-          }
-
-          auditionList.refresh();
-        }
+      if (newLikedState) {
+        item.likeCount++;
+      } else {
+        if (item.likeCount > 0) item.likeCount--;
       }
-    } catch (e) {
-      debugPrint("Like Error: $e");
+      auditionList.refresh();
     }
   }
 }

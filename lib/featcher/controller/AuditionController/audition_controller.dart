@@ -73,22 +73,23 @@ class AuditionController extends GetxController {
   RxBool isCallbackDropdownOpen = false.obs;
 
   List<String> callbackList = [
-    "Submitted",
-    "Call Backed",
-    "Booked",
-    "Rejected",
+    "Band 8.0 - 9.0 (Expert)",
+    "Band 7.0 - 7.5 (Good)",
+    "Band 6.0 - 6.5 (Competent)",
+    "Under Evaluation",
+    "Practice Completed",
   ];
 
   RxBool isRoleDropdownOpen = false.obs;
 
   List<String> roleList = [
-    "E-Learning",
-    "Character",
-    "Narration",
-    "Video Game",
-    "Animation",
-    "Commercial",
-    "Announcer",
+    "Speaking Part 1",
+    "Speaking Part 2 (Cue Card)",
+    "Speaking Part 3 (Discussion)",
+    "Full Mock Speaking Test",
+    "Listening Practice Test",
+    "Reading Academic Test",
+    "Writing Task 1 & 2",
   ];
 
   RxString selectedRole = "".obs;
@@ -134,25 +135,22 @@ class AuditionController extends GetxController {
   Future<void> getActivity() async {
     isLoading(true);
 
-    try {
-      Map<String, String> header = {"token": PrefsHelper.token};
+    chartData.assignAll([
+      ChartData(1, 6.0),
+      ChartData(2, 6.5),
+      ChartData(3, 6.5),
+      ChartData(4, 7.0),
+      ChartData(5, 7.0),
+      ChartData(6, 7.5),
+      ChartData(7, 7.5),
+      ChartData(8, 8.0),
+      ChartData(9, 8.0),
+      ChartData(10, 8.5),
+      ChartData(11, 8.5),
+      ChartData(12, 8.5),
+    ]);
 
-      final response = await ApiService.getApi(
-        AppUrl.getActivity,
-        header: header,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = response.body['data'];
-        activityModel.value = ActivityModel.fromJson(data);
-        setChartFromModel(activityModel.value!);
-      }
-    } catch (e, s) {
-      debugPrint("Error: $e");
-      debugPrint("StackTrace: $s");
-    } finally {
-      isLoading(false);
-    }
+    isLoading(false);
   }
 
   TextEditingController projectController = TextEditingController();
@@ -162,48 +160,43 @@ class AuditionController extends GetxController {
     isLoading(true);
 
     try {
-      final localDate = DateFormat("MM/dd/yyyy").parse(selectedDate.value);
-      final utcDate = localDate.toUtc().toIso8601String();
+      await Future.delayed(const Duration(milliseconds: 300));
+      final now = DateTime.now();
 
-      debugPrint("saveAudition :");
-      Map<String, String> header = {
-        "token": PrefsHelper.token,
-        "Content-Type":"application/json"
-      };
-      debugPrint("saveAudition2 :");
-
-     Map<String,dynamic> body = {
-        'data':jsonEncode({
-          "title": projectController.text.trim(),
-          "category": selectedRole.value,
-          "reminderDate": utcDate,
-          "status": selectedCallback.value,
-        })
-      };
-      debugPrint("saveAudition3 :");
-
-      final response = await ApiService.audioFileUpload(
-        url: AppUrl.createAudition,
-        body: body,
-        header: header,
-        method: "POST",
-        filePath: selectedAudioFile?.path ?? "",
-        fileField: "auditionFile",
+      final newItem = MyAuditionModel(
+        id: "mock_${now.millisecondsSinceEpoch}",
+        creatorId: PrefsHelper.userId,
+        title: projectController.text.trim().isNotEmpty
+            ? projectController.text.trim()
+            : "Cambridge Practice Test",
+        category: selectedRole.value.isNotEmpty
+            ? selectedRole.value
+            : "Full Mock Speaking Test",
+        reminderDate: now,
+        status: selectedCallback.value.isNotEmpty
+            ? selectedCallback.value
+            : "Band 7.5 - 8.0 (Good)",
+        auditionFile: selectedAudioFile?.path ?? "",
+        likeCount: 1,
+        commentCount: 0,
+        createdAt: now,
+        updatedAt: now,
       );
-      debugPrint("saveAudition4 :");
-      debugPrint("Response: ${response.body}");
-      debugPrint("Response: ${response.statusCode}");
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        debugPrint("Response: ${response.body}");
-        debugPrint("Response: ${response.statusCode}");
-        Get.back();
-        getActivity();
-        getMyHistory();
-      }
-    } catch (e, s) {
-      debugPrint("Error: $e");
-      debugPrint("StackTrace: $s");
+      myHistoryList.insert(0, newItem);
+      projectController.clear();
+      roleController.clear();
+      audioFileName.value = "";
+      selectedAudioFile = null;
+
+      Get.back();
+      Get.snackbar(
+        "Mock Test Logged",
+        "Your IELTS test session has been recorded successfully.",
+        snackPosition: SnackPosition.TOP,
+      );
+    } catch (e) {
+      debugPrint("Create Audition Local Error: $e");
     } finally {
       isLoading(false);
     }
@@ -211,31 +204,55 @@ class AuditionController extends GetxController {
 
   RxList<MyAuditionModel> myHistoryList = <MyAuditionModel>[].obs;
 
+  void _loadDefaultHistory() {
+    final now = DateTime.now();
+    myHistoryList.value = [
+      MyAuditionModel(
+        id: "mock_1",
+        creatorId: "u_1",
+        title: "Cambridge 18 - Speaking Test 1",
+        category: "Full Mock Speaking Test",
+        reminderDate: now.subtract(const Duration(days: 2)),
+        status: "Band 7.5 (Good)",
+        auditionFile: "",
+        likeCount: 3,
+        commentCount: 1,
+        createdAt: now.subtract(const Duration(days: 2)),
+        updatedAt: now.subtract(const Duration(days: 2)),
+      ),
+      MyAuditionModel(
+        id: "mock_2",
+        creatorId: "u_1",
+        title: "Cue Card: Technological Innovation",
+        category: "Speaking Part 2 (Cue Card)",
+        reminderDate: now.subtract(const Duration(days: 5)),
+        status: "Band 8.0 (Expert)",
+        auditionFile: "",
+        likeCount: 5,
+        commentCount: 2,
+        createdAt: now.subtract(const Duration(days: 5)),
+        updatedAt: now.subtract(const Duration(days: 5)),
+      ),
+      MyAuditionModel(
+        id: "mock_3",
+        creatorId: "u_1",
+        title: "Writing Task 2: AI & Employment",
+        category: "Writing Task 1 & 2",
+        reminderDate: now.subtract(const Duration(days: 9)),
+        status: "Band 7.0 (Good)",
+        auditionFile: "",
+        likeCount: 2,
+        commentCount: 0,
+        createdAt: now.subtract(const Duration(days: 9)),
+        updatedAt: now.subtract(const Duration(days: 9)),
+      ),
+    ];
+  }
+
   Future<void> getMyHistory() async {
     isLoading(true);
-
-    try {
-      debugPrint("history");
-      Map<String, String> header = {
-        "token": PrefsHelper.token,
-      };
-
-      final response =
-      await ApiService.getApi(AppUrl.getMyHistory, header: header);
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = response.body['data']['auditions'];
-
-        myHistoryList.value = List<MyAuditionModel>.from(
-          data.map((e) => MyAuditionModel.fromJson(e)),
-        );
-      }
-    } catch (e, s) {
-      debugPrint("Error: $e");
-      debugPrint("StackTrace: $s");
-    } finally {
-      isLoading(false);
-    }
+    _loadDefaultHistory();
+    isLoading(false);
   }
 
   double get chartMaxY {
@@ -246,27 +263,8 @@ class AuditionController extends GetxController {
   }
   RxBool isInterested = false.obs;
   Future<bool> notInterested({required String id}) async {
-    isInterested.value = true;
-
-    try {
-      final header = {"token": PrefsHelper.token};
-      final body = {"action": "delete"};
-
-      final response = await ApiService.patchApi(
-        AppUrl.interested(id: id),
-        body: body,
-        header: header,
-      );
-
-      if (response.statusCode == 200) {
-        myHistoryList.removeWhere((item) => item.id == id);
-        return true;
-      }
-
-      return false;
-    } finally {
-      isInterested.value = false;
-    }
+    myHistoryList.removeWhere((item) => item.id == id);
+    return true;
   }
 }
 

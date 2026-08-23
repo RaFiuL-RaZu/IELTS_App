@@ -184,19 +184,19 @@ class CompleteProfile extends StatelessWidget {
        decoration: BoxDecoration(
          borderRadius: BorderRadius.circular(16),
          border: Border.all(
-           color: isSelected ? Colors.white : Color(0xFF180E27),
+           color: isSelected ? const Color(0xFF00897B) : Colors.grey.shade400,
            width: 1.224,
          ),
          gradient: LinearGradient(
            colors: isSelected
                ? [
-             Colors.white,
-            Colors.white
-           ]
+                   const Color(0xFF00897B),
+                   const Color(0xFF00695C),
+                 ]
                : [
-             Color(0xFF180E27),
-             Color(0xFF56397C),
-           ],
+                   Colors.white,
+                   Colors.white,
+                 ],
            begin: Alignment.centerLeft,
            end: Alignment.centerRight,
          ),
@@ -204,7 +204,7 @@ class CompleteProfile extends StatelessWidget {
            BoxShadow(
              color: isSelected
                  ? Colors.white.withOpacity(0.3)
-                 : Color(0xFF8A79D6),
+                 : const Color(0xFF00897B).withOpacity(0.3),
              offset: Offset(1, 1),
              blurRadius: 1,
              spreadRadius: 1,

@@ -1,1038 +1,865 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:justtsham/core/constant/other_helper.dart';
-import 'package:justtsham/core/constant/prefs_helper.dart';
-import 'package:justtsham/core/utils/app_colors.dart';
-import 'package:justtsham/core/utils/app_icons.dart';
-import 'package:justtsham/core/utils/app_urls.dart';
+import 'package:justtsham/core/services/ielts_local_storage_service.dart';
 import 'package:justtsham/core/widgets/common_text.dart';
-import 'package:justtsham/featcher/controller/CommunityController/community_controller.dart';
-import 'package:justtsham/featcher/controller/HomeController/home_controller.dart';
-import 'package:justtsham/featcher/model/HomeModel/audition_model.dart';
-import 'package:justtsham/featcher/model/HomeModel/comment_model.dart';
-import 'package:justtsham/featcher/view/HomeScreen/waveForme.dart';
-import '../../../core/widgets/commom_image.dart';
-import '../CummunityScreen/commercial_screen.dart';
-import 'notification_screen.dart';
+import 'package:justtsham/featcher/controller/AuthController/navber_controller.dart';
+import 'package:justtsham/featcher/view/HomeScreen/ielts_band_calculator_modal.dart';
+import 'package:justtsham/featcher/view/HomeScreen/ielts_grammar_screen.dart';
+import 'package:justtsham/featcher/view/HomeScreen/ielts_vocabulary_screen.dart';
+import 'package:justtsham/featcher/view/HomeScreen/notification_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  String getGreeting() {
+  String _getGreeting() {
     final hour = DateTime.now().hour;
-
-    if (hour >= 3 && hour < 11) {
-      return "Morning";
-    } else if (hour >= 11 && hour < 15) {
-      return "Noon";
-    } else if (hour >= 15 && hour < 21) {
-      return "Evening";
-    } else {
-      return "Night";
-    }
-  }
-  final HomeController controller = Get.put(HomeController());
-  final CommunityController boxController = Get.put(CommunityController());
-  @override
-  void initState() {
-    controller.getHomeData();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      boxController.getCommunity();
-    });
-    super.initState();
+    if (hour >= 4 && hour < 12) return "Good Morning";
+    if (hour >= 12 && hour < 17) return "Good Afternoon";
+    return "Good Evening";
   }
 
   @override
   Widget build(BuildContext context) {
+    final progressCtrl = Get.find<IeltsProgressController>();
+
     return Scaffold(
-      backgroundColor: AppColor.background,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 60.h),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: CommonText(
-                  title: "Speak Confidently. Ace IELTS.",
-                  fSize: 16,
-                  fWeight: FontWeight.w500,
-                  color: AppColor.secondary,
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        toolbarHeight: 70.h,
+        titleSpacing: 20.w,
+        title: Row(
+          children: [
+            Container(
+              height: 46.h,
+              width: 46.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF004D40), Color(0xFF00796B)],
                 ),
-                subtitle: CommonText(
-                  title: PrefsHelper.myName,
-                  fSize: 22,
-                  fWeight: FontWeight.w700,
-                  color: AppColor.primary,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF00796B).withOpacity(0.25),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Center(
+                child: Text("🎓", style: TextStyle(fontSize: 22)),
+              ),
+            ),
+            SizedBox(width: 14.w),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _getGreeting(),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF64748B),
+                  ),
                 ),
-                trailing: GestureDetector(
-                  onTap: () {
-                    Get.to(() => NotificationScreen());
-                  },
-                  child: Container(
-                    height: 40.h,
-                    width: 40.w,
+                SizedBox(height: 2.h),
+                Obx(() => Text(
+                  progressCtrl.candidateName.value,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF0F172A),
+                  ),
+                )),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 16.w),
+            child: IconButton(
+              onPressed: () => Get.to(() => const NotificationScreen()),
+              icon: Stack(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(9),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 3,
-                        ),
-                      ],
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Image.asset(
-                        AppIcons.notify,
-                        height: 20.h,
-                        width: 17.w,
-                        color: AppColor.primary,
+                    child: const Icon(Icons.notifications_none_rounded, color: Color(0xFF0F172A), size: 22),
+                  ),
+                  Positioned(
+                    right: 4,
+                    top: 4,
+                    child: Container(
+                      height: 8,
+                      width: 8,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE53935),
+                        shape: BoxShape.circle,
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-              Obx(() {
-                if (boxController.isLoading.value) {
-                  return Center(
-                    child: CircularProgressIndicator(color: AppColor.primary),
-                  );
-                }
-
-                final data = boxController.weeklyModel;
-
-                if (data == null) {
-                return const SizedBox();
-                }
-                return Column(
-                  children: [
-                    SizedBox(height: 12.h),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF180E27), Color(0xFF56397C)],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.20),
-                            offset: Offset(0, 20),
-                            blurRadius: 25,
-                            spreadRadius: -5,
-                          ),
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.20),
-                            offset: Offset(0, 8),
-                            blurRadius: 10,
-                            spreadRadius: -6,
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              spacing: 5,
-                              children: [
-                                Image.asset(
-                                  AppIcons.trophy,
-                                  height: 15.h,
-                                  width: 15.h,
-                                ),
-                                CommonText(
-                                  title: "Weekly IELTS Challenge",
-                                  fSize: 12,
-                                  fWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 9.h),
-                            CommonText(
-                              title: data.title ?? "",
-                              maxLine: 2,
-                              fSize: 22,
-                              overflow: TextOverflow.ellipsis,
-                              fWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                            SizedBox(height: 10.h),
-                            CommonText(
-                              title: data.content ?? "",
-                              fSize: 16,
-                              maxLine: 3,
-                              overflow: TextOverflow.ellipsis,
-                              fWeight: FontWeight.w400,
-                              color: Colors.white,
-                            ),
-                            SizedBox(height: 10.h),
-                            CommonText(
-                              title: data.weeklyScriptExpiryDate != null
-                                  ? "${OtherHelper.formatDate(data.weeklyScriptExpiryDate.toString())} remaining"
-                                  : "No date available",
-                              fSize: 12,
-                              fWeight: FontWeight.w400,
-                              color: Colors.white,
-                            ),
-                            SizedBox(height: 10.h),
-                            GestureDetector(
-                              onTap: () {
-                                if (data.isPracticed == false) {
-                                  Get.to(() => CommercialScreen(
-                                    title: data.content.toString(),
-                                    id: data.id.toString(),
-                                    page: 'community',
-                                  ));
-                                }
-                              },
-                              child: Container(
-                                height: 48.h,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: Color(0xFF7741C1),
-                                ),
-                                child: Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    spacing: 5,
-                                    children: [
-                                      CommonText(
-                                        title: data.isPracticed == true
-                                            ? "Completed"
-                                            : "Practice Cue Card",
-                                        fSize: 20.sp,
-                                        fWeight: FontWeight.w500,
-                                        color: Colors.white,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }),
-              SizedBox(height: 20.h),
-              Obx(
-                () => SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: List.generate(controller.items.length, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: GestureDetector(
-                          onTap: () {
-                            controller.selectItem(index);
-                            debugPrint(
-                              "selected index: ${controller.selectedIndex.value}",
-                            );
-                            debugPrint(
-                              "selected item: ${controller.items[index]}",
-                            );
-                          },
-                          child: voiceBox(
-                            title: controller.items[index],
-                            isSelected: controller.selectedIndex.value == index,
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20.h),
-              Obx(() {
-                if (controller.isLoading.value) {
-                  return Center(
-                    child: CircularProgressIndicator(color: AppColor.primary),
-                  );
-                }
-
-                if (controller.filteredList.isEmpty) {
-                  return Center(child: CommonText(title: "No Audition Found"));
-                }
-                return ListView.builder(
-                  itemCount: controller.filteredList.length,
-                  padding: EdgeInsets.zero,
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    AuditionModel list = controller.filteredList[index];
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 16),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.20),
-                            offset: Offset(0, 20),
-                            blurRadius: 25,
-                            spreadRadius: -5,
-                          ),
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.20),
-                            offset: Offset(0, 8),
-                            blurRadius: 10,
-                            spreadRadius: -6,
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ListTile(
-                              contentPadding: const EdgeInsets.only(left: 0, right: 0),
-                              leading: GestureDetector(
-                                onTap: () {
-                                  Get.dialog(
-                                    AlertDialog(
-                                      backgroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      title: const Text("User Options"),
-                                      content: const Text(
-                                        "Are you not interested in this person's posts?",
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Get.back(),
-                                          child: const Text("Cancel"),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Get.back();
-
-                                            Get.dialog(
-                                              AlertDialog(
-                                                backgroundColor: Colors.white,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                title: const Text("Block User"),
-                                                content: const Text(
-                                                  "Blocking this user will prevent you from seeing their posts and interactions.",
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Get.back(),
-                                                    child: const Text("Cancel"),
-                                                  ),
-                                                  ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor: Colors.red,
-                                                    ),
-                                                    onPressed: () {
-                                                      Get.back();
-                                                      controller.userBlock(id: list.creator.id);
-                                                    },
-                                                    child: const Text(
-                                                      "Block",
-                                                      style: TextStyle(color: Colors.white),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                          child: const Text(
-                                            "Block User",
-                                            style: TextStyle(color: Colors.red),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                                child: ClipOval(
-                                  child: (list.creator.profileImage.isNotEmpty ?? false)
-                                      ? CommonImage(
-                                    imageSrc: AppUrl.imageUrl + list.creator.profileImage,
-                                    imageType: ImageType.network,
-                                    height: 50,
-                                    width: 50,
-                                    fill: BoxFit.cover,
-                                  )
-                                      : Container(
-                                    height: 50,
-                                    width: 50,
-                                    color: Colors.grey.shade300,
-                                    child: const Icon(
-                                      Icons.person,
-                                      size: 18,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              title: CommonText(
-                                title: list.creator.fullName,
-                                fSize: 14,
-                                fWeight: FontWeight.w700,
-                                color: AppColor.primary,
-                              ),
-                              subtitle: CommonText(
-                                title: OtherHelper.timeAgo(
-                                  list.creator.createdAt.toString(),
-                                ),
-                                fSize: 12,
-                                fWeight: FontWeight.w500,
-                                color: AppColor.primary,
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Container(
-                                    height: 24.h,
-                                    padding: const EdgeInsets.symmetric(horizontal:10),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: const Color(0xFFE5E2FD),
-                                    ),
-                                    child: Center(
-                                      child: CommonText(
-                                        title: list.category,
-                                        fSize: 12,
-                                        fWeight: FontWeight.w500,
-                                        color: AppColor.primary,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 1),
-                                  PopupMenuButton<String>(
-                                    color: Colors.white,
-                                    surfaceTintColor: Colors.white,
-                                    elevation: 4,
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(
-                                      minWidth: 24,
-                                      minHeight: 24,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    icon: const Icon(
-                                      Icons.more_vert,
-                                      size: 20,
-                                    ),
-                                    onSelected: (value) async {
-                                      if (value == "not_interested") {
-                                        await controller.notInterested(id: list.id);
-                                      }
-                                    },
-                                    itemBuilder: (context) => [
-                                      PopupMenuItem<String>(
-                                        value: "not_interested",
-                                        padding: EdgeInsets.zero,
-                                        child: SizedBox(
-                                          width: 150,
-                                          height: 30,
-                                          child: const Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 16),
-                                            child: Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                "Report",
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 10.h),
-                          Obx(() {
-                            final isExpanded = controller.expandedIndex.value == index;
-
-                            final text = list.title.toString();
-
-                            final textSpan = TextSpan(
-                              text: text,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            );
-
-                            final tp = TextPainter(
-                              text: textSpan,
-                              maxLines: 3,
-                              textDirection: TextDirection.ltr,
-                            );
-
-                            tp.layout(maxWidth: Get.width); // or specific width
-
-                            final isOverflowing = tp.didExceedMaxLines;
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CommonText(
-                                  title: text,
-                                  fSize: 14,
-                                  maxLine: isExpanded ? null : 3,
-                                  overflow: isExpanded
-                                      ? TextOverflow.visible
-                                      : TextOverflow.ellipsis,
-                                  fWeight: FontWeight.w600,
-                                  color: AppColor.primary,
-                                ),
-
-                                const SizedBox(height: 4),
-
-                                if (isOverflowing)
-                                  GestureDetector(
-                                    onTap: () => controller.toggleExpand(index),
-                                    child: Text(
-                                      isExpanded ? "See less" : "See more",
-                                      style: TextStyle(
-                                        color: AppColor.primary,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            );
-                          }),
-                            SizedBox(height: 10.h),
-                            Container(
-                              height: 66.h,
-                              width: double.infinity,
-                              padding: EdgeInsets.symmetric(horizontal: 12.w),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: const Color(0xFFF3F4F6),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  list.auditionFile.isEmpty
-                                      ? Container(
-                                          height: 39.h,
-                                          width: 39.h,
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey.shade300,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(Icons.play_arrow, color: Colors.white, size: 20),
-                                        )
-                                      : Obx(() {
-                                          final url = AppUrl.imageUrl + list.auditionFile;
-                                          final isPlaying = controller.currentUrl.value == url && controller.isPlaying.value;
-                                          return GestureDetector(
-                                            onTap: () => controller.togglePlay(url),
-                                            child: Container(
-                                              height: 39.h,
-                                              width: 39.h,
-                                              decoration: const BoxDecoration(
-                                                color: Color(0xff3C2A5D),
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: Icon(
-                                                isPlaying ? Icons.pause : Icons.play_arrow,
-                                                color: Colors.white,
-                                                size: 20,
-                                              ),
-                                            ),
-                                          );
-                                        }),
-
-                                  SizedBox(width: 10.w),
-
-                                  Expanded(
-                                    child: Obx(() {
-                                      final url =
-                                          AppUrl.imageUrl + list.auditionFile;
-                                      final showProgress =
-                                          controller.currentUrl.value == url;
-                                      return Padding(
-                                        padding:  EdgeInsets.symmetric(vertical: 5),
-                                        child: WaveformProgress(
-                                          progress: showProgress
-                                              ? controller.progress.value
-                                              : 0.0,
-                                        ),
-                                      );
-                                    }),
-                                  ),
-
-                                  SizedBox(width: 10.w),
-
-                                  Obx(() {
-                                    final url =
-                                        AppUrl.imageUrl + list.auditionFile;
-                                    final isCurrentPlaying =
-                                        controller.currentUrl.value == url;
-                                    if (!isCurrentPlaying) {
-                                      return const SizedBox.shrink();
-                                    }
-                                    return Text(
-                                      controller.formatTime(
-                                        controller.position.value,
-                                      ),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColor.secondary,
-                                      ),
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 14.h),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  spacing: 20,
-                                  children: [
-                                    Row(
-                                      spacing: 5,
-                                      children: [
-                                        Obx(() {
-                                          return GestureDetector(
-                                            onTap: () {
-
-                                              controller.createLike(
-                                                id: list.id,
-                                              );
-                                            },
-                                            child: list.isLiked.value
-                                                ? Image.asset(
-                                                    AppIcons.love,
-                                                    height: 20.h,
-                                                    width: 20.w,
-                                                    fit: BoxFit.cover,
-                                                  )
-                                                : Image.asset(
-                                                    AppIcons.fakeLove,
-                                                    height: 20.h,
-                                                    width: 20.w,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                          );
-                                        }),
-                                        CommonText(
-                                          title: list.likeCount.toString(),
-                                          color: AppColor.secondary,
-                                          fSize: 12,
-                                          fWeight: FontWeight.w700,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            if (controller
-                                                    .activeCommentIndex
-                                                    .value ==
-                                                index) {
-                                              controller.hideCommentField();
-                                            } else {
-                                              controller.getComment(
-                                                id: list.id,
-                                              );
-                                              controller.toggleCommentField(
-                                                index,
-                                              );
-                                            }
-                                          },
-                                          child: Image.asset(
-                                            AppIcons.message,
-                                            height: 20.h,
-                                            width: 20.w,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        CommonText(
-                                          title: list.commentCount.toString(),
-                                          color: AppColor.secondary,
-                                          fSize: 12,
-                                          fWeight: FontWeight.w700,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                GestureDetector(
-                                  onTap: () async {
-                                    if (!list.isFavorite.value) {
-                                      final success = await controller.addBookMark(id: list.id);
-                                      if (success) {
-                                        list.isFavorite.value = true;
-                                      }
-                                    } else {
-                                      final success = await controller.deleteBookMark(id: list.id);
-                                      if (success) {
-                                        list.isFavorite.value = false;
-                                      }
-                                    }
-                                  },
-                                  child: Obx(() {
-                                    return list.isFavorite.value ? Image.asset(
-                                      AppIcons.fullBook,
-                                      color: Color(0xFF7741C1),
-                                      height: 21,
-                                      width: 16,
-                                    ) : Image.asset(
-                                      AppIcons.fav,
-                                      height: 21,
-                                      width: 16,
-                                    );
-                                  }),
-                                )
-                              ],
-                            ),
-
-                            Obx(() {
-                              if (controller.activeCommentIndex.value !=
-                                  index) {
-                                return const SizedBox.shrink();
-                              }
-                              if (controller.isComment.value) {
-                                return const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 20),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              }
-
-                              return Column(
-                                children: [
-                                  SizedBox(height: 10),
-
-                                  ListView.builder(
-                                    padding: EdgeInsets.zero,
-                                    itemCount: controller.commentList.length,
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemBuilder: (context, i) {
-                                      CommentModel comment =
-                                          controller.commentList[i];
-
-                                      return Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          ClipOval(
-                                            child:  CommonImage(
-                                              imageSrc:
-                                                  AppUrl.imageUrl +
-                                                  (comment.user?.profileImage ??
-                                                      ""),
-                                              imageType: ImageType.network,
-                                              height: 30,
-                                              width: 30,
-                                              fill: BoxFit.cover,
-                                            ),
-                                          ),
-                                          SizedBox(width: 5),
-
-                                          Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  CommonText(
-                                                    title: comment.user?.fullName ?? "",
-                                                    fSize: 14,
-                                                    fWeight: FontWeight.w500,
-                                                  ),
-
-                                                  GestureDetector(
-                                                    onTapDown: (details) async {
-                                                      final value = await showMenu<String>(
-                                                        context: context,
-                                                        color: Colors.white,
-                                                        position: RelativeRect.fromLTRB(
-                                                          details.globalPosition.dx,
-                                                          details.globalPosition.dy,
-                                                          details.globalPosition.dx,
-                                                          0,
-                                                        ),
-                                                        items: const [
-                                                          PopupMenuItem<String>(
-                                                            value: "delete",
-                                                            height: 24,
-                                                            padding: EdgeInsets.zero,
-                                                            child: Align(
-                                                              alignment: Alignment.centerLeft,
-                                                              child: Padding(
-                                                                padding: EdgeInsets.only(left: 12),
-                                                                child: Text(
-                                                                  "Delete",
-                                                                  style: TextStyle(
-                                                                    fontSize: 13,
-                                                                    fontWeight: FontWeight.w500,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      );
-
-                                                      if (value == "delete") {
-                                                        final success = await controller.deleteComment(
-                                                          id: comment.id.toString(),
-                                                        );
-
-                                                        if (success) {
-                                                          controller.commentList.removeWhere(
-                                                                (item) => item.id == comment.id,
-                                                          );
-                                                        }
-                                                      }
-                                                    },
-                                                    child: CommonText(
-                                                      title: comment.comment ?? "",
-                                                      fSize: 14,
-                                                      fWeight: FontWeight.w400,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  ),
-
-                                  SizedBox(height: 10),
-
-                                  Obx(() {
-                                    return AnimatedSwitcher(
-                                      duration: const Duration(
-                                        milliseconds: 300,
-                                      ),
-                                      child:
-                                          controller.activeCommentIndex.value ==
-                                              index
-                                          ? Padding(
-                                              key: const ValueKey("comment"),
-                                              padding: EdgeInsets.only(
-                                                top: 12.h,
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: TextField(
-                                                      controller: controller
-                                                          .commentController,
-                                                      decoration: InputDecoration(
-                                                        prefixIcon: Padding(
-                                                          padding:
-                                                              const EdgeInsets.all(
-                                                                12.0,
-                                                              ),
-                                                          child: Image.asset(
-                                                            AppIcons.message,
-                                                            height: 10.h,
-                                                            width: 10.w,
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                        ),
-                                                        suffixIcon: Padding(
-                                                          padding:
-                                                              const EdgeInsets.all(
-                                                                12.0,
-                                                              ),
-                                                          child: GestureDetector(
-                                                            onTap: () {
-                                                              controller
-                                                                  .postComment(
-                                                                    id: list.id,
-                                                                  );
-                                                            },
-                                                            child: Image.asset(
-                                                              AppIcons.send,
-                                                              height: 10.h,
-                                                              width: 10.w,
-                                                              fit: BoxFit.cover,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        hintText:
-                                                            "Write your comment...",
-                                                        hintStyle:
-                                                            const TextStyle(
-                                                              fontSize: 14,
-                                                              color: Color(
-                                                                0xFF99A1AF,
-                                                              ),
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                            ),
-                                                        enabledBorder:
-                                                            OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    12,
-                                                                  ),
-                                                              borderSide:
-                                                                  const BorderSide(
-                                                                    color: Color(
-                                                                      0xFFBFBFBF,
-                                                                    ),
-                                                                  ),
-                                                            ),
-                                                        focusedBorder:
-                                                            OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    12,
-                                                                  ),
-                                                              borderSide:
-                                                                  const BorderSide(
-                                                                    color: Color(
-                                                                      0xFF6C4DFF,
-                                                                    ),
-                                                                    width: 1.5,
-                                                                  ),
-                                                            ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                          : const SizedBox.shrink(),
-                                    );
-                                  }),
-                                ],
-                              );
-                            }),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Container voiceBox({required String title, required bool isSelected}) {
-    return Container(
-      height: 34.h,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          colors: isSelected
-              ? [Color(0xFF180E27), Color(0xFF56397C)]
-              : [Colors.white, Colors.white],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: isSelected
-                ? Colors.white.withOpacity(0.3)
-                : Color(0xFF8A79D6),
-            offset: Offset(0, 0),
+            ),
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Center(
-          child: CommonText(
-            title: title,
-            fSize: 14,
-            fWeight: FontWeight.w500,
-            color: isSelected ? Colors.white : Colors.black,
-          ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Hero Goal & Predicted Band Card
+            Obx(() {
+              final overallBand = progressCtrl.overallBand.value;
+              final targetBand = progressCtrl.targetBand.value;
+              final days = progressCtrl.examDaysRemaining.value;
+              final accuracy = progressCtrl.overallAccuracy.value;
+
+              return Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(22.w),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(26),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF00382E), Color(0xFF005A4E), Color(0xFF00796B)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF004D40).withOpacity(0.28),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.18),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            "🎯 Target: Band $targetBand",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.18),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            "⏳ $days Days Left",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF80CBC4),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Predicted Band",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFFB2DFDB),
+                                ),
+                              ),
+                              SizedBox(height: 4.h),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Text(
+                                    overallBand.toStringAsFixed(1),
+                                    style: const TextStyle(
+                                      fontSize: 38,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      letterSpacing: -1,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Text(
+                                    "/ 9.0",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF80CBC4),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 6.h),
+                              Text(
+                                "Overall Accuracy: $accuracy%",
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFFE0F2F1),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => IeltsBandCalculatorModal.show(context),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.white.withOpacity(0.35)),
+                            ),
+                            child: Column(
+                              children: const [
+                                Icon(Icons.calculate_rounded, color: Colors.white, size: 24),
+                                SizedBox(height: 4),
+                                Text(
+                                  "Calculator",
+                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }),
+
+            SizedBox(height: 26.h),
+
+            // 2. Four-Skill Performance Breakdown (Clean 2x2 Grid)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Expanded(
+                  child: Text(
+                    "Skill Band & Accuracy",
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => Get.find<NavBarController>().changeTab(1),
+                  child: const Text(
+                    "View All Practice",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF00695C)),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 14.h),
+
+            // 2x2 Spacious Skill Cards
+            Obx(() => Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildSpaciousSkillCard(
+                        title: "Listening",
+                        icon: Icons.headset_rounded,
+                        band: progressCtrl.listeningBand.value,
+                        accuracy: progressCtrl.listeningAccuracy.value,
+                        color: const Color(0xFF00695C),
+                        bgColor: const Color(0xFFE0F2F1),
+                        onTap: () => Get.find<NavBarController>().changeTab(1),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: _buildSpaciousSkillCard(
+                        title: "Reading",
+                        icon: Icons.menu_book_rounded,
+                        band: progressCtrl.readingBand.value,
+                        accuracy: progressCtrl.readingAccuracy.value,
+                        color: const Color(0xFF6A1B9A),
+                        bgColor: const Color(0xFFF3E5F5),
+                        onTap: () => Get.find<NavBarController>().changeTab(1),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildSpaciousSkillCard(
+                        title: "Writing",
+                        icon: Icons.edit_note_rounded,
+                        band: progressCtrl.writingBand.value,
+                        accuracy: progressCtrl.writingAccuracy.value,
+                        color: const Color(0xFFE65100),
+                        bgColor: const Color(0xFFFFF3E0),
+                        onTap: () => Get.find<NavBarController>().changeTab(1),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: _buildSpaciousSkillCard(
+                        title: "Speaking",
+                        icon: Icons.mic_rounded,
+                        band: progressCtrl.speakingBand.value,
+                        accuracy: progressCtrl.speakingAccuracy.value,
+                        color: const Color(0xFF0284C7),
+                        bgColor: const Color(0xFFE0F2FE),
+                        onTap: () => Get.find<NavBarController>().changeTab(1),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            )),
+
+            SizedBox(height: 28.h),
+
+            // 3. Today's Study Checklist (Spacious & Clean)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Expanded(
+                  child: Text(
+                    "Today's Study Checklist",
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                ),
+                Obx(() {
+                  final completed = [
+                    progressCtrl.speakingTaskDone.value,
+                    progressCtrl.listeningTaskDone.value,
+                    progressCtrl.readingTaskDone.value,
+                    progressCtrl.writingTaskDone.value,
+                  ].where((d) => d).length;
+
+                  return Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE0F2F1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      "$completed / 4 Completed",
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF00695C),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+            SizedBox(height: 14.h),
+
+            Obx(() => Column(
+              children: [
+                _buildChecklistTile(
+                  icon: Icons.mic_rounded,
+                  iconColor: const Color(0xFF00695C),
+                  iconBg: const Color(0xFFE0F2F1),
+                  title: "Speaking: Part 2 Cue Card",
+                  subtitle: "1-min prep timer with voice recording",
+                  isDone: progressCtrl.speakingTaskDone.value,
+                  onToggle: () => progressCtrl.toggleSpeakingTask(),
+                  onAction: () => Get.find<NavBarController>().changeTab(1),
+                ),
+                SizedBox(height: 10.h),
+                _buildChecklistTile(
+                  icon: Icons.headset_rounded,
+                  iconColor: const Color(0xFF2E7D32),
+                  iconBg: const Color(0xFFE8F5E9),
+                  title: "Listening: Cambridge Section 2",
+                  subtitle: "Dialogue listening test with instant auto-scoring",
+                  isDone: progressCtrl.listeningTaskDone.value,
+                  onToggle: () => progressCtrl.toggleListeningTask(),
+                  onAction: () => Get.find<NavBarController>().changeTab(1),
+                ),
+                SizedBox(height: 10.h),
+                _buildChecklistTile(
+                  icon: Icons.menu_book_rounded,
+                  iconColor: const Color(0xFF6A1B9A),
+                  iconBg: const Color(0xFFF3E5F5),
+                  title: "Reading: 20-Min Timed Passage",
+                  subtitle: "Passage 1: Renewable Tech & True/False/NG",
+                  isDone: progressCtrl.readingTaskDone.value,
+                  onToggle: () => progressCtrl.toggleReadingTask(),
+                  onAction: () => Get.find<NavBarController>().changeTab(1),
+                ),
+                SizedBox(height: 10.h),
+                _buildChecklistTile(
+                  icon: Icons.edit_note_rounded,
+                  iconColor: const Color(0xFFE65100),
+                  iconBg: const Color(0xFFFFF3E0),
+                  title: "Writing: Task 2 Essay Arena",
+                  subtitle: "Opinion blueprint with live word counter",
+                  isDone: progressCtrl.writingTaskDone.value,
+                  onToggle: () => progressCtrl.toggleWritingTask(),
+                  onAction: () => Get.find<NavBarController>().changeTab(1),
+                ),
+              ],
+            )),
+
+            SizedBox(height: 28.h),
+
+            // 4. IELTS Mastery Powerbanks
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Expanded(
+                  child: Text(
+                    "IELTS Mastery Powerbanks",
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8F5E9),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    "Band 8.5+ Boosters",
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF2E7D32)),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 14.h),
+
+            Row(
+              children: [
+                // Vocab Card
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Get.to(() => const IeltsVocabularyScreen()),
+                    child: Container(
+                      padding: EdgeInsets.all(16.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF004D40), Color(0xFF00695C)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF00695C).withOpacity(0.2),
+                            blurRadius: 12,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("📚", style: TextStyle(fontSize: 24)),
+                          SizedBox(height: 10.h),
+                          const Text(
+                            "Vocabulary Bank",
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                          ),
+                          SizedBox(height: 4.h),
+                          const Text(
+                            "Collocations & Lexical sets",
+                            style: TextStyle(fontSize: 11, color: Color(0xFF80CBC4), fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 14.w),
+                // Grammar Card
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Get.to(() => const IeltsGrammarScreen()),
+                    child: Container(
+                      padding: EdgeInsets.all(16.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF4A148C), Color(0xFF6A1B9A)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF6A1B9A).withOpacity(0.2),
+                            blurRadius: 12,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("📐", style: TextStyle(fontSize: 24)),
+                          SizedBox(height: 10.h),
+                          const Text(
+                            "Grammar Range",
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                          ),
+                          SizedBox(height: 4.h),
+                          const Text(
+                            "Band 9 Complex formulas",
+                            style: TextStyle(fontSize: 11, color: Color(0xFFE1BEE7), fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            SizedBox(height: 28.h),
+
+            // 5. Recent Practice Activity Log (From Local Storage)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Expanded(
+                  child: Text(
+                    "Recent Practice History",
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                ),
+                const Text(
+                  "Saved locally",
+                  style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+            SizedBox(height: 14.h),
+
+            Obx(() {
+              final history = progressCtrl.testHistory;
+              if (history.isEmpty) {
+                return Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(20.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(Icons.history_rounded, size: 36, color: Colors.grey.shade400),
+                      SizedBox(height: 8.h),
+                      const Text(
+                        "No Practice Tests Yet",
+                        style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF475569)),
+                      ),
+                      SizedBox(height: 4.h),
+                      const Text(
+                        "Complete a Listening, Reading, or Writing test to see your history here.",
+                        style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: history.length > 5 ? 5 : history.length,
+                itemBuilder: (context, index) {
+                  final item = history[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 10.h),
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.02),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            item.skill == "Listening"
+                                ? Icons.headset_rounded
+                                : (item.skill == "Reading" ? Icons.menu_book_rounded : Icons.edit_note_rounded),
+                            color: const Color(0xFF00695C),
+                            size: 22,
+                          ),
+                        ),
+                        SizedBox(width: 14.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.testName,
+                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: 3.h),
+                              Text(
+                                "${item.date} • ${item.score}/${item.totalQuestions} marks (${item.accuracy}%)",
+                                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE0F2F1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            "Band ${item.bandScore}",
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF00695C)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }),
+
+            SizedBox(height: 20.h),
+          ],
         ),
       ),
     );
   }
-}
 
-class CleanWavePainter extends CustomPainter {
-  final double progress;
-
-  CleanWavePainter({required this.progress});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..strokeWidth = 2
-      ..color = Colors.deepPurple
-      ..strokeCap = StrokeCap.round;
-
-    final centerY = size.height / 2;
-
-    final barCount = 40;
-    final barWidth = size.width / barCount;
-
-    for (int i = 0; i < barCount; i++) {
-      final x = i * barWidth;
-
-      double waveHeight = (i / barCount) < progress
-          ? (10 + (i % 5) * 3) // active wave
-          : 3; // inactive wave
-
-      canvas.drawLine(
-        Offset(x, centerY - waveHeight),
-        Offset(x, centerY + waveHeight),
-        paint,
-      );
-    }
+  Widget _buildSpaciousSkillCard({
+    required String title,
+    required IconData icon,
+    required double band,
+    required double accuracy,
+    required Color color,
+    required Color bgColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(14.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color, size: 20),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    "Band $band",
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: color),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              "Accuracy: $accuracy%",
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+            ),
+            SizedBox(height: 8.h),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: accuracy / 100.0,
+                minHeight: 5,
+                backgroundColor: const Color(0xFFF1F5F9),
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  @override
-  bool shouldRepaint(covariant CleanWavePainter oldDelegate) {
-    return oldDelegate.progress != progress;
+  Widget _buildChecklistTile({
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBg,
+    required String title,
+    required String subtitle,
+    required bool isDone,
+    required VoidCallback onToggle,
+    required VoidCallback onAction,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: isDone ? const Color(0xFF80CBC4) : const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: onToggle,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 26.h,
+              width: 26.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isDone ? const Color(0xFF00695C) : Colors.transparent,
+                border: Border.all(
+                  color: isDone ? const Color(0xFF00695C) : const Color(0xFFCBD5E1),
+                  width: 2,
+                ),
+              ),
+              child: isDone ? const Icon(Icons.check, size: 16, color: Colors.white) : null,
+            ),
+          ),
+          SizedBox(width: 14.w),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: iconBg,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: iconColor, size: 22),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
+                    decoration: isDone ? TextDecoration.lineThrough : null,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  subtitle,
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 8.w),
+          GestureDetector(
+            onTap: onAction,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Text(
+                "Start",
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF00695C)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

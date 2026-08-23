@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
+import 'package:justtsham/core/utils/app_image.dart';
 import 'package:justtsham/core/utils/app_urls.dart';
 import 'package:justtsham/core/widgets/commom_image.dart';
 import 'package:justtsham/core/widgets/common_text_field.dart';
@@ -91,14 +92,16 @@ class _EditProfileState extends State<EditProfile> {
                           fill: BoxFit.cover,
                         )
           
-                            : controller.profileModel.value.profileImage.toString().isNotEmpty
+                            : (controller.profileModel.value.profileImage?.isNotEmpty ?? false)
                             ? CommonImage(
-                          imageSrc: AppUrl.imageUrl +
-                              controller.profileModel.value.profileImage.toString(),
+                          imageSrc: controller.profileModel.value.profileImage!.startsWith("http")
+                              ? controller.profileModel.value.profileImage!
+                              : AppUrl.imageUrl + controller.profileModel.value.profileImage!,
                           imageType: ImageType.network,
                           height: 112.h,
                           width: 112.w,
                           fill: BoxFit.cover,
+                          defaultImage: AppImage.person,
                         )
           
                             : Center(
@@ -204,26 +207,26 @@ class _EditProfileState extends State<EditProfile> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected ? Color(0xFF56397C) : Colors.grey.shade400,
+          color: isSelected ? const Color(0xFF00897B) : Colors.grey.shade400,
           width: 1.2,
         ),
         gradient: LinearGradient(
           colors: isSelected
               ? [
-            Color(0xFF180E27),
-            Color(0xFF56397C),
-          ]
+                  const Color(0xFF00897B),
+                  const Color(0xFF00695C),
+                ]
               : [
-            Colors.white,
-            Colors.white,
-          ],
+                  Colors.white,
+                  Colors.white,
+                ],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         boxShadow: [
           BoxShadow(
             color: isSelected
-                ? Color(0xFF8A79D6).withOpacity(0.4)
+                ? const Color(0xFF00897B).withOpacity(0.3)
                 : Colors.grey.withOpacity(0.2),
             offset: Offset(0, 2),
             blurRadius: 6,

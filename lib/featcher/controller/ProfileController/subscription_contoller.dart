@@ -42,90 +42,26 @@ class SubscriptionController extends GetxController{
     planId.value = id;
   }
   
-  Future<void> getSubscription()async{
-
-    isLoading(true);
-
-    try{
-
-      final response=await ApiService.getApi(AppUrl.subscription);
-
-      if(response.statusCode==200 || response.statusCode==201){
-
-        final data=response.body['data'];
-        subList.value =
-            data.map((e) => SubscriptionModel.fromJson(e)).toList();
-
-      }
-
-    }catch(e,s){
-      debugPrint("Error Handling :$e");
-      debugPrint("SnackTrack Error :$e");
-    }finally{
-      isLoading(false);
-    }
-
-
+  Future<void> getSubscription() async {
+    isLoading(false);
   }
 
-
-Rx<MyPlanModel> myPlanModel=MyPlanModel().obs;
-  Future<void> getMyPlan()async{
-
-    isLoading(true);
-
-    try{
-
-      final response=await ApiService.getApi(AppUrl.getMyPlan);
-
-      if(response.statusCode==200 || response.statusCode==201){
-
-        final data=response.body['data'];
-        myPlanModel.value=MyPlanModel.fromJson(data);
-      }
-
-    }catch(e,s){
-      debugPrint("Error Handling :$e");
-      debugPrint("SnackTrack Error :$e");
-    }finally{
-      isLoading(false);
-    }
-
-
+  Rx<MyPlanModel> myPlanModel = MyPlanModel().obs;
+  Future<void> getMyPlan() async {
+    isLoading(false);
   }
 
+  var checkOutUrl = '';
 
-  var checkOutUrl='';
-
-  Future<void> getPayment()async{
-
+  Future<void> getPayment() async {
     isLoading(true);
-
-    try{
-
-      Map<String,String> header={
-        'token':PrefsHelper.token
-      };
-      Map<String,dynamic> body={
-        "planId":planId.value
-      };
-
-      final response=await ApiService.postApi(AppUrl.getPayment,body,header: header);
-
-      if(response.statusCode==200 || response.statusCode==201){
-        final data=response.body['data'];
-        Get.to(()=>WebViewPage(url: data));
-
-      }
-
-    }catch(e,s){
-      debugPrint("Error Handling :$e");
-      debugPrint("SnackTrack Error :$e");
-    }finally{
-      isLoading(false);
-    }
-
-
+    await Future.delayed(const Duration(milliseconds: 300));
+    Get.back();
+    Get.snackbar(
+      "Plan Activated! 💎",
+      "Your IELTS Pro access is now active.",
+      snackPosition: SnackPosition.TOP,
+    );
+    isLoading(false);
   }
-
 }

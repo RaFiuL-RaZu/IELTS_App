@@ -31,7 +31,7 @@ class PracticeScreen extends StatelessWidget {
               width: 100.w,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: const Color(0xFFD2CBFA),
+                color: AppColor.tealLight,
               ),
               child:  Center(
                 child: CommonText(
@@ -43,7 +43,7 @@ class PracticeScreen extends StatelessWidget {
             ),
             SizedBox(height: 7.h),
             const CommonText(
-              title: "Nike - Limitless",
+              title: "IELTS Speaking Cue Card",
               fSize: 18,
               fWeight: FontWeight.w800,
             ),
@@ -77,7 +77,7 @@ class PracticeScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CommonText(
-                              title: "Narrator Rafiul",
+                              title: "Candidate Prompt & Topic Notes",
                               fSize: 15,
                               fWeight: FontWeight.w700,
                               color: AppColor.secondary,
@@ -102,7 +102,7 @@ class PracticeScreen extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: Color(0xFFE5E2FD),
+                      color: AppColor.background,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(40),
                         topRight: Radius.circular(40),
@@ -381,9 +381,7 @@ class PracticeScreen extends StatelessWidget {
                                                   height: 63.h,
                                                   width: 63.w,
                                                   decoration: BoxDecoration(
-                                                    color: Color(
-                                                      0xFFD2CBFA,
-                                                    ),
+                                                    color: AppColor.tealLight,
                                                     borderRadius:
                                                     BorderRadius.circular(
                                                       16,

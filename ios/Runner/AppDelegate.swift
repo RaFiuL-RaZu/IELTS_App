@@ -1,6 +1,5 @@
 import UIKit
 import Flutter
-import FirebaseCore
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -9,8 +8,6 @@ import FirebaseCore
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
-
-    FirebaseApp.configure()
 
     GeneratedPluginRegistrant.register(with: self)
 

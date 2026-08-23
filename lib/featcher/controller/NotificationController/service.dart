@@ -1,11 +1,5 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:justtsham/core/utils/app_icons.dart';
-
-import 'notification_controller.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -13,25 +7,13 @@ class NotificationService {
 
   NotificationService._internal();
 
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
+
+  String getToken = "";
 
   Future<void> init() async {
-    await _requestPermission();
     await _initLocalNotification();
-    await _setupListeners();
-    await _getToken();
-  }
-
-  Future<void> _requestPermission() async {
-    NotificationSettings settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
-    debugPrint("Permission: ${settings.authorizationStatus}");
   }
 
   Future<void> _initLocalNotification() async {
@@ -69,37 +51,13 @@ class NotificationService {
     );
   }
 
-  Future<void> _setupListeners() async {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("Foreground Message: ${message.notification?.title}");
-      _showNotification(message);
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("Notification Clicked (background)");
-      _handleNavigation(message);
-    });
-
-    RemoteMessage? initialMessage =
-    await FirebaseMessaging.instance.getInitialMessage();
-
-    if (initialMessage != null) {
-      print("Opened from terminated");
-      _handleNavigation(initialMessage);
-    }
-
-    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-      print("New Token: $newToken");
-
-      if (Get.isRegistered<NotificationController>()) {
-        Get.find<NotificationController>().updateToken(newToken);
-      }
-    });
-  }
-
-  Future<void> _showNotification(RemoteMessage message) async {
+  Future<void> showNotification({
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
     const AndroidNotificationDetails androidDetails =
-    AndroidNotificationDetails(
+        AndroidNotificationDetails(
       'channel_id',
       'channel_name',
       importance: Importance.max,
@@ -107,30 +65,14 @@ class NotificationService {
     );
 
     const NotificationDetails details =
-    NotificationDetails(android: androidDetails);
+        NotificationDetails(android: androidDetails);
 
     await _localNotifications.show(
       id: 0,
-      title:message.notification?.title ?? "No Title",
-      body:message.notification?.body ?? "No Body",
-      notificationDetails :details,
-      payload: message.data.toString(),
+      title: title,
+      body: body,
+      notificationDetails: details,
+      payload: payload,
     );
-  }
-  String getToken = "";
-
-  Future<void> _getToken() async {
-    String? token = await _messaging.getToken();
-
-    if (token != null && token.isNotEmpty) {
-      getToken = token;
-      debugPrint("[FCM]: $getToken");
-    }
-  }
-
-  void _handleNavigation(RemoteMessage message) {
-    final type = message.data['type'];
-    final id = message.data['id'];
-
   }
 }

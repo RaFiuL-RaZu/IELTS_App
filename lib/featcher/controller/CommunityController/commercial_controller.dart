@@ -206,7 +206,7 @@ class CommercialController extends GetxController {
         Get.snackbar(
           'Permission Required',
           'Microphone permission is needed to record audio.',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
       return;
@@ -328,49 +328,24 @@ class CommercialController extends GetxController {
 
     try {
 
-      debugPrint("saveAudition :");
-      Map<String, String> header = {
-        "token": PrefsHelper.token,
-        "Content-Type":"application/json"
-      };
-      debugPrint("saveAudition2 :");
-
-      Map<String,dynamic> body = {
-        'data':jsonEncode({
-          "scriptId": id,
-        })
-      };
-      debugPrint("saveAudition3 :");
-
-      final response = await ApiService.audioFileUpload(
-        url: AppUrl.practiceScript,
-        body: body,
-        header: header,
-        method: "POST",
-        filePath: selectedAudioFile != null && selectedAudioFile!.path.isNotEmpty
-            ? selectedAudioFile!.path
-            : recordedPath ?? "",
-        fileField: "practiceScriptFile",
-      );
-      debugPrint("saveAudition4 :");
-      debugPrint("Response: ${response.body}");
-      debugPrint("Response: ${response.statusCode}");
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        debugPrint("Response: ${response.body}");
-        debugPrint("Response: ${response.statusCode}");
-        if(title=="script"){
-          Get.until((route) => route.isFirst);
-          Get.find<NavBarController>().changeTab(1);
-          ScriptController.instance.getScript();
-        }else{
-          Get.back();
-          CommunityController.instance.getCommunity();
-        }
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (title == "script") {
+        Get.until((route) => route.isFirst);
+        Get.find<NavBarController>().changeTab(1);
+        ScriptController.instance.getScript();
+      } else {
+        Get.back();
+        CommunityController.instance.getCommunity();
       }
+      Get.snackbar(
+        "Response Recorded! 🎙️",
+        "Your IELTS response has been saved locally.",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.teal.shade800,
+        colorText: Colors.white,
+      );
     } catch (e, s) {
-      debugPrint("Error: $e");
-      debugPrint("StackTrace: $s");
+      debugPrint("Practice script local error: $e");
     } finally {
       isLoading(false);
     }

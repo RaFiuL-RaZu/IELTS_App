@@ -83,16 +83,10 @@ class _CommunityScreenState extends State<SaveAudition> {
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: Color(0xFF6C4DFF).withOpacity(0.20),
-                              offset: Offset(0, 20),
-                              blurRadius: 25,
-                              spreadRadius: -5,
-                            ),
-                            BoxShadow(
-                              color: Color(0xFF6C4DFF).withOpacity(0.20),
-                              offset: Offset(0, 8),
-                              blurRadius: 10,
-                              spreadRadius: -6,
+                              color: const Color(0xFF00897B).withOpacity(0.08),
+                              offset: const Offset(0, 8),
+                              blurRadius: 16,
+                              spreadRadius: -2,
                             ),
                           ],
                         ),
@@ -109,7 +103,7 @@ class _CommunityScreenState extends State<SaveAudition> {
                                 leading: ClipOval(
                                   child: (list.audition.creator.profileImage.isNotEmpty ?? false)
                                       ? CommonImage(
-                                    imageSrc: AppUrl.imageUrl + list.audition.creator.profileImage,
+                                    imageSrc: AppUrl.getFullUrl(list.audition.creator.profileImage),
                                     imageType: ImageType.network,
                                     height: 50.h,
                                     width: 50.h,
@@ -142,7 +136,7 @@ class _CommunityScreenState extends State<SaveAudition> {
                                   width: 93.w,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(20),
-                                    color: Color(0xFFE5E2FD),
+                                    color: AppColor.tealLight,
                                   ),
                                   child: Center(
                                     child: CommonText(
@@ -202,7 +196,7 @@ class _CommunityScreenState extends State<SaveAudition> {
                                   child:Row(
                                     children: [
                                       Obx(() {
-                                        final url = AppUrl.imageUrl + (list.audition.auditionFile ?? "");
+                                        final url = AppUrl.getFullUrl(list.audition.auditionFile);
                                         final isPlaying =
                                             boxController.currentUrl.value == url &&
                                                 boxController.isPlaying.value;
@@ -213,7 +207,7 @@ class _CommunityScreenState extends State<SaveAudition> {
                                             height: 39.h,
                                             width: 39.h,
                                             decoration: const BoxDecoration(
-                                              color: Color(0xff3C2A5D),
+                                              color: Color(0xFF00897B),
                                               shape: BoxShape.circle,
                                             ),
                                             child: Icon(
@@ -229,7 +223,7 @@ class _CommunityScreenState extends State<SaveAudition> {
 
                                       Expanded(
                                         child: Obx(() {
-                                          final url = AppUrl.imageUrl + (list.audition.auditionFile ?? "");
+                                          final url = AppUrl.getFullUrl(list.audition.auditionFile);
 
                                           final showProgress = boxController.currentUrl.value == url;
 
@@ -244,7 +238,7 @@ class _CommunityScreenState extends State<SaveAudition> {
                                       SizedBox(width: 10.w),
 
                                       Obx(() {
-                                        final url = AppUrl.imageUrl + (list.audition.auditionFile ?? "");
+                                        final url = AppUrl.getFullUrl(list.audition.auditionFile);
 
                                         final isCurrentPlaying = boxController.currentUrl.value == url;
 
@@ -281,7 +275,7 @@ class CleanWavePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFD6CFF5)
+      ..color = const Color(0xFF80CBC4)
       ..strokeWidth = 2.5
       ..strokeCap = StrokeCap.round;
 

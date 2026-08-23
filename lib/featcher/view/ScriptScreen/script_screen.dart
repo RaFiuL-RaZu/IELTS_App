@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:justtsham/core/utils/app_colors.dart';
-import 'package:justtsham/core/utils/app_icons.dart';
-import 'package:justtsham/core/widgets/common_text.dart';
-import 'package:justtsham/core/widgets/common_text_field.dart';
-import 'package:justtsham/core/widgets/coomon_button.dart';
-import 'package:justtsham/featcher/controller/ScriptController/script_controller.dart';
-import 'package:justtsham/featcher/model/ScriptModel/script_model.dart';
+import 'package:justtsham/core/data/ielts_data.dart';
+import 'package:justtsham/core/services/ielts_local_storage_service.dart';
+import 'package:justtsham/featcher/view/ScriptScreen/ielts_listening_practice_screen.dart';
+import 'package:justtsham/featcher/view/ScriptScreen/ielts_reading_practice_screen.dart';
+import 'package:justtsham/featcher/view/ScriptScreen/ielts_writing_practice_screen.dart';
 import 'package:justtsham/featcher/view/ScriptScreen/practice_screen.dart';
-import '../CummunityScreen/commercial_screen.dart';
-import 'package:justtsham/core/widgets/common_snackber.dart';
 
 class ScriptScreen extends StatefulWidget {
   const ScriptScreen({super.key});
@@ -21,542 +16,138 @@ class ScriptScreen extends StatefulWidget {
 }
 
 class _ScriptScreenState extends State<ScriptScreen> {
-  final ScriptController controller = Get.put(ScriptController());
+  int _activeSkillIndex = 0; // 0: Speaking, 1: Listening, 2: Reading, 3: Writing
+  int _speakingSubTab = 0; // 0: Cue Cards, 1: Part 1 Topics, 2: Generator
+  String _selectedCategory = "Technology & AI";
+  final TextEditingController _customTopicController = TextEditingController();
+  String _generatedCueCard = "";
 
-  @override
-  void initState() {
-    controller.getScript();
-    super.initState();
+  final List<String> _categories = [
+    "Technology & AI",
+    "Environment & Nature",
+    "Education & School",
+    "Travel & Culture",
+    "Work & Career",
+    "Hometown & Daily Life",
+  ];
+
+  void _generateCustomCueCard() {
+    final topic = _customTopicController.text.trim().isNotEmpty
+        ? _customTopicController.text.trim()
+        : _selectedCategory;
+
+    setState(() {
+      _generatedCueCard =
+          "Describe a significant development in $topic that has impacted your community.\n\n"
+          "You should say:\n"
+          "• What this development is\n"
+          "• When and where it happened\n"
+          "• How people in your society responded to it\n"
+          "• And explain why you consider it to be of paramount importance for the future.\n\n"
+          "Band 9 Model Strategy:\n"
+          "Start by framing the societal context, utilize complex inversion structures ('Not only did this innovation...'), and conclude with a nuanced perspective.";
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final progressCtrl = Get.find<IeltsProgressController>();
+
     return Scaffold(
-      backgroundColor: AppColor.background,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 60.h),
-              CommonText(
-                title: "IELTS Practice",
-                fSize: 22,
-                fWeight: FontWeight.w800,
-                color: AppColor.primary,
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        toolbarHeight: 65.h,
+        title: const Text(
+          "IELTS 4-Skill Practice Hub",
+          style: TextStyle(
+            color: Color(0xFF0F172A),
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          // 4-Skill Segmented Bar
+          Container(
+            color: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            child: Container(
+              height: 52.h,
+              padding: EdgeInsets.all(5.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(26),
               ),
-              SizedBox(height: 16.h),
-              Container(
-                height: 44.h,
-                padding: EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                  color: Color(0xFFD2CBFA),
-                  borderRadius: BorderRadius.circular(25),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Center(
-                  child: Row(
-                    children: [
-                      _tabButton("Cue Cards", 0, AppIcons.book),
-                      _tabButton("Topic Generator", 1, AppIcons.star),
-                    ],
-                  ),
-                ),
+              child: Row(
+                children: [
+                  _buildSkillTab("Speaking", 0, Icons.mic_rounded),
+                  _buildSkillTab("Listening", 1, Icons.headset_rounded),
+                  _buildSkillTab("Reading", 2, Icons.menu_book_rounded),
+                  _buildSkillTab("Writing", 3, Icons.edit_note_rounded),
+                ],
               ),
-              SizedBox(height: 18.h),
-              Obx(() {
-                return controller.selectedIndex.value == 0
-                    ? Column(
-                        children: [
-                          CommonTextField(
-                            controller: controller.searchController,
-                            title: "Search cue cards & topics...",
-                            onChanged: (value) {
-                              controller.searchScripts(value);
-                            },
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 14,
-                                horizontal: 14,
-                              ),
-                              child: Image.asset(
-                                AppIcons.search,
-                                height: 16,
-                                width: 16,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 12.h),
+            ),
+          ),
 
-                          Obx(
-                            () => SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                spacing: 10,
-                                children: [
-                                  ...List.generate(controller.items.length, (
-                                    index,
-                                  ) {
-                                    return GestureDetector(
-                                      onTap: () {
-                                        controller.filterScriptsByCategory(index);
-                                      },
-                                      child: voiceBox(
-                                        title: controller.items[index],
-                                        isSelected:
-                                            controller.selectedTab.value == index,
-                                      ),
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 20.h),
-                          Obx((){
-                           if(controller.isLoading.value){
-                             return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
-                           }else if(controller.filteredScriptList.isEmpty){
-                             return Center(child: CommonText(title: "No Data Found"),);
-                           }else{
-                             return ListView.builder(
-                                 padding: EdgeInsets.zero,
-                                 shrinkWrap: true,
-                                 physics: ScrollPhysics(),
-                                 itemCount: controller.filteredScriptList.length,
-                                 itemBuilder: (context,index){
-                                   ScriptModel script = controller.filteredScriptList[index];
-                                   return GestureDetector(
-                                     onTap: (){
-                                      if(script.isComplete==false){
-                                        Get.to(()=>CommercialScreen(title: script.content.toString(),id: script.id.toString(), page: 'script',));
-                                      }
-                                     },
-                                     child: Container(
-                                       padding: EdgeInsets.symmetric(vertical: 20),
-                                       margin: EdgeInsets.only(bottom: 16),
-                                       width: double.infinity,
-                                       decoration: BoxDecoration(
-                                         borderRadius: BorderRadius.circular(20),
-                                         color: Colors.white,
-                                         boxShadow: [
-                                           BoxShadow(
-                                             color: Color(0xFF6C4DFF).withOpacity(0.20),
-                                             offset: Offset(0, 20),
-                                             blurRadius: 25,
-                                             spreadRadius: -5,
-                                           ),
-                                           BoxShadow(
-                                             color: Color(0xFF6C4DFF).withOpacity(0.20),
-                                             offset: Offset(0, 8),
-                                             blurRadius: 10,
-                                             spreadRadius: -6,
-                                           ),
-                                         ],
-                                       ),
-                                       child: Padding(
-                                         padding: const EdgeInsets.symmetric(
-                                           horizontal: 16,
-                                           vertical: 5,
-                                         ),
-                                         child: Column(
-                                           crossAxisAlignment: CrossAxisAlignment.start,
-                                           children: [
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Container(
-                                                  height: 24.h,
-                                                  width: 93.w,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(20),
-                                                    color: Color(0xFFE5E2FD),
-                                                  ),
-                                                  child: Center(
-                                                    child: CommonText(
-                                                      title: script.category?? "",
-                                                      fSize: 12,
-                                                      fWeight: FontWeight.w500,
-                                                      color: AppColor.primary,
-                                                    ),
-                                                  ),
-                                                ),
-                                                script.isComplete==false ? SizedBox() : Container(
-                                                  height: 24.h,
-                                                  width: 93.w,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(20),
-                                                    color: Colors.green.shade200,
-                                                  ),
-                                                  child: Center(
-                                                    child: CommonText(
-                                                        title: "Completed",
-                                                        fSize: 12,
-                                                        fWeight: FontWeight.w500,
-                                                        color: Color(0xFF00C950)
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                             SizedBox(height: 7.h),
-                                             CommonText(
-                                               title: script.title ?? "",
-                                               fSize: 16,
-                                               maxLine: 1,
-                                               fWeight: FontWeight.w600,
-                                               color: AppColor.primary,
-                                             ),
-                                             SizedBox(height: 10.h),
-                                             Obx(() {
-                                               final isExpanded = controller.expandedIndex.value == index;
+          // Main Practice Content
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+              child: _buildActiveSkillView(progressCtrl),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-                                               return Column(
-                                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                                 children: [
-                                                   CommonText(
-                                                     title: script.content.toString(),
-                                                     fSize: 14,
-                                                     maxLine: isExpanded ? null : 3,
-                                                     overflow:
-                                                     isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                                                     fWeight: FontWeight.w600,
-                                                     color: AppColor.primary,
-                                                   ),
-
-                                                   SizedBox(height: 4),
-
-                                                   GestureDetector(
-                                                     onTap: () => controller.toggleExpand(index),
-                                                     child: Text(
-                                                       isExpanded ? "See less" : "See more",
-                                                       style: TextStyle(
-                                                         color: AppColor.primary,
-                                                         fontWeight: FontWeight.w500,
-                                                       ),
-                                                     ),
-                                                   ),
-                                                 ],
-                                               );
-                                             }),
-                                             SizedBox(height: 10.h),
-                                            script.isComplete==false ?  CommonButton(titleText: " Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),) : SizedBox()
-
-                                           ],
-                                         ),
-                                       ),
-                                     ),
-                                   );
-                                 });
-                           }
-                         })
-                        ],
-                      )
-                    : Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(vertical: 10,horizontal: 16),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.20),
-                            offset: Offset(0, 20),
-                            blurRadius: 25,
-                            spreadRadius: -5,
-                          ),
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.20),
-                            offset: Offset(0, 8),
-                            blurRadius: 10,
-                            spreadRadius: -6,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                         ListTile(
-                           contentPadding: EdgeInsets.zero,
-                           leading: Container(
-                             height: 40.h,
-                             width: 40.w,
-                             decoration: BoxDecoration(
-                               borderRadius: BorderRadius.circular(14),
-                               color: Color(0xFFE5E2FD),
-                             ),
-                             child: Center(
-                               child: Image.asset(AppIcons.star,height: 24,width: 24,fit: BoxFit.fill,),
-                             ),
-                           ),
-                           title: CommonText(title: "Script Writer",fSize: 18,fWeight: FontWeight.w800,color:AppColor.primary,),
-                           subtitle: CommonText(title: "Generate custom practice copy",fSize: 12,fWeight: FontWeight.w500,color:AppColor.secondary,),
-                         ),
-                          SizedBox(height: 7.h),
-                          CommonText(
-                            title: "Category",
-                            fSize: 16,
-                            fWeight: FontWeight.w600,
-                            color: AppColor.primary,
-                          ),
-                          SizedBox(height: 10.h),
-                          Obx(() => Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                             CommonTextField(
-                                  readOnly: true,
-                                  onTap:controller.toggleDropdown,
-                                  title: controller.selectedCategory.value.isEmpty
-                                      ? "Enter your category"
-                                      : controller.selectedCategory.value,
-                                  sIcon: const Icon(Icons.arrow_drop_down),
-                                ),
-
-                              if (controller.isDropdownOpen.value)
-                                Container(
-                                  margin: const EdgeInsets.only(top: 5),
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: Colors.grey.shade300),
-                                  ),
-                                  child: Column(
-                                    children: controller.categories.map((item) {
-                                      return GestureDetector(
-                                        onTap: () => controller.selectCategory(item),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 10,
-                                          ),
-                                          width: double.infinity,
-                                          child: Text(item),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                            ],
-                          )),
-                          SizedBox(height: 10.h),
-                          CommonText(
-                            title: "Tone / Style",
-                            fSize: 16,
-                            fWeight: FontWeight.w600,
-                            color: AppColor.primary,
-                          ),
-                          SizedBox(height: 10.h),
-                          Obx(() => Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CommonTextField(
-                                  readOnly: true,
-                                  onTap: controller.toggleToneDropdown,
-                                  title: controller.selectedTone.value.isEmpty
-                                      ? "Select tone / style"
-                                      : controller.selectedTone.value,
-                                  sIcon: const Icon(Icons.arrow_drop_down),
-                                ),
-
-                              if (controller.isToneDropdownOpen.value)
-                                Container(
-                                  margin: const EdgeInsets.only(top: 5),
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: Colors.grey.shade300),
-                                  ),
-                                  child: Column(
-                                    children: controller.toneList.map((tone) {
-                                      return GestureDetector(
-                                        onTap: () => controller.selectTone(tone),
-                                        child: Container(
-                                          width: double.infinity,
-                                          padding: const EdgeInsets.symmetric(vertical: 12),
-                                          child: Text(
-                                            tone,
-                                            style: const TextStyle(fontSize: 14,color: Colors.black),
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-
-                            ],
-                          )),
-                          SizedBox(height: 10.h),
-                          CommonText(
-                            title: "Length",
-                            fSize: 16,
-                            fWeight: FontWeight.w600,
-                            color: AppColor.primary,
-                          ),
-                          SizedBox(height: 10.h),
-                          Obx(
-                                () => SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                spacing: 10,
-                                children: [
-                                  ...List.generate(controller.timeList.length, (
-                                      index,
-                                      ) {
-                                    return GestureDetector(
-                                      onTap: () {
-                                        controller.selectTimeItem(index);
-                                      },
-                                      child: voiceBox(
-                                        title: controller.timeList[index],
-                                          isSelected: controller.selectedSecond.value == index
-                                      ),
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 20.h,),
-                          Obx(()=>CommonButton(
-                            isLoading: controller.isLoading.value,
-                            titleText: "Generate Cue Card",
-                            onTap: (){
-                              controller.createScript();
-                            },
-                          ),)
-
-                        ],
-                      ),
+  Widget _buildSkillTab(String title, int index, IconData icon) {
+    final isSelected = _activeSkillIndex == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _activeSkillIndex = index;
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF00695C) : Colors.transparent,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF00695C).withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
                     ),
-                    SizedBox(height: 20.h,),
-                    controller.script.isEmpty ? SizedBox() : Container(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      margin: EdgeInsets.only(bottom: 16),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.20),
-                            offset: Offset(0, 20),
-                            blurRadius: 25,
-                            spreadRadius: -5,
-                          ),
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.20),
-                            offset: Offset(0, 8),
-                            blurRadius: 10,
-                            spreadRadius: -6,
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  height: 24.h,
-                                  width: 93.w,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: Color(0xFFE5E2FD),
-                                  ),
-                                  child: Center(
-                                    child: CommonText(
-                                      title: "Generated!",
-                                      fSize: 12,
-                                      fWeight: FontWeight.w500,
-                                      color: AppColor.primary,
-                                    ),
-                                  ),
-                                ),
-                                Obx(()=>CommonText(title: controller.selectedTime.value,fSize: 12,fWeight: FontWeight.w500,color: AppColor.primary,),),
-                              ],
-                            ),
-                            SizedBox(height: 7.h),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 0,vertical: 10),
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Color(0xFFF1EFFE),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 16,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      CommonText(
-                                        title:
-                                        controller.script.value,
-                                        fSize: 16,
-                                        color: AppColor.secondary,
-                                        fWeight: FontWeight.w500,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10.h),
-                            Row(
-                              spacing: 10,
-                              children: [
-                                Expanded(child: CommonButton(
-                                  onTap: (){
-                                    Get.to(()=>PracticeScreen(content: controller.script.value, title: controller.selectedCategory.value,));
-                                  },
-                                  titleText: "Practice",prefixIcon: Image.asset(AppIcons.video,height: 23,width: 23,),)),
-                                GestureDetector(
-                                  onTap: () async {
-                                    await Clipboard.setData(ClipboardData(text: controller.script.value));
-                                    CommonSnackBar.show(
-                                      title: 'Copied',
-                                      message: 'Script copied to clipboard',
-                                      isSuccess: true,
-                                    );
-                                  },
-                                  child: Container(
-                                    height: 48.h,
-                                    width: 48.w,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(14),
-                                        color: Colors.white,
-                                        border: Border.all(color: Colors.grey.shade300)
-                                    ),
-                                    child: Center(
-                                      child: Icon(Icons.copy,color: Colors.grey.shade400,),
-                                    ),
-                                  ),
-                                )
-
-                              ],
-                            )
-
-                          ],
-                        ),
-                      ),
-                    )
-
-                  ],
-                );
-              }),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 17,
+                color: isSelected ? Colors.white : const Color(0xFF64748B),
+              ),
+              SizedBox(width: 5.w),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                  color: isSelected ? Colors.white : const Color(0xFF64748B),
+                ),
+              ),
             ],
           ),
         ),
@@ -564,89 +155,706 @@ class _ScriptScreenState extends State<ScriptScreen> {
     );
   }
 
-  Widget _tabButton(String text, int index, String image) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          controller.changeTab(index);
-        },
-        child: Obx(() {
-          bool isSelected = controller.selectedIndex.value == index;
+  Widget _buildActiveSkillView(IeltsProgressController progressCtrl) {
+    switch (_activeSkillIndex) {
+      case 0:
+        return _buildSpeakingSkillView(progressCtrl);
+      case 1:
+        return _buildListeningSkillView();
+      case 2:
+        return _buildReadingSkillView();
+      case 3:
+        return _buildWritingSkillView();
+      default:
+        return const SizedBox();
+    }
+  }
 
-          return Container(
-            height: 36.h,
-            decoration: BoxDecoration(
-              color: isSelected ? AppColor.primary : Colors.transparent,
-              borderRadius: BorderRadius.circular(20),
-              gradient: const LinearGradient(
-                colors: [Color(0xFF180E27), Color(0xFF56397C)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            alignment: Alignment.center,
-            child: Row(
-              spacing: 5,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  image,
-                  height: 18,
-                  width: 18,
-                  fit: BoxFit.fill,
-                  color: isSelected ? Colors.white : AppColor.secondary,
+  // --- SPEAKING MODULE ---
+  Widget _buildSpeakingSkillView(IeltsProgressController progressCtrl) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Sub-tabs
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _buildSubTabButton("Cambridge Cue Cards", 0),
+              SizedBox(width: 10.w),
+              _buildSubTabButton("Part 1 Interview", 1),
+              SizedBox(width: 10.w),
+              _buildSubTabButton("Topic AI Generator", 2),
+            ],
+          ),
+        ),
+        SizedBox(height: 18.h),
+
+        if (_speakingSubTab == 0) ...[
+          // Cue Cards List
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: IeltsData.cueCardPool.length,
+            itemBuilder: (context, index) {
+              final card = IeltsData.cueCardPool[index];
+              return Obx(() {
+                final isBookmarked = progressCtrl.savedCueCardIds.contains(card.id);
+
+                return Container(
+                  margin: EdgeInsets.only(bottom: 18.h),
+                  padding: EdgeInsets.all(18.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE0F2F1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              card.topicCategory,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF004D40),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => progressCtrl.toggleCueCardBookmark(card.id),
+                            child: Icon(
+                              isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                              color: isBookmarked ? const Color(0xFF00695C) : Colors.grey.shade400,
+                              size: 22,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12.h),
+                      Text(
+                        card.title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF0F172A),
+                          height: 1.3,
+                        ),
+                      ),
+                      SizedBox(height: 10.h),
+                      ...card.bulletPoints.map((bp) => Padding(
+                        padding: const EdgeInsets.only(bottom: 5),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("• ", style: TextStyle(color: Color(0xFF00695C), fontWeight: FontWeight.w800, fontSize: 14)),
+                            Expanded(
+                              child: Text(
+                                bp,
+                                style: const TextStyle(fontSize: 12.5, color: Color(0xFF475569), height: 1.35),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                      SizedBox(height: 14.h),
+                      // Band 9 Sample Snippet Box
+                      Container(
+                        padding: EdgeInsets.all(14.w),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Band 8.5+ Model Opening:",
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF00695C)),
+                            ),
+                            SizedBox(height: 4.h),
+                            Text(
+                              "\"${card.sampleAnswer}\"",
+                              style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Color(0xFF334155), height: 1.4),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(() => PracticeScreen(
+                            content: "${card.title}\n\n${card.bulletPoints.join('\n')}\n\nBand 8.5 Model Answer:\n${card.sampleAnswer}",
+                            title: card.topicCategory,
+                          ));
+                        },
+                        child: Container(
+                          height: 44.h,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00695C),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.mic_none_rounded, color: Colors.white, size: 18),
+                              SizedBox(width: 6),
+                              Text(
+                                "Start 1-Min Prep & Record",
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            },
+          ),
+        ] else if (_speakingSubTab == 1) ...[
+          // Part 1 Topics
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: IeltsData.speakingPart1Topics.length,
+            itemBuilder: (context, index) {
+              final p1 = IeltsData.speakingPart1Topics[index];
+              return Container(
+                margin: EdgeInsets.only(bottom: 16.h),
+                padding: EdgeInsets.all(18.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
-                Text(
-                  text,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : AppColor.secondary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE0F2FE),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Text("Part 1 Topic", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF0284C7))),
+                        ),
+                        SizedBox(width: 10.w),
+                        Text(p1.topic, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                      ],
+                    ),
+                    SizedBox(height: 14.h),
+                    ...p1.questions.map((q) => Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.all(14.w),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Q: ${q.prompt}", style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+                          SizedBox(height: 6.h),
+                          Text("Model: \"${q.sampleAnswer}\"", style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Color(0xFF475569), height: 1.4)),
+                        ],
+                      ),
+                    )),
+                  ],
+                ),
+              );
+            },
+          ),
+        ] else ...[
+          // Topic Generator
+          Container(
+            padding: EdgeInsets.all(20.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Generate Custom IELTS Cue Card", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                SizedBox(height: 14.h),
+                DropdownButtonFormField<String>(
+                  value: _selectedCategory,
+                  decoration: InputDecoration(
+                    labelText: "Select Category",
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                  items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                  onChanged: (v) {
+                    if (v != null) setState(() => _selectedCategory = v);
+                  },
+                ),
+                SizedBox(height: 14.h),
+                TextField(
+                  controller: _customTopicController,
+                  decoration: InputDecoration(
+                    hintText: "Or type specific topic (e.g. Electric Cars)...",
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   ),
                 ),
+                SizedBox(height: 16.h),
+                GestureDetector(
+                  onTap: _generateCustomCueCard,
+                  child: Container(
+                    height: 46.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00695C),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Center(
+                      child: Text("Generate Prompt & Model Answer", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                    ),
+                  ),
+                ),
+                if (_generatedCueCard.isNotEmpty) ...[
+                  SizedBox(height: 18.h),
+                  Container(
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE0F2F1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFF80CBC4)),
+                    ),
+                    child: Text(_generatedCueCard, style: const TextStyle(fontSize: 13, height: 1.5, color: Color(0xFF004D40))),
+                  ),
+                ],
               ],
             ),
-          );
-        }),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildSubTabButton(String title, int index) {
+    final isSelected = _speakingSubTab == index;
+    return GestureDetector(
+      onTap: () => setState(() => _speakingSubTab = index),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF00695C) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF00695C) : const Color(0xFFE2E8F0),
+          ),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+            color: isSelected ? Colors.white : const Color(0xFF475569),
+          ),
+        ),
       ),
     );
   }
 
-  Container voiceBox({required String title, required bool isSelected}) {
-    return Container(
-      height: 34.h,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: isSelected ? Border.all(color:Colors.white) :Border.all(color:  Colors.grey.shade300),
-        gradient: LinearGradient(
-          colors: isSelected
-              ? [Color(0xFF180E27), Color(0xFF56397C)]
-              : [Colors.white, Colors.white],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: isSelected
-                ? Colors.white.withOpacity(0.3)
-                : Color(0xFF8A79D6),
-            offset: Offset(0, 0),
-          ),
+  // --- LISTENING MODULE ---
+  Widget _buildListeningSkillView() {
+    final List<Map<String, dynamic>> sections = [
+      {
+        "section": "Section 1",
+        "title": "Hotel Booking & Travel Reservation",
+        "type": "Dialogue (2 Speakers)",
+        "duration": "6:30 min",
+        "questions": "10 Questions (Form Completion)",
+        "band": "Band 7.5+",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        "audioSnippet": "Agent: Good morning, Cambridge Travel Services. How can I help you?\nCaller: Hello, I'd like to inquire about booking accommodation near King's Cross for next weekend...",
+      },
+      {
+        "section": "Section 2",
+        "title": "Campus Orientation & Library Facilities",
+        "type": "Monologue (1 Speaker)",
+        "duration": "7:15 min",
+        "questions": "10 Questions (Map & Multiple Choice)",
+        "band": "Band 8.0+",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        "audioSnippet": "Guide: Welcome new postgraduate students to the university library. On your left is the multimedia lab, while research cubicles are located on the second floor...",
+      },
+      {
+        "section": "Section 3",
+        "title": "Environmental Science Group Project",
+        "type": "Academic Discussion (3 Speakers)",
+        "duration": "8:00 min",
+        "questions": "10 Questions (Matching & Summary)",
+        "band": "Band 8.5+",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+        "audioSnippet": "Professor: Let's review your team's fieldwork data on urban rainwater harvesting. Sarah, what were your primary observations regarding filtration efficiency?",
+      },
+      {
+        "section": "Section 4",
+        "title": "University Lecture: Renewable Geothermal Energy",
+        "type": "Academic Lecture (1 Speaker)",
+        "duration": "9:45 min",
+        "questions": "10 Questions (Note Completion)",
+        "band": "Band 9.0",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+        "audioSnippet": "Lecturer: Today we examine the thermodynamic viability of enhanced geothermal systems in non-volcanic geological formations across Northern Europe...",
+      },
+    ];
 
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Center(
-          child: CommonText(
-            title: title,
-            fSize: 14,
-            fWeight: FontWeight.w500,
-            color: isSelected ? Colors.white : Colors.black,
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: sections.length,
+      itemBuilder: (context, idx) {
+        final sec = sections[idx];
+        return Container(
+          margin: EdgeInsets.only(bottom: 18.h),
+          padding: EdgeInsets.all(18.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                offset: const Offset(0, 4),
+                blurRadius: 8,
+              ),
+            ],
           ),
-        ),
-      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F5E9),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      sec["section"],
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF2E7D32)),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF7ED),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      sec["band"],
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFEA580C)),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                sec["title"],
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+              ),
+              SizedBox(height: 6.h),
+              Text(
+                "${sec["type"]} • ${sec["duration"]} • ${sec["questions"]}",
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+              ),
+              SizedBox(height: 16.h),
+              GestureDetector(
+                onTap: () {
+                  Get.to(() => IeltsListeningPracticeScreen(
+                    sectionTitle: sec["title"] as String,
+                    sectionNumber: sec["section"] as String,
+                    audioSnippet: sec["audioSnippet"] as String,
+                    audioUrl: sec["audioUrl"] as String,
+                  ));
+                },
+                child: Container(
+                  height: 44.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00695C),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
+                      SizedBox(width: 6),
+                      Text("Open Listening Arena & Auto-Score", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // --- READING MODULE ---
+  Widget _buildReadingSkillView() {
+    final List<Map<String, dynamic>> passages = [
+      {
+        "passage": "Passage 1 (Academic)",
+        "title": "The Technological Evolution of Renewable Energy",
+        "words": "850 Words",
+        "time": "20 Mins",
+        "difficulty": "Moderate (Band 7.0)",
+        "summary": "This passage explores photovoltaic efficiency leaps, solid-state battery breakthroughs, and grid integration challenges across modern European metropolitan cities. Over the last two decades, solar conversion efficiency has surged from 18% to over 53% in experimental trials.",
+      },
+      {
+        "passage": "Passage 2 (Academic)",
+        "title": "Cognitive Neuroscience & Memory Retention",
+        "words": "950 Words",
+        "time": "20 Mins",
+        "difficulty": "Challenging (Band 8.0)",
+        "summary": "An examination of synaptic plasticity, spaced repetition paradigms, and sleep-induced neural consolidation in academic learning environments. Neurological scans reveal enhanced myelin sheath deposition around frequently recalled pathways.",
+      },
+      {
+        "passage": "Passage 3 (Academic)",
+        "title": "Deep-Sea Biodiversity & Hydrothermal Vent Ecosystems",
+        "words": "1,100 Words",
+        "time": "20 Mins",
+        "difficulty": "Advanced (Band 8.5+)",
+        "summary": "Analyzing chemosynthetic organisms, extreme pressure biological adaptations, and deep ocean floor mineral extraction debates along mid-ocean ridge zones.",
+      },
+    ];
+
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: passages.length,
+      itemBuilder: (context, idx) {
+        final pass = passages[idx];
+        return Container(
+          margin: EdgeInsets.only(bottom: 18.h),
+          padding: EdgeInsets.all(18.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                offset: const Offset(0, 4),
+                blurRadius: 8,
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3E5F5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      pass["passage"],
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF6A1B9A)),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEDE7F6),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      pass["difficulty"],
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF4A148C)),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                pass["title"],
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+              ),
+              SizedBox(height: 6.h),
+              Text(
+                "${pass["words"]} • Recommended Time: ${pass["time"]}",
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+              ),
+              SizedBox(height: 16.h),
+              GestureDetector(
+                onTap: () {
+                  Get.to(() => IeltsReadingPracticeScreen(
+                    passageTitle: pass["title"] as String,
+                    passageText: pass["summary"] as String,
+                    difficulty: pass["difficulty"] as String,
+                  ));
+                },
+                child: Container(
+                  height: 44.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6A1B9A),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.menu_book_rounded, color: Colors.white, size: 18),
+                      SizedBox(width: 6),
+                      Text("Open 20-Min Timed Reading Arena", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // --- WRITING MODULE ---
+  Widget _buildWritingSkillView() {
+    final List<Map<String, dynamic>> essays = [
+      {
+        "task": "Task 2 (Opinion Essay)",
+        "prompt": "Some people believe that artificial intelligence will replace human teachers in the future. To what extent do you agree or disagree?",
+        "band": "Band 9.0 Model",
+        "structure": "Introduction (Paraphrase + Thesis) -> Body 1 (Adaptive AI algorithms personalized content) -> Body 2 (Irreplaceable human emotional empathy) -> Conclusion (Balanced view)",
+        "lexical": "Indispensable, algorithmic personalization, empathetic pedagogy, nuance comprehension, transformative paradigm.",
+        "sample": "While artificial intelligence is increasingly capable of delivering hyper-personalized academic instruction, I firmly contend that the fundamental empathetic and moral guidance of human educators remains wholly irreplaceable.",
+      },
+      {
+        "task": "Task 1 (Academic Report)",
+        "prompt": "The chart illustrates renewable energy generation across four European countries between 2000 and 2020.",
+        "band": "Band 8.5 Model",
+        "structure": "Introduction (Paraphrase) -> Overview (Key overall trends) -> Body 1 (Highest vs lowest output) -> Body 2 (Comparative trajectories)",
+        "lexical": "Exhibited a pronounced upward trajectory, exponential surge, fluctuated marginally, overtaken by a substantial margin.",
+        "sample": "Overall, while fossil fuel consumption exhibited a pronounced downward trajectory across all four nations, renewable generation witnessed an unprecedented exponential surge.",
+      },
+    ];
+
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: essays.length,
+      itemBuilder: (context, idx) {
+        final ess = essays[idx];
+        return Container(
+          margin: EdgeInsets.only(bottom: 18.h),
+          padding: EdgeInsets.all(18.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                offset: const Offset(0, 4),
+                blurRadius: 8,
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF3E0),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      ess["task"],
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFE65100)),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE0F2F1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      ess["band"],
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF00695C)),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                ess["prompt"],
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), height: 1.35),
+              ),
+              SizedBox(height: 16.h),
+              GestureDetector(
+                onTap: () {
+                  Get.to(() => IeltsWritingPracticeScreen(
+                    taskType: ess["task"] as String,
+                    prompt: ess["prompt"] as String,
+                    structure: ess["structure"] as String,
+                    lexical: ess["lexical"] as String,
+                    band9Model: ess["sample"] as String,
+                  ));
+                },
+                child: Container(
+                  height: 44.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE65100),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.edit_note_rounded, color: Colors.white, size: 20),
+                      SizedBox(width: 6),
+                      Text("Open Writing Arena (Word Count & Timer)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

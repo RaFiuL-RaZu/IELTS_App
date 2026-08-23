@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:justtsham/core/utils/app_colors.dart';
 import '../utils/app_image.dart';
+import '../utils/app_urls.dart';
 
 enum ImageType { png, svg, network, file }
 
@@ -95,30 +96,49 @@ class CommonImage extends StatelessWidget {
     }
 
     if (imageType == ImageType.network) {
-      imageWidget = CachedNetworkImage(
-        height: size?.sp ?? height.h,
-        width: size?.sp ?? width.w,
-        imageUrl: imageSrc,
-        imageBuilder: (context, imageProvider) => Container(
-          decoration: BoxDecoration(
-            borderRadius: borderRadiusLogic,
-            image: DecorationImage(image: imageProvider, fit: fill),
+      String resolvedUrl = imageSrc.trim();
+      if (resolvedUrl.startsWith("http://51.21.66.176:8899/http://") ||
+          resolvedUrl.startsWith("http://51.21.66.176:8899/https://")) {
+        resolvedUrl = resolvedUrl.replaceFirst("http://51.21.66.176:8899/", "");
+      } else if (!resolvedUrl.startsWith("http://") && !resolvedUrl.startsWith("https://")) {
+        resolvedUrl = AppUrl.getFullUrl(resolvedUrl);
+      }
+
+      if (resolvedUrl.isEmpty ||
+          resolvedUrl.toLowerCase().endsWith("/null") ||
+          resolvedUrl.toLowerCase().endsWith("null") ||
+          !resolvedUrl.startsWith("http")) {
+        imageWidget = Image.asset(defaultImage, fit: fill);
+      } else {
+        imageWidget = CachedNetworkImage(
+          height: size?.sp ?? height.h,
+          width: size?.sp ?? width.w,
+          imageUrl: resolvedUrl,
+          imageBuilder: (context, imageProvider) => Container(
+            decoration: BoxDecoration(
+              borderRadius: borderRadiusLogic,
+              image: DecorationImage(image: imageProvider, fit: fill),
+            ),
           ),
-        ),
-        progressIndicatorBuilder: (context, url, downloadProgress) => Center(
-          child: CircularProgressIndicator(
-            value: downloadProgress.progress,
-            color: AppColor.primary,
-            strokeWidth: 0.5,
+          progressIndicatorBuilder: (context, url, downloadProgress) => Center(
+            child: SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                value: downloadProgress.progress,
+                color: AppColor.primary,
+                strokeWidth: 2,
+              ),
+            ),
           ),
-        ),
-        errorWidget: (context, url, error) {
-          if (kDebugMode) {
-            print(error);
-          }
-          return Image.asset(defaultImage, fit: fill);
-        },
-      );
+          errorWidget: (context, url, error) {
+            if (kDebugMode) {
+              print("CachedNetworkImage Error: $error, url: $url");
+            }
+            return Image.asset(defaultImage, fit: fill);
+          },
+        );
+      }
     }
 
     return SizedBox(

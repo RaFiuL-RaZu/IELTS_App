@@ -42,12 +42,12 @@ class ProfileController extends GetxController {
   }
 
   List<String> items = [
-    "Commercial",
-    "Animation ",
-    "Video Game ",
-    "Narration ",
-    "Character ",
-    "E-Learning ",
+    "Speaking",
+    "Writing",
+    "Listening",
+    "Reading",
+    "Cue Cards",
+    "Vocabulary",
   ];
 
   void setInitialValues() {
@@ -68,23 +68,21 @@ class ProfileController extends GetxController {
     isLoading(true);
 
     try {
+      profileModel.value = ProfileModel(
+        id: PrefsHelper.userId.isEmpty ? "user_default" : PrefsHelper.userId,
+        fullName: PrefsHelper.myName.isEmpty ? "IELTS Candidate" : PrefsHelper.myName,
+        email: PrefsHelper.myEmail.isEmpty ? "candidate@ieltsmaster.app" : PrefsHelper.myEmail,
+        profileImage: PrefsHelper.myImage,
+        about: bioController.text.isNotEmpty ? bioController.text : "Aiming for IELTS Band 7.5+ in Academic & General Training.",
+        voiceSpecialties: selectedValues.isNotEmpty ? selectedValues : ["Speaking", "Cue Cards", "Vocabulary"],
+      );
 
-      Map<String,String> header={
-        "token":PrefsHelper.token
-      };
-
-      final response=await ApiService.getApi(AppUrl.myProfile,header: header,);
-      if(response.statusCode==200 || response.statusCode==201){
-        final data=response.body['data'];
-        profileModel.value=ProfileModel.fromJson(data);
-        setInitialValues();
-      }
-
-
-    } catch (e, s) {
-      debugPrint("Error Handling: $e");
-      debugPrint("SnackTrack Error: $s");
-    }finally{
+      nameController.text = profileModel.value.fullName ?? "";
+      bioController.text = profileModel.value.about ?? "";
+      setInitialValues();
+    } catch (e) {
+      debugPrint("Local Profile Error: $e");
+    } finally {
       isLoading(false);
     }
   }
@@ -92,66 +90,38 @@ class ProfileController extends GetxController {
   Future<void> updateProfile() async {
     try {
       isLoading(true);
+      await Future.delayed(const Duration(milliseconds: 300));
 
-      debugPrint("COMPLETE PROFILE API");
+      final newName = nameController.text.trim();
+      final newBio = bioController.text.trim();
 
-      var body = {
-        "data": jsonEncode({
-          "about": bioController.text.trim(),
-          "fullName":nameController.text.trim(),
-          "voiceSpecialties": selectedValues
-              .map((e) => e.toString().trim())
-              .toList(),
-        })
-      };
-
-      final header = {
-        "token": PrefsHelper.token,
-        'Content-Type': 'application/json',
-      };
-
-      debugPrint("BODY: $body");
-      debugPrint("IMAGE: ${selectedImage.value}");
-
-      final response = await ApiService.multipartRequest(
-        url: AppUrl.updateProfile,
-        body: body,
-        header: header,
-        method: "PATCH",
-        imageName: "image",
-        imagePaths: selectedImage.value,
-      );
-
-      debugPrint("STATUS: ${response.statusCode}");
-      debugPrint("RESPONSE: ${response.body}");
-      debugPrint("bodyImage: $selectedImage");
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        Get.back();
-        await getMyProfile();
-        PrefsHelper.myName=profileModel.value.fullName.toString();
-        CommonSnackBar.show(
-          title: "Success",
-          message: "Profile update successfully",
-          isSuccess: true,
-        );
-      } else {
-        debugPrint("❌ API ERROR: ${response.message}");
-        CommonSnackBar.show(
-          title: "Error",
-          message: response.message,
-          isSuccess: false,
-        );
+      if (newName.isNotEmpty) {
+        PrefsHelper.myName = newName;
+        await PrefsHelper.setString("myName", newName);
       }
-    } catch (e, s) {
-      debugPrint("❌ ERROR: $e");
-      debugPrint("STACK: $s");
 
-      CommonSnackBar.show(
-        title: "Error",
-        message: "Something went wrong",
-        isSuccess: false,
+      if (selectedImage.value.isNotEmpty) {
+        PrefsHelper.myImage = selectedImage.value;
+        await PrefsHelper.setString("myImage", selectedImage.value);
+      }
+
+      profileModel.value = ProfileModel(
+        id: PrefsHelper.userId,
+        fullName: PrefsHelper.myName,
+        email: PrefsHelper.myEmail,
+        profileImage: PrefsHelper.myImage,
+        about: newBio,
+        voiceSpecialties: selectedValues.map((e) => e.toString()).toList(),
       );
+
+      Get.back();
+      CommonSnackBar.show(
+        title: "Success",
+        message: "Profile updated successfully",
+        isSuccess: true,
+      );
+    } catch (e) {
+      debugPrint("Update Profile Error: $e");
     } finally {
       isLoading(false);
     }
@@ -160,61 +130,15 @@ class ProfileController extends GetxController {
   final RxList<BlockUser> blockList = <BlockUser>[].obs;
 
   Future<void> userBlock() async {
-    isLoading(true);
-
-    try {
-      Map<String, String> header = {
-        "token": PrefsHelper.token,
-      };
-
-      final response = await ApiService.getApi(
-        AppUrl.blockList,
-        header: header,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final List data = response.body['data']['result'];
-
-        blockList.value = data
-            .map((e) => BlockUser.fromJson(e))
-            .toList();
-      }
-    } catch (e, s) {
-      debugPrint("Error: $e");
-      debugPrint("StackTrace: $s");
-    } finally {
-      isLoading(false);
-    }
+    isLoading(false);
   }
 
-
   Future<void> unblockUser({required String id}) async {
-    isLoading(true);
-
-    try {
-      Map<String, String> header = {
-        "token": PrefsHelper.token,
-      };
-
-      final response = await ApiService.deleteApi(
-        AppUrl.unblockUser(id: id),
-        header: header,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        blockList.removeWhere((e) => e.id == id);
-       await userBlock();
-
-        Get.snackbar(
-          "Success",
-          "User unblocked successfully.",
-        );
-      }
-    } catch (e, s) {
-      debugPrint("Error: $e");
-      debugPrint("StackTrace: $s");
-    } finally {
-      isLoading(false);
-    }
+    blockList.removeWhere((e) => e.id == id);
+    Get.snackbar(
+      "Success",
+      "User unblocked successfully.",
+      snackPosition: SnackPosition.TOP,
+    );
   }
 }

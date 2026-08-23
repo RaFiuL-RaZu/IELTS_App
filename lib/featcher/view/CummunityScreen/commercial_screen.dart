@@ -33,11 +33,11 @@ class CommercialScreen extends StatelessWidget {
               width: 100.w,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: const Color(0xFFD2CBFA),
+                color: AppColor.tealLight,
               ),
               child: const Center(
                 child: CommonText(
-                  title: "COMMERCIAL",
+                  title: "IELTS SPEAKING",
                   fSize: 10,
                   fWeight: FontWeight.w600,
                 ),
@@ -45,7 +45,7 @@ class CommercialScreen extends StatelessWidget {
             ),
             SizedBox(height: 7.h),
             const CommonText(
-              title: "Nike - Limitless",
+              title: "Speaking Practice & Recording",
               fSize: 18,
               fWeight: FontWeight.w800,
             ),
@@ -79,7 +79,7 @@ class CommercialScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CommonText(
-                              title: "Narrator",
+                              title: "Prompt Notes & Model Answer",
                               fSize: 15,
                               fWeight: FontWeight.w700,
                               color: AppColor.secondary,
@@ -104,7 +104,7 @@ class CommercialScreen extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: Color(0xFFE5E2FD),
+                      color: AppColor.background,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(40),
                         topRight: Radius.circular(40),
@@ -383,9 +383,7 @@ class CommercialScreen extends StatelessWidget {
                                                 height: 63.h,
                                                 width: 63.w,
                                                 decoration: BoxDecoration(
-                                                  color: Color(
-                                                    0xFFD2CBFA,
-                                                  ),
+                                                  color: AppColor.tealLight,
                                                   borderRadius:
                                                   BorderRadius.circular(
                                                     16,

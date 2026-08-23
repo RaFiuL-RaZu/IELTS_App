@@ -59,12 +59,12 @@ class VerifyEmailController extends GetxController {
   }
 
   List<String> items = [
-    "Commercial",
-    "Animation ",
-    "Video Game ",
-    "Narration ",
-    "Character ",
-    "E-Learning ",
+    "Speaking",
+    "Writing",
+    "Listening",
+    "Reading",
+    "Cue Cards",
+    "Vocabulary",
   ];
 
   @override
@@ -84,172 +84,55 @@ var verifyToken="";
     }
 
     isLoading(true);
-
-    try {
-      Map<String, String> header = {
-        "token":SignUpController.instance.accountToken
-      };
-      Map<String, dynamic> body = {
-        "otp": otp,
-      };
-
-      final response = await ApiService.postApi(AppUrl.verifyEmail,
-        header: header,
-        body,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        verifyToken=response.body['data']['accessToken'];
-        Get.snackbar('Success', response.message,
-            snackPosition: SnackPosition.TOP);
-        Get.to(() => CompleteProfile());
-      } else {
-        Get.snackbar('Error', response.message,
-            backgroundColor: AppColor.primary,
-            snackPosition: SnackPosition.TOP);
-      }
-    } catch (e, s) {
-      debugPrint("Verify OTP Error: $e");
-      debugPrint("Stack trace: $s");
-      Get.snackbar('Error', 'Something went wrong',snackPosition: SnackPosition.TOP);
-    }finally {
-      isLoading(false);
-    }
+    await Future.delayed(const Duration(milliseconds: 300));
+    Get.snackbar('Success', 'Email verified successfully', snackPosition: SnackPosition.TOP);
+    Get.to(() => CompleteProfile());
+    isLoading(false);
   }
 
   Future<void> resendOtp() async {
     if (isResending.value || resendTimer.value > 0) {
       return;
     }
-
-
     isResending(true);
-
-    try {
-      Map<String, String> header = {
-        'token':SignUpController.instance.accountToken
-      };
-      Map<String, dynamic> body = {
-        "email": SignUpController.instance.emailController.text.trim(),
-      };
-
-      final response = await ApiService.patchApi(AppUrl.resentOtp,
-        header: header,
-        body:body,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        Get.snackbar('Success', 'OTP resent successfully',
-            snackPosition: SnackPosition.TOP);
-        startResendCountdown();
-      } else {
-        Get.snackbar('Error', response.message,
-            snackPosition: SnackPosition.TOP);
-      }
-    } catch (e, s) {
-      debugPrint("Resend OTP Error: $e");
-      debugPrint("Stack trace: $s");
-      Get.snackbar('Error', 'Something went wrong',
-          snackPosition: SnackPosition.TOP);
-    } finally {
-      isResending(false);
-    }
+    await Future.delayed(const Duration(milliseconds: 300));
+    Get.snackbar('Success', 'OTP resent successfully', snackPosition: SnackPosition.TOP);
+    startResendCountdown();
+    isResending(false);
   }
 
-
-RxBool isComplete=false.obs;
+  RxBool isComplete = false.obs;
   Future<void> completeProfile() async {
-     isComplete(true);
-    try {
-    
+    isComplete(true);
+    await Future.delayed(const Duration(milliseconds: 300));
 
-      debugPrint("COMPLETE PROFILE API");
+    final fullName = SignUpController.instance.nameController.text.trim().isNotEmpty
+        ? SignUpController.instance.nameController.text.trim()
+        : PrefsHelper.myName.isNotEmpty
+            ? PrefsHelper.myName
+            : "IELTS Candidate";
 
-      var body = {
-        "data": jsonEncode({
-          "about": bioController.text.trim(),
-          "voiceSpecialties": selectedValues
-              .map((e) => e.toString().trim())
-              .toList(),
-        })
-      };
+    final email = SignUpController.instance.emailController.text.trim().isNotEmpty
+        ? SignUpController.instance.emailController.text.trim()
+        : PrefsHelper.myEmail.isNotEmpty
+            ? PrefsHelper.myEmail
+            : "candidate@ielts.com";
 
-      final header = {
-        "token": verifyToken,
-        'Content-Type': 'application/json',
-      };
+    PrefsHelper.token = "local_token_${DateTime.now().millisecondsSinceEpoch}";
+    PrefsHelper.myEmail = email;
+    PrefsHelper.myName = fullName;
+    PrefsHelper.userId = "user_${DateTime.now().millisecondsSinceEpoch}";
+    PrefsHelper.isLogIn = true;
 
-      debugPrint("BODY: $body");
-      debugPrint("IMAGE: ${selectedImage.value}");
+    await PrefsHelper.setString("token", PrefsHelper.token);
+    await PrefsHelper.setString("myEmail", email);
+    await PrefsHelper.setString("myName", fullName);
+    await PrefsHelper.setString("userId", PrefsHelper.userId);
+    await PrefsHelper.setBool("isLogIn", true);
 
-      final response = await ApiService.multipartRequest(
-        url: AppUrl.completeProfile,
-        body: body,
-        header: header,
-        method: "POST",
-        imageName: "image",
-        imagePaths: selectedImage.value,
-      );
-
-      debugPrint("STATUS: ${response.statusCode}");
-      debugPrint("RESPONSE: ${response.body}");
-      debugPrint("bodyImage: $selectedImage");
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = response.body['data'];
-        final email = data['email'] ?? '';
-        final apiFullName = (data['fullName'] as String?)?.trim() ?? '';
-        final fullName = apiFullName.isNotEmpty
-            ? apiFullName
-            : PrefsHelper.myName.isNotEmpty
-                ? PrefsHelper.myName
-                : SignUpController.instance.nameController.text.trim();
-
-        final userId = data['_id'] ?? '';
-
-        PrefsHelper.token = verifyToken;
-        PrefsHelper.myEmail = email;
-        PrefsHelper.myName = fullName;
-        PrefsHelper.userId = userId;
-        PrefsHelper.isLogIn = true;
-
-        await PrefsHelper.setString("token", verifyToken);
-        await PrefsHelper.setString("myEmail", email);
-        await PrefsHelper.setString("myName", fullName);
-        await PrefsHelper.setString("userId", userId);
-        await PrefsHelper.setBool("isLogIn", true);
-
-        CommonSnackBar.show(
-          title: "Success",
-          message: "Profile completed successfully",
-          isSuccess: true,
-        );
-        // Subscription page hidden from flow — go straight to home after profile completion.
-        // Get.to(()=>Subscription());
-        Get.offAll(() => NavBarScreen());
-      } else {
-        debugPrint("API ERROR: ${response.message}");
-        CommonSnackBar.show(
-          title: "Error",
-          message: response.message,
-          isSuccess: false,
-        );
-      }
-    } catch (e, s) {
-      debugPrint("ERROR: $e");
-      debugPrint("STACK: $s");
-
-      CommonSnackBar.show(
-        title: "Error",
-        message: "Something went wrong",
-        isSuccess: false,
-      );
-    } finally {
-       isComplete(false);
-    }
+    Get.offAll(() => NavBarScreen());
+    isComplete(false);
   }
-
-
 
   RxInt resendTimer = 120.obs;
   Timer? _timer;

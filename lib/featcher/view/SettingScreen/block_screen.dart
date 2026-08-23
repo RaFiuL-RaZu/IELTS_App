@@ -61,16 +61,10 @@ class _BlockScreenState extends State<BlockScreen> {
                         color: Colors.white,
                         boxShadow: [
                           BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.0),
-                            offset: Offset(0, 20),
-                            blurRadius: 25,
-                            spreadRadius: -5,
-                          ),
-                          BoxShadow(
-                            color: Color(0xFF6C4DFF).withOpacity(0.0),
-                            offset: Offset(0, 8),
+                            color: const Color(0xFF00897B).withOpacity(0.06),
+                            offset: const Offset(0, 4),
                             blurRadius: 10,
-                            spreadRadius: -6,
+                            spreadRadius: -2,
                           ),
                         ],
                       ),
@@ -79,7 +73,7 @@ class _BlockScreenState extends State<BlockScreen> {
                           child: (list.targetUserId!.profileImage?.isNotEmpty ?? false)
                               ? CommonImage(
                             imageSrc:
-                            AppUrl.imageUrl + list.targetUserId!.profileImage!,
+                            AppUrl.getFullUrl(list.targetUserId!.profileImage),
                             imageType: ImageType.network,
                             height: 50,
                             width: 50,

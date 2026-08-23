@@ -37,7 +37,7 @@ class CommonButton extends StatelessWidget {
     this.isLoading = false,
     this.buttonWidth = double.infinity,
     this.borderColor,
-    this.backgroundColor = Colors.white,
+    this.backgroundColor = const Color(0xFF00897B),
     this.prefixIcon,
     this.widget,
     this.useGradient = true,
@@ -57,8 +57,8 @@ class CommonButton extends StatelessWidget {
                     ? (gradient ??
                     const LinearGradient(
                       colors: [
-                        Color(0xFF180E27),
-                        Color(0xFF56397C),
+                        Color(0xFF00897B),
+                        Color(0xFF00695C),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,

@@ -21,39 +21,13 @@ class PasswordController extends GetxController{
 
   Future<void> resetPassword() async {
     isLoading(true);
-
-    try {
-      Map<String, String> header = {
-        "token": PrefsHelper.token,
-      };
-
-      Map<String, dynamic> body = {
-        "oldPassword": oldPasswordController.text.trim(),
-        "newPassword": newPasswordController.text.trim(),
-      };
-
-      final response = await ApiService.patchApi(
-        AppUrl.changePassword,
-        header: header,
-        body: body,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data=response.body['data']['accessToken'];
-        PrefsHelper.token=data;
-       debugPrint("ChangeToken: ${PrefsHelper.token}");
-        Get.back();
-        CommonSnackBar.show(
-          title: "Success",
-          message: "Password update successfully",
-          isSuccess: true,
-        );
-      }
-    } catch (e, s) {
-      debugPrint("Error $e");
-      debugPrint("Error $s");
-    } finally {
-      isLoading(false);
-    }
+    await Future.delayed(const Duration(milliseconds: 300));
+    Get.back();
+    CommonSnackBar.show(
+      title: "Success",
+      message: "Password updated successfully",
+      isSuccess: true,
+    );
+    isLoading(false);
   }
 }

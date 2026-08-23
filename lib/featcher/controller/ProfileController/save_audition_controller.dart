@@ -92,29 +92,22 @@ class SaveAuditionController extends GetxController {
   }
   RxBool isLoading=false.obs;
 
-  WeeklyModel weeklyModel=WeeklyModel();
+  WeeklyModel weeklyModel = WeeklyModel(
+    id: "weekly_ielts_1",
+    title: "Describe an environmental initiative in your community",
+    content: "You should say:\n- What the initiative was\n- Who organized it\n- What actions were taken\n- And explain why this initiative was important for your local community.",
+    category: "Environment & Nature",
+    difficulty: "Band 7.5 - 8.5",
+    duration: "02:00",
+    isWeeklyScript: true,
+    isPracticed: false,
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
+    weeklyScriptExpiryDate: DateTime.now().add(const Duration(days: 7)),
+  );
 
-  Future<void> getCommunity()async{
-
-    isLoading(true);
-
-    try{
-
-      Map<String,String> header={
-        'token':PrefsHelper.token
-      };
-
-      final response=await ApiService.getApi(AppUrl.weeklyScript,header: header);
-      if(response.statusCode==200 || response.statusCode==201){
-        final data=response.body['data'];
-        weeklyModel=WeeklyModel.fromJson(data);
-      }
-    }catch(e,s){
-      debugPrint("Error Handling : $e");
-      debugPrint("SnackTrack Error : $s");
-    }finally{
-      isLoading(false);
-    }
+  Future<void> getCommunity() async {
+    isLoading(false);
   }
 
 

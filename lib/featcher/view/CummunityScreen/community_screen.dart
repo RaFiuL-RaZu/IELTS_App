@@ -1,22 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get/get.dart';
-import 'package:justtsham/core/constant/other_helper.dart';
-import 'package:justtsham/featcher/controller/CommunityController/community_controller.dart';
-import 'package:justtsham/featcher/controller/HomeController/home_controller.dart';
-import 'package:justtsham/featcher/model/CommunityModel/weekly_model.dart';
-
-import '../../../core/constant/prefs_helper.dart';
-import '../../../core/utils/app_colors.dart';
-import '../../../core/utils/app_icons.dart';
-import '../../../core/utils/app_image.dart';
-import '../../../core/utils/app_urls.dart';
-import '../../../core/widgets/commom_image.dart';
-import '../../../core/widgets/common_text.dart';
-import '../../controller/CommunityController/box_controller.dart';
-import '../../model/HomeModel/audition_model.dart';
-import '../HomeScreen/waveForme.dart';
-import 'commercial_screen.dart';
+import 'package:justtsham/featcher/view/SettingScreen/ielts_band_descriptors_screen.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -26,462 +12,453 @@ class CommunityScreen extends StatefulWidget {
 }
 
 class _CommunityScreenState extends State<CommunityScreen> {
-  final controller = Get.put(CommunityController());
-  final BoxController boxController=Get.put(BoxController());
+  int _activeCategoryIndex = 0; // 0: Speaking Models, 1: Writing Models, 2: Exam Strategies
+  int _playingAudioIndex = -1;
+  final FlutterTts _flutterTts = FlutterTts();
+
+  final List<Map<String, dynamic>> _speakingModels = [
+    {
+      "topic": "Part 2: Artificial Intelligence in Higher Ed",
+      "candidate": "Candidate: Sarah (Band 8.5)",
+      "duration": "2:15 min",
+      "snippet": "I would like to elaborate on how machine learning algorithms have fundamentally transformed tertiary education. In recent years, generative AI has created a seismic paradigm shift by enabling adaptive pedagogy and algorithmic tutoring tailor-made for individual students.",
+      "keyVocab": ["Seismic paradigm shift", "Adaptive pedagogy", "Algorithmic tutoring"],
+    },
+    {
+      "topic": "Part 2: A Memorable International Journey",
+      "candidate": "Candidate: David (Band 9.0)",
+      "duration": "2:20 min",
+      "snippet": "Having traveled across Southeast Asia last summer, one destination that left an indelible impression was the ancient city of Kyoto. What struck me most was the harmonious juxtaposition of cutting-edge technological infrastructure and preserved cultural antiquity.",
+      "keyVocab": ["Indelible impression", "Harmonious juxtaposition", "Cultural antiquity"],
+    },
+    {
+      "topic": "Part 1: Hometown & Urban Infrastructure",
+      "candidate": "Candidate: Liam (Band 8.5)",
+      "duration": "1:45 min",
+      "snippet": "I hail from Manchester, a historic industrial hub that has undergone substantial architectural regeneration over the past decade. Public transport is exceptionally streamlined and convenient for commuters.",
+      "keyVocab": ["Substantial regeneration", "Historic industrial hub", "Streamlined"],
+    },
+  ];
+
+  final List<Map<String, dynamic>> _writingModels = [
+    {
+      "title": "Task 2: AI Replacing Teachers (Opinion)",
+      "band": "Band 9.0",
+      "prompt": "Some people believe that artificial intelligence will replace human teachers in the future. To what extent do you agree or disagree?",
+      "thesis": "While artificial intelligence can deliver personalized tutoring, the empathetic and moral guidance of human educators remains wholly irreplaceable.",
+      "scoreBreakdown": "TR: 9.0 | CC: 9.0 | LR: 9.0 | GRA: 9.0",
+    },
+    {
+      "title": "Task 1: Renewable Energy Production (Bar Chart)",
+      "band": "Band 8.5",
+      "prompt": "The bar chart illustrates renewable energy generation across four European countries from 2000 to 2020.",
+      "thesis": "Overall, while fossil fuel consumption exhibited a pronounced downward trajectory, renewable capacity witnessed an unprecedented exponential surge.",
+      "scoreBreakdown": "TA: 8.5 | CC: 8.5 | LR: 8.5 | GRA: 8.5",
+    },
+  ];
+
+  final List<Map<String, dynamic>> _examStrategies = [
+    {
+      "icon": "🎧",
+      "title": "Listening: The 30-Second Pre-Reading Secret",
+      "desc": "Always underline keywords (names, dates, nouns) in the 30 seconds given before each audio track starts.",
+    },
+    {
+      "icon": "📖",
+      "title": "Reading: Skimming vs Scanning Technique",
+      "desc": "Spend 2 minutes skimming for main paragraph themes before scanning for specific keywords in True/False/Not Given questions.",
+    },
+    {
+      "icon": "✍️",
+      "title": "Writing: The 5-Minute Brainstorming Rule",
+      "desc": "Never start writing immediately. Dedicate 5 minutes to generate 2 strong main ideas, 2 examples, and outline cohesive paragraph transitions.",
+    },
+    {
+      "icon": "🗣️",
+      "title": "Speaking: Fluency over Perfection",
+      "desc": "Never pause silently. Use academic fillers like 'That is an intriguing question...' or 'From a broader perspective...' to buy thinking time.",
+    },
+  ];
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.getCommunity();
-    });
-    boxController.getBoxData();
     super.initState();
+    _initTts();
+  }
+
+  Future<void> _initTts() async {
+    try {
+      await _flutterTts.setLanguage("en-GB");
+      await _flutterTts.setSpeechRate(0.48);
+      await _flutterTts.setPitch(1.0);
+      await _flutterTts.setVolume(1.0);
+
+      _flutterTts.setCompletionHandler(() {
+        if (mounted) setState(() => _playingAudioIndex = -1);
+      });
+    } catch (e) {
+      debugPrint("Community TTS init error: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      _flutterTts.stop();
+    } catch (_) {}
+    super.dispose();
+  }
+
+  Future<void> _playModelAudio(int idx) async {
+    if (_playingAudioIndex == idx) {
+      try {
+        await _flutterTts.stop();
+      } catch (_) {}
+      setState(() => _playingAudioIndex = -1);
+      Get.snackbar("Audio Paused", "Paused model audio playback", snackPosition: SnackPosition.TOP, duration: const Duration(seconds: 1));
+    } else {
+      try {
+        await _flutterTts.stop();
+      } catch (_) {}
+      setState(() => _playingAudioIndex = idx);
+      final model = _speakingModels[idx];
+      Get.snackbar("Playing Model Audio 🔊", "Listening to ${model["candidate"]}", snackPosition: SnackPosition.TOP, duration: const Duration(seconds: 2));
+
+      try {
+        await _flutterTts.speak("${model["candidate"]}. Response to topic: ${model["topic"]}. ${model["snippet"]}");
+      } catch (e) {
+        debugPrint("Model TTS error: $e");
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.background,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 60.h),
-              CommonText(
-                title: "IELTS Community",
-                fSize: 22,
-                fWeight: FontWeight.w800,
-                color: AppColor.primary,
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        toolbarHeight: 65.h,
+        title: const Text(
+          "IELTS Model Library & Resources",
+          style: TextStyle(
+            color: Color(0xFF0F172A),
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          // Category Selector
+          Container(
+            color: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildCategoryChip("Band 8.5+ Speaking Audios", 0),
+                  SizedBox(width: 10.w),
+                  _buildCategoryChip("Band 9.0 Writing Models", 1),
+                  SizedBox(width: 10.w),
+                  _buildCategoryChip("Exam Strategies & Tips", 2),
+                ],
               ),
-              SizedBox(height: 12.h),
-              Obx(() {
-               if (controller.isLoading.value) {
-                 return Center(
-                   child: CircularProgressIndicator(color: AppColor.primary),
-                 );
-               }
+            ),
+          ),
 
-               final data = controller.weeklyModel;
-               if (data == null) {
-                 return const SizedBox();
-               }
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+              child: _buildCategoryContent(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-               return Container(
-                 width: double.infinity,
-                 decoration: BoxDecoration(
-                   borderRadius: BorderRadius.circular(20),
-                   gradient: LinearGradient(
-                     colors: [Color(0xFF180E27), Color(0xFF56397C)],
-                     begin: Alignment.centerLeft,
-                     end: Alignment.centerRight,
-                   ),
-                   boxShadow: [
-                     BoxShadow(
-                       color: Color(0xFF6C4DFF).withOpacity(0.20),
-                       offset: Offset(0, 20),
-                       blurRadius: 25,
-                       spreadRadius: -5,
-                     ),
-                     BoxShadow(
-                       color: Color(0xFF6C4DFF).withOpacity(0.20),
-                       offset: Offset(0, 8),
-                       blurRadius: 10,
-                       spreadRadius: -6,
-                     ),
-                   ],
-                 ),
-                 child: Padding(
-                   padding: const EdgeInsets.symmetric(
-                     horizontal: 16,
-                     vertical: 16,
-                   ),
-                   child: Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     children: [
-                       Row(
-                         spacing: 5,
-                         children: [
-                           Image.asset(
-                             AppIcons.trophy,
-                             height: 15.h,
-                             width: 15.h,
-                           ),
-                           CommonText(
-                             title: "Weekly Challenge",
-                             fSize: 12,
-                             fWeight: FontWeight.w700,
-                             color: Colors.white,
-                           ),
-                         ],
-                       ),
-                       SizedBox(height: 9.h),
-                       CommonText(
-                         title: data.title ?? "",
-                         maxLine: 2,
-                         fSize: 22,
-                         overflow: TextOverflow.ellipsis,
-                         fWeight: FontWeight.w700,
-                         color: Colors.white,
-                       ),
-                       SizedBox(height: 10.h),
-                       CommonText(
-                         title:
-                         data.content ?? "",
-                         fSize: 16,
-                         maxLine: 3,
-                         overflow: TextOverflow.ellipsis,
-                         fWeight: FontWeight.w400,
-                         color: Colors.white,
-                       ),
-                       SizedBox(height: 10.h),
-                       CommonText(
-                         title: "${OtherHelper.formatDate(data.weeklyScriptExpiryDate.toString())} remaining",
-                         fSize: 12,
-                         fWeight: FontWeight.w400,
-                         color: Colors.white,
-                       ),
-                       SizedBox(height: 10.h),
-                       GestureDetector(
-                         onTap: () {
-                           if(data.isPracticed==false){
-                             Get.to(() => CommercialScreen(title:data.content.toString(), id: data.id.toString(), page: 'community',));
-                           }
-                         },
-                         child: Container(
-                           height: 48.h,
-                           width: double.infinity,
-                           decoration: BoxDecoration(
-                             borderRadius: BorderRadius.circular(16),
-                             color: Color(0xFF7741C1),
-                           ),
-                           child: Center(
-                             child: Row(
-                               mainAxisAlignment: MainAxisAlignment.center,
-                               spacing: 5,
-                               children: [
-                                 CommonText(
-                                   title: data.isPracticed==true ? "Completed" : "Submit Your Take",
-                                   fSize: 20.sp,
-                                   fWeight: FontWeight.w500,
-                                   color: Colors.white,
-                                 ),
-                               ],
-                             ),
-                           ),
-                         ),
-                       ),
-                     ],
-                   ),
-                 ),
-               );
-               ;
-             }),
-              SizedBox(height: 20.h),
-              Obx((){
-                if (boxController.isLoading.value) {
-                  return Center(
-                    child: CircularProgressIndicator(color: AppColor.primary),
-                  );
-                }
-
-                if (boxController.communityList.isEmpty) {
-                  return Center(child: CommonText(title: "No Audition Found"));
-                }return ListView.builder(
-                    itemCount: boxController.communityList.length,
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context,index){
-                      CommunityModel list = boxController.communityList[index];
-                      return  Container(
-                        margin: EdgeInsets.only(bottom: 16),
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color(0xFF6C4DFF).withOpacity(0.20),
-                              offset: Offset(0, 20),
-                              blurRadius: 25,
-                              spreadRadius: -5,
-                            ),
-                            BoxShadow(
-                              color: Color(0xFF6C4DFF).withOpacity(0.20),
-                              offset: Offset(0, 8),
-                              blurRadius: 10,
-                              spreadRadius: -6,
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                leading: ClipOval(
-                                  child: (list.user?.profileImage?.isNotEmpty ?? false)
-                                      ? CommonImage(
-                                    imageSrc: AppUrl.imageUrl + list.user!.profileImage!,
-                                    imageType: ImageType.network,
-                                    height: 50.h,
-                                    width: 50.h,
-                                    fill: BoxFit.cover,
-                                  )
-                                      : Container(
-                                    height: 50.h,
-                                    width: 50.h,
-                                    color: Colors.grey.shade300,
-                                    child: const Icon(
-                                      Icons.person,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                title: CommonText(
-                                  title: list.user?.fullName ?? "",
-                                  fSize: 14,
-                                  fWeight: FontWeight.w700,
-                                  color: AppColor.primary,
-                                ),
-                                subtitle: CommonText(
-                                  title: OtherHelper.timeAgo(list.createdAt.toString()),
-                                  fSize: 12,
-                                  fWeight: FontWeight.w500,
-                                  color: AppColor.primary,
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Container(
-                                      height: 24.h,
-                                      padding: const EdgeInsets.symmetric(horizontal:10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        color: const Color(0xFFE5E2FD),
-                                      ),
-                                      child: Center(
-                                        child: CommonText(
-                                          title: list.category.toString(),
-                                          fSize: 12,
-                                          fWeight: FontWeight.w500,
-                                          color: AppColor.primary,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 1),
-                                    PopupMenuButton<String>(
-                                      color: Colors.white,
-                                      surfaceTintColor: Colors.white,
-                                      icon: const Icon(Icons.more_vert),
-                                      onSelected: (value) async {
-                                        final success = await boxController.notInterestedCommunity(
-                                          id: list.id.toString(),
-                                          action: value,
-                                        );
-
-                                        if (success) {
-                                          debugPrint("$value Success");
-                                        }
-                                      },
-                                      itemBuilder: (context) => [
-                                        PopupMenuItem<String>(
-                                          value: PrefsHelper.userId == list.user!.id.toString()
-                                              ? "delete"
-                                              : "notInterested",
-                                          child: SizedBox(
-                                            width: 150,
-                                            child: Text(
-                                              PrefsHelper.userId == list.user!.id.toString()
-                                                  ? "Delete"
-                                                  : "Report",
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: 10.h),
-                              Obx(() {
-                                final isExpanded = controller.expandedIndex.value == index;
-
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    CommonText(
-                                      title: list.content.toString(),
-                                      fSize: 14,
-                                      maxLine: isExpanded ? null : 3,
-                                      overflow:
-                                      isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                                      fWeight: FontWeight.w600,
-                                      color: AppColor.primary,
-                                    ),
-
-                                    SizedBox(height: 4),
-
-                                    GestureDetector(
-                                      onTap: () => controller.toggleExpand(index),
-                                      child: Text(
-                                        isExpanded ? "See less" : "See more",
-                                        style: TextStyle(
-                                          color: AppColor.primary,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }),
-                              SizedBox(height: 10.h),
-                              Container(
-                                  height: 66.h,
-                                  width: double.infinity,
-                                  padding: EdgeInsets.symmetric(horizontal: 12.w),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: const Color(0xFFF3F4F6),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child:Row(
-                                    children: [
-                                      Obx(() {
-                                        final url = AppUrl.imageUrl + (list.audioFile ?? "");
-                                        final isPlaying =
-                                            boxController.currentUrl.value == url &&
-                                                boxController.isPlaying.value;
-
-                                        return GestureDetector(
-                                          onTap: () => boxController.togglePlay(url),
-                                          child: Container(
-                                            height: 39.h,
-                                            width: 39.h,
-                                            decoration: const BoxDecoration(
-                                              color: Color(0xff3C2A5D),
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Icon(
-                                              isPlaying ? Icons.pause : Icons.play_arrow,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        );
-                                      }),
-
-                                      SizedBox(width: 10.w),
-
-                                      Expanded(
-                                        child: Obx(() {
-                                          final url = AppUrl.imageUrl + (list.audioFile ?? "");
-
-                                          final showProgress = boxController.currentUrl.value == url;
-
-                                          return WaveformProgress(
-                                            progress: showProgress
-                                                ? boxController.progress.value
-                                                : 0.0,
-                                          );
-                                        }),
-                                      ),
-
-                                      SizedBox(width: 10.w),
-
-                                      Obx(() {
-                                        final url = AppUrl.imageUrl + (list.audioFile ?? "");
-
-                                        final isCurrentPlaying = boxController.currentUrl.value == url;
-
-                                        if (!isCurrentPlaying) return const SizedBox.shrink();
-
-                                        return Text(
-                                          boxController.formatTime(boxController.position.value),
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColor.secondary,
-                                          ),
-                                        );
-                                      }),
-                                    ],
-                                  )
-                              ),
-                              SizedBox(height: 14.h),
-                            ],
-                          ),
-                        ),
-                      );
-                    });
-              }),
-            ],
+  Widget _buildCategoryChip(String title, int index) {
+    final isSelected = _activeCategoryIndex == index;
+    return GestureDetector(
+      onTap: () {
+        _flutterTts.stop();
+        setState(() {
+          _activeCategoryIndex = index;
+          _playingAudioIndex = -1;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF00695C) : const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            color: isSelected ? Colors.white : const Color(0xFF475569),
           ),
         ),
       ),
     );
   }
-}
 
-class CleanWavePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFD6CFF5)
-      ..strokeWidth = 2.5
-      ..strokeCap = StrokeCap.round;
+  Widget _buildCategoryContent() {
+    if (_activeCategoryIndex == 0) {
+      return Column(
+        children: _speakingModels.asMap().entries.map((entry) {
+          final idx = entry.key;
+          final model = entry.value;
+          final isPlaying = _playingAudioIndex == idx;
 
-    final centerY = size.height / 2;
-
-    final List<double> pattern = [
-      4,
-      6,
-      8,
-      12,
-      16,
-      12,
-      8,
-      6,
-      4,
-      6,
-      10,
-      14,
-      18,
-      14,
-      10,
-      6,
-    ];
-
-    double x = 0;
-
-    for (int i = 0; x < size.width; i++) {
-      final height = pattern[i % pattern.length];
-
-      canvas.drawLine(
-        Offset(x, centerY - height / 2),
-        Offset(x, centerY + height / 2),
-        paint,
+          return Container(
+            margin: EdgeInsets.only(bottom: 18.h),
+            padding: EdgeInsets.all(18.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE0F2F1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        model["candidate"],
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF004D40)),
+                      ),
+                    ),
+                    Text(
+                      model["duration"],
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12.h),
+                Text(
+                  model["topic"],
+                  style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                ),
+                SizedBox(height: 10.h),
+                Container(
+                  padding: EdgeInsets.all(14.w),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Text(
+                    "\"${model["snippet"]}\"",
+                    style: const TextStyle(fontSize: 12.5, fontStyle: FontStyle.italic, color: Color(0xFF334155), height: 1.45),
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: (model["keyVocab"] as List<String>).map((v) {
+                    return Chip(
+                      label: Text(v, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF00695C))),
+                      backgroundColor: const Color(0xFFE0F2F1),
+                      padding: EdgeInsets.zero,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 14.h),
+                GestureDetector(
+                  onTap: () => _playModelAudio(idx),
+                  child: Container(
+                    height: 44.h,
+                    decoration: BoxDecoration(
+                      color: isPlaying ? const Color(0xFF004D40) : const Color(0xFF00695C),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(isPlaying ? Icons.pause_rounded : Icons.volume_up_rounded, color: Colors.white, size: 20),
+                        const SizedBox(width: 6),
+                        Text(
+                          isPlaying ? "Pause Model Audio" : "Play Audible Pronunciation & Answer",
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
       );
+    } else if (_activeCategoryIndex == 1) {
+      return Column(
+        children: _writingModels.map((wm) {
+          return Container(
+            margin: EdgeInsets.only(bottom: 18.h),
+            padding: EdgeInsets.all(18.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        wm["title"],
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE0F2F1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        wm["band"],
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF00695C)),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10.h),
+                Text(
+                  "Prompt: ${wm["prompt"]}",
+                  style: const TextStyle(fontSize: 12.5, color: Color(0xFF64748B), height: 1.35),
+                ),
+                SizedBox(height: 12.h),
+                Container(
+                  padding: EdgeInsets.all(14.w),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Band 9 Model Thesis & Argument:", style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF00695C))),
+                      SizedBox(height: 6.h),
+                      Text("\"${wm["thesis"]}\"", style: const TextStyle(fontSize: 12.5, fontStyle: FontStyle.italic, color: Color(0xFF334155), height: 1.4)),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10.h),
+                Text(
+                  "Official Rubric: ${wm["scoreBreakdown"]}",
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      );
+    } else {
+      return Column(
+        children: [
+          // Official Descriptors Card
+          GestureDetector(
+            onTap: () => Get.to(() => const IeltsBandDescriptorsScreen()),
+            child: Container(
+              margin: EdgeInsets.only(bottom: 16.h),
+              padding: EdgeInsets.all(18.w),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF004D40), Color(0xFF00695C)],
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Text("📋", style: TextStyle(fontSize: 26)),
+                  SizedBox(width: 14.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          "Official IELTS Band Descriptors",
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                        ),
+                        SizedBox(height: 3),
+                        Text(
+                          "View Fluency, Lexical, Grammar, & Pronunciation rubrics",
+                          style: TextStyle(fontSize: 11.5, color: Color(0xFF80CBC4)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 16),
+                ],
+              ),
+            ),
+          ),
 
-      x += 4;
+          ..._examStrategies.map((st) {
+            return Container(
+              margin: EdgeInsets.only(bottom: 14.h),
+              padding: EdgeInsets.all(16.w),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(st["icon"], style: const TextStyle(fontSize: 24)),
+                  SizedBox(width: 14.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          st["title"],
+                          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          st["desc"],
+                          style: const TextStyle(fontSize: 12, color: Color(0xFF475569), height: 1.4),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      );
     }
   }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

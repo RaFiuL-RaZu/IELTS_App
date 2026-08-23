@@ -17,32 +17,15 @@ class HelpController extends GetxController{
   Rx<HelpModel> helpModel = HelpModel().obs;
 
 
-  Future<void> getHelp()async{
-
-    isLoading(true);
-
-    try{
-
-      Map<String,String> header={
-        'token':PrefsHelper.token
-      };
-
-      final response=await ApiService.getApi(AppUrl.getHelp,header: header);
-
-      if(response.statusCode==200 || response.statusCode==201){
-        final data=response.body['data'];
-        helpModel.value=HelpModel.fromJson(data);
-
-      }
-
-    }catch(e,s){
-      debugPrint("Error Handling :$e");
-      debugPrint("SnackTrack Error :$e");
-    }finally{
-      isLoading(false);
-    }
-
-
+  Future<void> getHelp() async {
+    isLoading(false);
+    helpModel.value = HelpModel(
+      id: "help_1",
+      email: "support@ieltsmaster.com",
+      phone: "+44 20 7946 0991",
+      location: "Cambridge Assessment Center, London, UK",
+      createdAt: DateTime.now().toIso8601String(),
+      updatedAt: DateTime.now().toIso8601String(),
+    );
   }
-
 }

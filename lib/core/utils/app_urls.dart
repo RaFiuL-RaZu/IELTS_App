@@ -2,9 +2,23 @@
 
 class AppUrl{
    //Live url//
-  static const String baseUrl = "http://51.21.32.203:8899/api/v1";
-  static const String imageUrl = "http://51.21.32.203:8899/";
+  static const String baseUrl = "http://51.21.66.176:8899/api/v1";
+  static const String imageUrl = "http://51.21.66.176:8899/";
   static const String socketUrl = "http://51.21.32.203:9988/api/v1";
+
+  static String getFullUrl(String? path) {
+    if (path == null || path.isEmpty || path.trim() == "null") return "";
+    String trimmed = path.trim();
+    if (trimmed.startsWith("http://51.21.66.176:8899/http://") ||
+        trimmed.startsWith("http://51.21.66.176:8899/https://")) {
+      trimmed = trimmed.replaceFirst("http://51.21.66.176:8899/", "");
+    }
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      return trimmed;
+    }
+    final cleanPath = trimmed.startsWith("/") ? trimmed.substring(1) : trimmed;
+    return "$imageUrl$cleanPath";
+  }
 
 
    //Local url//

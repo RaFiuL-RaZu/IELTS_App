@@ -13,48 +13,22 @@ class NavBarController extends GetxController {
   var selectedIndex = 0.obs;
 
   void changeTab(int index) {
-    if (index != 0 && PrefsHelper.token.isEmpty) {
-      _showLoginDialog();
-      return;
-    }
     selectedIndex.value = index;
   }
 
-  void _showLoginDialog() {
-    Get.dialog(
-      AlertDialog(
-        title: const Text("Login Required"),
-        content: const Text("Please login first to access this feature."),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              Get.to(() => LoginScreen());
-            },
-            child: const Text("Login"),
-          ),
-        ],
-      ),
-    );
-  }
-
   final List<Widget> pages = [
-    HomeScreen(),
-    ScriptScreen(),
-    AuditionScreen(),
-    CommunityScreen(),
-    SettingScreen(),
+    const HomeScreen(),
+    const ScriptScreen(),
+    const AuditionScreen(),
+    const CommunityScreen(),
+    const SettingScreen(),
   ];
 
   final List<String> label = [
-    "Home",
-    "Practice",
-    "Mock Tests",
-    "Community",
-    "Settings",
+    "Dashboard",
+    "4 Skills",
+    "Mock Exam",
+    "Resources",
+    "Analytics",
   ];
 }
