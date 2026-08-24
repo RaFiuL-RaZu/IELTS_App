@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:justtsham/core/constant/prefs_helper.dart';
 import 'package:justtsham/core/services/ielts_local_storage_service.dart';
 import 'package:justtsham/featcher/view/HomeScreen/ielts_band_calculator_modal.dart';
 import 'package:justtsham/featcher/view/SettingScreen/ielts_band_descriptors_screen.dart';
 import 'package:justtsham/featcher/view/SettingScreen/privacy_screen.dart';
 import 'package:justtsham/featcher/view/SettingScreen/terms_conditions.dart';
+import 'package:justtsham/featcher/view/authentication/candidate_setup_screen.dart';
+import 'package:justtsham/routes/routes.dart';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});
@@ -31,7 +34,8 @@ class SettingScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 18.h, bottom: 100.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -243,6 +247,12 @@ class SettingScreen extends StatelessWidget {
                   ),
                   const Divider(height: 1),
                   _buildMenuTile(
+                    icon: Icons.track_changes_rounded,
+                    title: "Update Target Band & Profile",
+                    onTap: () => Get.to(() => const CandidateSetupScreen()),
+                  ),
+                  const Divider(height: 1),
+                  _buildMenuTile(
                     icon: Icons.privacy_tip_outlined,
                     title: "Privacy Policy",
                     onTap: () => Get.to(() => const PrivacyScreen()),
@@ -254,6 +264,38 @@ class SettingScreen extends StatelessWidget {
                     onTap: () => Get.to(() => const TermsOfUseScreen()),
                   ),
                 ],
+              ),
+            ),
+
+            SizedBox(height: 16.h),
+
+            // Reset Profile Button Tile
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: const Color(0xFFFEE2E2)),
+              ),
+              child: ListTile(
+                onTap: () => _showResetConfirmation(context),
+                leading: Container(
+                  padding: const EdgeInsets.all(9),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF2F2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.restart_alt_rounded, color: Color(0xFFDC2626), size: 20),
+                ),
+                title: const Text(
+                  "Reset Profile & Goals",
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFDC2626),
+                  ),
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFFCA5A5), size: 14),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
               ),
             ),
 
@@ -397,6 +439,49 @@ class SettingScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showResetConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.restart_alt_rounded, color: Color(0xFFDC2626), size: 24),
+            SizedBox(width: 10),
+            Text(
+              "Reset Profile & Goals",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+            ),
+          ],
+        ),
+        content: const Text(
+          "Do you want to reset your candidate profile and change your target band score?",
+          style: TextStyle(fontSize: 13.5, color: Color(0xFF475569)),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel", style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await PrefsHelper.setBool("hasSetupCandidate", false);
+              Get.offAll(() => const CandidateSetupScreen());
+            },
+            child: const Text("Reset & Reconfigure", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ],
       ),
     );
   }

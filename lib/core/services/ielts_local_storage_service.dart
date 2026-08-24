@@ -54,6 +54,7 @@ class IeltsProgressController extends GetxController {
   var candidateName = "IELTS Aspirant".obs;
   var targetBand = 8.0.obs;
   var examDaysRemaining = 28.obs;
+  var examModule = "Academic".obs; // Academic vs General Training
   var overallBand = 7.5.obs;
   var overallAccuracy = 84.5.obs;
 
@@ -97,6 +98,17 @@ class IeltsProgressController extends GetxController {
       candidateName.value = prefs.getString('candidate_name') ?? prefs.getString('myName') ?? "IELTS Aspirant";
       targetBand.value = prefs.getDouble('target_band') ?? 8.0;
       examDaysRemaining.value = prefs.getInt('exam_days_remaining') ?? 28;
+      examModule.value = prefs.getString('exam_module') ?? "Academic";
+
+      listeningBand.value = prefs.getDouble('listening_band') ?? 8.0;
+      readingBand.value = prefs.getDouble('reading_band') ?? 7.5;
+      writingBand.value = prefs.getDouble('writing_band') ?? 7.0;
+      speakingBand.value = prefs.getDouble('speaking_band') ?? 7.5;
+
+      listeningAccuracy.value = prefs.getDouble('listening_acc') ?? 88.0;
+      readingAccuracy.value = prefs.getDouble('reading_acc') ?? 82.0;
+      writingAccuracy.value = prefs.getDouble('writing_acc') ?? 78.0;
+      speakingAccuracy.value = prefs.getDouble('speaking_acc') ?? 85.0;
 
       speakingTaskDone.value = prefs.getBool('speaking_task_done') ?? true;
       listeningTaskDone.value = prefs.getBool('listening_task_done') ?? true;
@@ -165,6 +177,17 @@ class IeltsProgressController extends GetxController {
       await prefs.setString('candidate_name', candidateName.value);
       await prefs.setDouble('target_band', targetBand.value);
       await prefs.setInt('exam_days_remaining', examDaysRemaining.value);
+      await prefs.setString('exam_module', examModule.value);
+
+      await prefs.setDouble('listening_band', listeningBand.value);
+      await prefs.setDouble('reading_band', readingBand.value);
+      await prefs.setDouble('writing_band', writingBand.value);
+      await prefs.setDouble('speaking_band', speakingBand.value);
+
+      await prefs.setDouble('listening_acc', listeningAccuracy.value);
+      await prefs.setDouble('reading_acc', readingAccuracy.value);
+      await prefs.setDouble('writing_acc', writingAccuracy.value);
+      await prefs.setDouble('speaking_acc', speakingAccuracy.value);
 
       await prefs.setBool('speaking_task_done', speakingTaskDone.value);
       await prefs.setBool('listening_task_done', listeningTaskDone.value);
@@ -248,6 +271,11 @@ class IeltsProgressController extends GetxController {
     saveToLocalStorage();
   }
 
+  void setExamModule(String module) {
+    examModule.value = module;
+    saveToLocalStorage();
+  }
+
   Future<void> updateCandidateName(String newName) async {
     candidateName.value = newName;
     final prefs = await SharedPreferences.getInstance();
@@ -259,10 +287,55 @@ class IeltsProgressController extends GetxController {
     if (testHistory.isEmpty) return;
 
     double totalAcc = 0;
+    double readingAccSum = 0; int readingCount = 0;
+    double listeningAccSum = 0; int listeningCount = 0;
+    double writingAccSum = 0; int writingCount = 0;
+    double speakingAccSum = 0; int speakingCount = 0;
+
+    double? latestReadingBand;
+    double? latestListeningBand;
+    double? latestWritingBand;
+    double? latestSpeakingBand;
+
     for (var r in testHistory) {
       totalAcc += r.accuracy;
+      if (r.skill == "Reading") {
+        readingAccSum += r.accuracy;
+        readingCount++;
+        latestReadingBand ??= r.bandScore;
+      } else if (r.skill == "Listening") {
+        listeningAccSum += r.accuracy;
+        listeningCount++;
+        latestListeningBand ??= r.bandScore;
+      } else if (r.skill == "Writing") {
+        writingAccSum += r.accuracy;
+        writingCount++;
+        latestWritingBand ??= r.bandScore;
+      } else if (r.skill == "Speaking") {
+        speakingAccSum += r.accuracy;
+        speakingCount++;
+        latestSpeakingBand ??= r.bandScore;
+      }
     }
+
     overallAccuracy.value = double.parse((totalAcc / testHistory.length).toStringAsFixed(1));
+
+    if (readingCount > 0) {
+      readingAccuracy.value = double.parse((readingAccSum / readingCount).toStringAsFixed(1));
+      if (latestReadingBand != null) readingBand.value = latestReadingBand;
+    }
+    if (listeningCount > 0) {
+      listeningAccuracy.value = double.parse((listeningAccSum / listeningCount).toStringAsFixed(1));
+      if (latestListeningBand != null) listeningBand.value = latestListeningBand;
+    }
+    if (writingCount > 0) {
+      writingAccuracy.value = double.parse((writingAccSum / writingCount).toStringAsFixed(1));
+      if (latestWritingBand != null) writingBand.value = latestWritingBand;
+    }
+    if (speakingCount > 0) {
+      speakingAccuracy.value = double.parse((speakingAccSum / speakingCount).toStringAsFixed(1));
+      if (latestSpeakingBand != null) speakingBand.value = latestSpeakingBand;
+    }
 
     // Calculate official Cambridge overall average
     final avg = (listeningBand.value + readingBand.value + writingBand.value + speakingBand.value) / 4.0;

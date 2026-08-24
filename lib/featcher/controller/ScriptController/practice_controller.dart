@@ -132,27 +132,26 @@ class PracticeController extends GetxController {
   }
 
   @override
-  void onClose() async {
-    try {
-      if (playerController.playerState == PlayerState.playing) {
-        await playerController.stopPlayer();
-      }
-    } catch (_) {}
+  void onClose() {
+    _timer?.cancel();
+    _timer = null;
 
     try {
-      await playerController.pausePlayer();
+      if (playerState.value == PlayerState.playing) {
+        playerController.stopPlayer();
+      }
     } catch (_) {}
 
     try {
       playerController.dispose();
     } catch (e) {
-      debugPrint("Player dispose ignored: $e");
+      debugPrint("Player dispose error: $e");
     }
 
     try {
       recorderController.dispose();
     } catch (e) {
-      debugPrint("Recorder dispose ignored: $e");
+      debugPrint("Recorder dispose error: $e");
     }
 
     super.onClose();
@@ -282,9 +281,12 @@ class PracticeController extends GetxController {
 
   Future<void> playPause() async {
     try {
-      if (playerController.playerState == PlayerState.playing) {
+      final isPlaying = playerState.value == PlayerState.playing;
+      if (isPlaying) {
+        playerState.value = PlayerState.paused;
         await playerController.pausePlayer();
       } else {
+        playerState.value = PlayerState.playing;
         await playerController.startPlayer();
       }
     } catch (e) {

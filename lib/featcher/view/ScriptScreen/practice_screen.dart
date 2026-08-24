@@ -1,528 +1,510 @@
+import 'dart:async';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:justtsham/core/widgets/coomon_button.dart';
 import '../../../core/utils/app_colors.dart';
-import '../../../core/utils/app_icons.dart';
-import '../../../core/widgets/common_text.dart';
 import '../../controller/ScriptController/practice_controller.dart';
 
-class PracticeScreen extends StatelessWidget {
-  PracticeScreen({super.key, required this.content, required this.title});
-
+class PracticeScreen extends StatefulWidget {
   final String content;
   final String title;
 
-  final controller = Get.put(PracticeController());
+  const PracticeScreen({
+    super.key,
+    required this.content,
+    required this.title,
+  });
+
+  @override
+  State<PracticeScreen> createState() => _PracticeScreenState();
+}
+
+class _PracticeScreenState extends State<PracticeScreen> {
+  late final PracticeController controller;
+
+  // 1-Min Preparation Timer
+  int _prepSecondsRemaining = 60;
+  bool _isPrepTimerRunning = false;
+  Timer? _prepTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(PracticeController());
+  }
+
+  @override
+  void dispose() {
+    _prepTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startPrepTimer() {
+    if (_isPrepTimerRunning) {
+      _prepTimer?.cancel();
+      setState(() {
+        _isPrepTimerRunning = false;
+      });
+    } else {
+      setState(() {
+        _isPrepTimerRunning = true;
+        _prepSecondsRemaining = 60;
+      });
+      _prepTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (_prepSecondsRemaining > 0) {
+          setState(() {
+            _prepSecondsRemaining--;
+          });
+        } else {
+          timer.cancel();
+          setState(() {
+            _isPrepTimerRunning = false;
+          });
+          Get.snackbar(
+            "Prep Time Over! 🎤",
+            "Your 1 minute preparation time is up. Tap the mic to record your 2-minute response!",
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: const Color(0xFF00695C),
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+          );
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.background,
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: AppColor.background,
-        centerTitle: true,
-        toolbarHeight: 80,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF0F172A), size: 20),
+          onPressed: () => Get.back(),
+        ),
         title: Column(
           children: [
             Container(
-              height: 24.h,
-              width: 100.w,
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 3.h),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColor.tealLight,
+                color: const Color(0xFFE0F2F1),
               ),
-              child:  Center(
-                child: CommonText(
-                  title: title.toUpperCase(),
-                  fSize: 10,
-                  fWeight: FontWeight.w600,
+              child: Text(
+                widget.title.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF00695C),
+                  letterSpacing: 0.5,
                 ),
               ),
             ),
-            SizedBox(height: 7.h),
-            const CommonText(
-              title: "IELTS Speaking Cue Card",
-              fSize: 18,
-              fWeight: FontWeight.w800,
+            SizedBox(height: 4.h),
+            const Text(
+              "IELTS Speaking Arena",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF0F172A),
+              ),
             ),
           ],
         ),
+        centerTitle: true,
       ),
-
       body: Column(
         children: [
-          SizedBox(height: 10),
+          // Top Section: Cue Card Prompt & 1-Min Prep
           Expanded(
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    height: 280,
-                    margin: EdgeInsets.only(bottom: 16),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Cue Card Container
+                  Container(
                     width: double.infinity,
+                    padding: EdgeInsets.all(18.w),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
                       color: Colors.white,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CommonText(
-                              title: "Candidate Prompt & Topic Notes",
-                              fSize: 15,
-                              fWeight: FontWeight.w700,
-                              color: AppColor.secondary,
-                            ),
-                            SizedBox(height: 5),
-                            CommonText(
-                              title: content,
-                              fSize: 16,
-                              fWeight: FontWeight.w500,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    height: 350,
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: AppColor.background,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(40),
-                        topRight: Radius.circular(40),
-                      ),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
-                          offset: Offset(0, -1),
-                          blurRadius: 4,
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: SingleChildScrollView(
-                        child: Column(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Obx(() {
-                              final isRecorded = controller.isRecorded.value;
-
-                              final current = controller.currentPosition.value;
-                              final total = controller.totalDuration.value;
-
-                              if (isRecorded) {
-                                return Text(
-                                  controller.remainingTime(),
-                                  style: const TextStyle(
-                                    fontSize: 40,
-                                    fontWeight: FontWeight.bold,
+                            Row(
+                              children: const [
+                                Icon(Icons.record_voice_over_rounded, color: Color(0xFF00695C), size: 20),
+                                SizedBox(width: 8),
+                                Text(
+                                  "Candidate Cue Card",
+                                  style: TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF00695C),
                                   ),
-                                );
-                              } else {
-                                return Text(
-                                  controller.formattedTime,
-                                  style: const TextStyle(
-                                    fontSize: 40,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                );
-                              }
-                            }),
-                            const SizedBox(height: 5),
-                            Obx(() {
-                              if (controller.isRecording.value) {
-                                return AudioWaveforms(
-                                  enableGesture: false,
-                                  size: Size(double.infinity, 20),
-                                  recorderController:
-                                  controller.recorderController,
-                                  waveStyle: const WaveStyle(
-                                    waveColor: Colors.black,
-                                    showMiddleLine: false,
-                                    extendWaveform: true,
-                                    spacing: 4,
-                                    waveThickness: 3,
-                                  ),
-                                );
-                              } else if (controller.isRecorded.value) {
-                                return AudioFileWaveforms(
-                                  backgroundColor: AppColor.primary,
-                                  size: Size(double.infinity, 60),
-                                  playerController: controller.playerController,
-                                  waveformType: WaveformType.fitWidth,
-                                  playerWaveStyle: PlayerWaveStyle(
-                                    liveWaveColor: AppColor.primary,
-                                  ),
-                                );
-                              } else {
-                                return const SizedBox();
-                              }
-                            }),
-                            SizedBox(height: 5),
-                            Obx(() {
-                              if (controller.isRecorded.value) {
-                                return Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 30,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        controller.deleteRecording();
-                                      },
-                                      child: Container(
-                                        height: 48.h,
-                                        width: 48.w,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFFFE2E2),
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(
-                                                0.1,
-                                              ),
-                                              blurRadius: 3,
-                                            ),
-                                          ],
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10.0),
-                                          child: Center(
-                                            child: Image.asset(
-                                              AppIcons.drive,
-                                              color: Colors.red,
-                                              height: 20.h,
-                                              width: 20.w,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () async {
-                                        if (controller.recordedPath == null) {
-                                          return;
-                                        }
-
-                                        await controller.playPause();
-                                      },
-                                      child: Container(
-                                        height: 95.h,
-                                        width: 95.w,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: AppColor.primary,
-                                        ),
-                                        child: Padding(
-                                          padding: EdgeInsets.all(0.0),
-                                          child: Center(
-                                            child: Obx(
-                                                  () => Icon(
-                                                controller.playerState.value ==
-                                                    PlayerState.playing
-                                                    ? Icons.pause
-                                                    : Icons.play_arrow,
-                                                color: Colors.white,
-                                                size: 50,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Obx((){
-                                      if(controller.isLoading.value){
-                                        return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
-                                      }else{
-                                        return GestureDetector(
-                                          onTap: () {
-                                            controller.createCommunity();
-                                          },
-                                          child: Container(
-                                            height: 48.h,
-                                            width: 48.w,
-                                            decoration: BoxDecoration(
-                                              color: Color(0xFFC1FFD6),
-                                              shape: BoxShape.circle,
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black.withOpacity(
-                                                    0.1,
-                                                  ),
-                                                  blurRadius: 3,
-                                                ),
-                                              ],
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(10.0),
-                                              child: Center(
-                                                child: Image.asset(
-                                                  AppIcons.delete,
-                                                  color: Colors.green,
-                                                  height: 20.h,
-                                                  width: 20.w,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    }),
-                                  ],
-                                );
-                              } else {
-                                return GestureDetector(
-                                  onTap: () async {
-                                    if (controller.isRecording.value) {
-                                      await controller.stopRecording();
-                                    } else {
-                                      await controller.startRecording();
-                                    }
-                                  },
-                                  child: Obx(() {
-                                    return Container(
-                                      height: 95.h,
-                                      width: 95.w,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: controller.isRecording.value
-                                            ? Colors.white
-                                            : Colors.red,
-                                        border: controller.isRecording.value
-                                            ? Border.all(color: Colors.red)
-                                            : Border.all(
-                                          color: AppColor.background,
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(25.0),
-                                        child: Image.asset(
-                                          controller.isRecording.value
-                                              ? AppIcons.redBox
-                                              : AppIcons.music,
-                                          color: controller.isRecording.value
-                                              ? Colors.red
-                                              : Colors.white,
-                                          height: 24,
-                                          width: 24,
-                                          fit: BoxFit.fill,
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                );
-                              }
-                            }),
-                            SizedBox(height: 10),
-                            CommonButton(
-                              onTap: (){
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return Dialog(
-                                      insetPadding: EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(20),
-                                      ),
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: 460.h,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                          BorderRadius.circular(20),
-                                          color: Colors.white,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              height: 100,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                BorderRadius.only(
-                                                  topLeft:
-                                                  Radius.circular(
-                                                    20,
-                                                  ),
-                                                  topRight:
-                                                  Radius.circular(
-                                                    20,
-                                                  ),
-                                                ),
-                                                color:
-                                                AppColor.background,
-                                              ),
-                                              child: ListTile(
-                                                contentPadding:
-                                                EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                  vertical: 10,
-                                                ),
-                                                leading: Container(
-                                                  height: 63.h,
-                                                  width: 63.w,
-                                                  decoration: BoxDecoration(
-                                                    color: AppColor.tealLight,
-                                                    borderRadius:
-                                                    BorderRadius.circular(
-                                                      16,
-                                                    ),
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                    EdgeInsets.all(
-                                                      10.0,
-                                                    ),
-                                                    child: Center(
-                                                      child: Image.asset(
-                                                        AppIcons.faq,
-                                                        height: 31.h,
-                                                        width: 31.w,
-                                                        color: AppColor
-                                                            .primary,
-                                                        fit: BoxFit.fill,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                title: CommonText(
-                                                  title: "Upload Audio",
-                                                  fSize: 20,
-                                                  fWeight:
-                                                  FontWeight.w800,
-                                                  color: AppColor.primary,
-                                                ),
-                                                subtitle: CommonText(
-                                                  title:
-                                                  "Add your recordings to this script",
-                                                  fSize: 14,
-                                                  fWeight:
-                                                  FontWeight.w500,
-                                                  color:
-                                                  AppColor.secondary,
-                                                ),
-                                                trailing: IconButton(
-                                                  onPressed: () {
-                                                    Get.back();
-                                                  },
-                                                  icon: Icon(Icons.close),
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(height: 16.h),
-                                            Padding(
-                                              padding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                              ),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment
-                                                    .start,
-                                                children: [
-                                                  CommonText(
-                                                    title: "From Device",
-                                                    fSize: 12,
-                                                    fWeight:
-                                                    FontWeight.w700,
-                                                    color: AppColor
-                                                        .secondary,
-                                                  ),
-                                                  SizedBox(height: 10.h),
-                                                  ProfileBox(
-                                                    onTap: (){
-                                                      Get.back();
-                                                      controller.pickAudioFile();
-                                                    },
-                                                    title: 'Browse Files',
-                                                    text:
-                                                    'MP3, WAV, M4A, or OGG',
-                                                    icon: AppIcons.tablet,
-                                                    boxColor: Color(
-                                                      0xFFF3F4F6,
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 23.h),
-                                                  CommonText(
-                                                    title:
-                                                    "From Cloud Storage",
-                                                    fSize: 12,
-                                                    fWeight:
-                                                    FontWeight.w700,
-                                                    color: AppColor
-                                                        .secondary,
-                                                  ),
-                                                  SizedBox(height: 10.h),
-                                                  ProfileBox(
-                                                    onTap: () {
-                                                      Get.back();
-                                                      controller.pickAudioFile();
-                                                    },
-                                                    title: 'Google Drive',
-                                                    icon: AppIcons.drop,
-                                                    boxColor: Color(
-                                                      0xFFFFFFFF,
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 12.h),
-                                                  ProfileBox(
-                                                    onTap: () {
-                                                      Get.back();
-                                                      controller.pickAudioFile();
-                                                    },
-                                                    title: 'Cloud Drive',
-                                                    icon: AppIcons.drop,
-                                                    boxColor: Color(
-                                                      0xFFFFFFFF,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              titleText: "Upload Audio",
-                              prefixIcon: Image.asset(
-                                AppIcons.download,
-                                height: 24.h,
-                                width: 24.w,
-                                color: AppColor.primary,
-                              ),
-                              titleColor: AppColor.primary,
-                              backgroundColor: Color(0xFFFFFFFF),
-                              useGradient: false,
-                              buttonWidth: 216.w,
-                              buttonHeight: 43.h,
-                              titleSize: 14,
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 40.h),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                "Part 2 • 2 Mins",
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                              ),
+                            ),
                           ],
                         ),
+                        SizedBox(height: 14.h),
+                        Text(
+                          widget.content,
+                          style: const TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF1E293B),
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 14.h),
+
+                  // 1-Minute Prep Countdown Banner
+                  GestureDetector(
+                    onTap: _startPrepTimer,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: _isPrepTimerRunning
+                              ? [const Color(0xFFEA580C), const Color(0xFFF97316)]
+                              : [const Color(0xFF00695C), const Color(0xFF00897B)],
+                        ),
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: [
+                          BoxShadow(
+                            color: (_isPrepTimerRunning ? const Color(0xFFEA580C) : const Color(0xFF00695C)).withOpacity(0.25),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                _isPrepTimerRunning ? Icons.timer_outlined : Icons.play_circle_outline_rounded,
+                                color: Colors.white,
+                                size: 22,
+                              ),
+                              SizedBox(width: 10.w),
+                              Text(
+                                _isPrepTimerRunning
+                                    ? "Prep Countdown: ${_prepSecondsRemaining}s"
+                                    : "Start 1-Min Prep Countdown",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            _isPrepTimerRunning ? "Tap to Pause" : "Start",
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Bottom Voice Studio (Recording & Instant Play/Pause Controls)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 28.h),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(36),
+                topRight: Radius.circular(36),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.07),
+                  offset: const Offset(0, -6),
+                  blurRadius: 18,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Live Timer Display
+                Obx(() {
+                  final isRecorded = controller.isRecorded.value;
+                  final displayTime = isRecorded
+                      ? controller.remainingTime()
+                      : controller.formattedTime;
+
+                  return Text(
+                    displayTime,
+                    style: const TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF0F172A),
+                      letterSpacing: 1.2,
+                    ),
+                  );
+                }),
+
+                SizedBox(height: 10.h),
+
+                // Audio Waveform Visualization
+                Obx(() {
+                  if (controller.isRecording.value) {
+                    return AudioWaveforms(
+                      enableGesture: false,
+                      size: Size(double.infinity, 36.h),
+                      recorderController: controller.recorderController,
+                      waveStyle: const WaveStyle(
+                        waveColor: Color(0xFFEF4444),
+                        showMiddleLine: false,
+                        extendWaveform: true,
+                        spacing: 4,
+                        waveThickness: 3.5,
+                      ),
+                    );
+                  } else if (controller.isRecorded.value) {
+                    return AudioFileWaveforms(
+                      backgroundColor: Colors.transparent,
+                      size: Size(double.infinity, 44.h),
+                      playerController: controller.playerController,
+                      waveformType: WaveformType.fitWidth,
+                      playerWaveStyle: const PlayerWaveStyle(
+                        fixedWaveColor: Color(0xFFCBD5E1),
+                        liveWaveColor: Color(0xFF00695C),
+                        spacing: 5,
+                        waveThickness: 3,
+                      ),
+                    );
+                  } else {
+                    return Container(
+                      height: 10.h,
+                      margin: EdgeInsets.symmetric(horizontal: 40.w),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    );
+                  }
+                }),
+
+                SizedBox(height: 20.h),
+
+                // Instant Action Controls (Record / Play-Pause / Delete / Submit)
+                Obx(() {
+                  if (controller.isRecorded.value) {
+                    // Recorded State: [Delete/Re-record] [Instant Play/Pause] [Submit Grade]
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Delete / Re-record
+                        GestureDetector(
+                          onTap: () => controller.deleteRecording(),
+                          child: Container(
+                            height: 52.h,
+                            width: 52.w,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEE2E2),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFFEF4444).withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 24),
+                            ),
+                          ),
+                        ),
+
+                        // Instant Play / Pause Center Button
+                        GestureDetector(
+                          onTap: () async {
+                            await controller.playPause();
+                          },
+                          child: Container(
+                            height: 76.h,
+                            width: 76.w,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00695C),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF00695C).withOpacity(0.35),
+                                  blurRadius: 14,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Icon(
+                                controller.playerState.value == PlayerState.playing
+                                    ? Icons.pause_rounded
+                                    : Icons.play_arrow_rounded,
+                                color: Colors.white,
+                                size: 42,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Submit / Complete Speaking Test
+                        GestureDetector(
+                          onTap: () => controller.createCommunity(),
+                          child: Container(
+                            height: 52.h,
+                            width: 52.w,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE0F2F1),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF00695C).withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.check_rounded, color: Color(0xFF00695C), size: 26),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  } else {
+                    // Ready to Record / Active Recording State
+                    return Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () async {
+                            if (controller.isRecording.value) {
+                              await controller.stopRecording();
+                            } else {
+                              await controller.startRecording();
+                            }
+                          },
+                          child: Container(
+                            height: 76.h,
+                            width: 76.w,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: controller.isRecording.value
+                                  ? const Color(0xFFEF4444)
+                                  : const Color(0xFF00695C),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: (controller.isRecording.value
+                                          ? const Color(0xFFEF4444)
+                                          : const Color(0xFF00695C))
+                                      .withOpacity(0.35),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Icon(
+                                controller.isRecording.value
+                                    ? Icons.stop_rounded
+                                    : Icons.mic_rounded,
+                                color: Colors.white,
+                                size: 38,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10.h),
+                        Text(
+                          controller.isRecording.value
+                              ? "Recording in progress... (Tap to finish)"
+                              : "Tap mic to start speaking response",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: controller.isRecording.value
+                                ? const Color(0xFFEF4444)
+                                : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                }),
+
+                SizedBox(height: 14.h),
+
+                // Upload Audio File Alternative
+                GestureDetector(
+                  onTap: () => controller.pickAudioFile(),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(Icons.upload_file_rounded, color: Color(0xFF475569), size: 18),
+                        SizedBox(width: 6),
+                        Text(
+                          "Or upload audio file (.mp3, .m4a)",
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF475569),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -533,91 +515,5 @@ class PracticeScreen extends StatelessWidget {
       ),
     );
   }
-
-  Widget ProfileBox({
-    required String title,
-    String? text,
-    required String icon,
-    Color? color,
-    Color? boxColor,
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 76.h,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-        decoration: BoxDecoration(
-          color: Color(0xFFF9FAFB),
-          borderRadius: BorderRadius.circular(12),
-          // border: Border.all(color: Color(0xFFE5E7EB))
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      height: 40.h,
-                      width: 40.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 1,
-                            spreadRadius: 1,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Image.asset(
-                          icon,
-                          height: 20.h,
-                          width: 20.w,
-                          color: AppColor.secondary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(width: 15.w),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CommonText(
-                      title: title,
-                      fSize: 16,
-                      fWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
-                    if (text != null)
-                      CommonText(
-                        title: text,
-                        fSize: 12,
-                        fWeight: FontWeight.w500,
-                        color: color ?? AppColor.secondary,
-                      ),
-                  ],
-                ),
-              ],
-            ),
-            Image.asset(
-              AppIcons.download,
-              height: 18,
-              width: 18,
-              color: AppColor.secondary,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
+

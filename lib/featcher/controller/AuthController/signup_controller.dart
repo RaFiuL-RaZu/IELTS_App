@@ -1,12 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter/material.dart';
 import 'package:justtsham/featcher/controller/NotificationController/notification_controller.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:justtsham/core/constant/prefs_helper.dart';
 import 'package:justtsham/core/services/api_services.dart';
@@ -18,7 +15,6 @@ import 'package:justtsham/core/widgets/common_snackber.dart';
 import 'package:justtsham/featcher/controller/AuthController/login_controller.dart';
 import 'package:justtsham/featcher/controller/AuthController/verify_email_controller.dart';
 import 'package:justtsham/featcher/view/authentication/verify_email.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../model/login_profile_model.dart';
 import '../../view/authentication/complete_profile.dart';
@@ -196,103 +192,6 @@ class SignUpController extends GetxController {
     } finally {
       isLoading(false);
     }
-  }
-
-
-  var accessToken="";
-
-  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
-
-  Rx<GoogleSignInAccount?> googleUser = Rx<GoogleSignInAccount?>(null);
-
-@override
-  void onInit() {
-    super.onInit();
-    initSocialAuth();
-  }
-  void initSocialAuth() async {
-    await _googleSignIn.initialize(
-      clientId: Platform.isIOS
-          ? '349261530631-lb22ptccon3daclo1938729quhubt3tt.apps.googleusercontent.com'
-          : null,
-      serverClientId: '349261530631-b6msia8gkr3pl55gp594juvdptfqn5vg.apps.googleusercontent.com',
-    );
-  }
-
-  Future<String?> signInWithGoogle() async {
-    try {
-      final googleUser = await _googleSignIn.authenticate();
-      final idToken = googleUser.authentication.idToken;
-
-      debugPrint("$idToken");
-      debugPrint(">>>>>>>>>>>>>>>IdToken >>>>>>>>>>>>>>>IdToken");
-      accessToken=idToken!;
-      debugPrint(">>>>>>>>>>>>>>>accessToken : $accessToken");
-      final fullname = googleUser.displayName;
-      String? first, second;
-      final email = googleUser.email;
-      final pic = googleUser.photoUrl;
-      final splitedName = fullname?.split(" ");
-
-      if (splitedName != null && splitedName.length > 1) {
-        first = splitedName.first;
-        splitedName.removeAt(0);
-        second = splitedName.join(" ");
-      }
-    } catch (error, s) {
-      debugPrint("Google Sign-In Error: $error\n$s");
-      return null;
-    }
-    return null;
-  }
-  RxBool isGoogle = false.obs;
-  Future<void> postGoogle() async {
-    isGoogle(true);
-    await Future.delayed(const Duration(milliseconds: 300));
-    PrefsHelper.token = "google_token_${DateTime.now().millisecondsSinceEpoch}";
-    PrefsHelper.myName = "Google User";
-    PrefsHelper.myEmail = "user@gmail.com";
-    PrefsHelper.isLogIn = true;
-    await PrefsHelper.setBool("isLogIn", true);
-    await PrefsHelper.setString("token", PrefsHelper.token);
-    await PrefsHelper.setString("myName", PrefsHelper.myName);
-    await PrefsHelper.setString("myEmail", PrefsHelper.myEmail);
-
-    CommonSnackBar.show(
-      title: "Success",
-      message: "Signed in with Google",
-      isSuccess: true,
-    );
-    Get.offAll(() => NavBarScreen());
-    isGoogle(false);
-  }
-
-  var appleToken = "";
-
-  Future<String?> signInWithApple() async {
-    return null;
-  }
-
-  RxBool isApple = false.obs;
-  Future<void> postApple() async {
-    isApple(true);
-    await Future.delayed(const Duration(milliseconds: 300));
-    PrefsHelper.token = "apple_token_${DateTime.now().millisecondsSinceEpoch}";
-    PrefsHelper.myName = "Apple User";
-    PrefsHelper.myEmail = "user@apple.com";
-    PrefsHelper.isLogIn = true;
-    await PrefsHelper.setBool("isLogIn", true);
-    await PrefsHelper.setString("token", PrefsHelper.token);
-    await PrefsHelper.setString("myName", PrefsHelper.myName);
-    await PrefsHelper.setString("myEmail", PrefsHelper.myEmail);
-
-    CommonSnackBar.show(
-      title: "Success",
-      message: "Signed in with Apple",
-      isSuccess: true,
-    );
-    Get.offAll(() => NavBarScreen());
-    isApple(false);
   }
   
   

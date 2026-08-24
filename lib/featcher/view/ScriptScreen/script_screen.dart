@@ -96,7 +96,8 @@ class _ScriptScreenState extends State<ScriptScreen> {
           // Main Practice Content
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 18.h, bottom: 100.h),
               child: _buildActiveSkillView(progressCtrl),
             ),
           ),
@@ -625,7 +626,9 @@ class _ScriptScreenState extends State<ScriptScreen> {
 
   // --- READING MODULE ---
   Widget _buildReadingSkillView() {
-    final List<Map<String, dynamic>> passages = [
+    final progressCtrl = Get.find<IeltsProgressController>();
+
+    final List<Map<String, dynamic>> academicPassages = [
       {
         "passage": "Passage 1 (Academic)",
         "title": "The Technological Evolution of Renewable Energy",
@@ -652,105 +655,202 @@ class _ScriptScreenState extends State<ScriptScreen> {
       },
     ];
 
-    return ListView.builder(
-      padding: EdgeInsets.zero,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: passages.length,
-      itemBuilder: (context, idx) {
-        final pass = passages[idx];
-        return Container(
-          margin: EdgeInsets.only(bottom: 18.h),
-          padding: EdgeInsets.all(18.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                offset: const Offset(0, 4),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3E5F5),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      pass["passage"],
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF6A1B9A)),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEDE7F6),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      pass["difficulty"],
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF4A148C)),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                pass["title"],
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
-              ),
-              SizedBox(height: 6.h),
-              Text(
-                "${pass["words"]} • Recommended Time: ${pass["time"]}",
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
-              ),
-              SizedBox(height: 16.h),
-              GestureDetector(
-                onTap: () {
-                  Get.to(() => IeltsReadingPracticeScreen(
-                    passageTitle: pass["title"] as String,
-                    passageText: pass["summary"] as String,
-                    difficulty: pass["difficulty"] as String,
-                  ));
-                },
-                child: Container(
-                  height: 44.h,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6A1B9A),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.menu_book_rounded, color: Colors.white, size: 18),
-                      SizedBox(width: 6),
-                      Text("Open 20-Min Timed Reading Arena", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
-                    ],
+    final List<Map<String, dynamic>> generalPassages = [
+      {
+        "passage": "Section 1 (General Training)",
+        "title": "Workplace Health, Fire Safety & Ergonomic Standards",
+        "words": "550 Words",
+        "time": "15 Mins",
+        "difficulty": "General (Band 7.5)",
+        "summary": "Essential safety protocols for office workers, covering emergency evacuation muster points, mandatory fire warden drills, and screen workstation ergonomic adjustments to prevent repetitive strain injury (RSI).",
+      },
+      {
+        "passage": "Section 2 (General Training)",
+        "title": "Company Employee Benefits, Maternity & Flexible Leave Policies",
+        "words": "680 Words",
+        "time": "18 Mins",
+        "difficulty": "Workplace (Band 8.0)",
+        "summary": "Comprehensive guidelines regarding annual paid leave accrual, core working hours, hybrid telecommuting entitlements, and corporate health insurance claim reimbursements.",
+      },
+      {
+        "passage": "Section 3 (General Training)",
+        "title": "The Historical Heritage & Evolution of Public Libraries",
+        "words": "920 Words",
+        "time": "20 Mins",
+        "difficulty": "General Narrative (Band 8.5)",
+        "summary": "Tracing the transformation of municipal public libraries from guarded manuscript archives in 19th-century Britain to dynamic digital community literacy centers today.",
+      },
+    ];
+
+    return Obx(() {
+      final isGeneral = progressCtrl.examModule.value == "General Training";
+      final passages = isGeneral ? generalPassages : academicPassages;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Module Switcher Header
+          Container(
+            margin: EdgeInsets.only(bottom: 16.h),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Stream: ${isGeneral ? 'General Training' : 'Academic'}",
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ),
-            ],
+                SizedBox(width: 8.w),
+                GestureDetector(
+                  onTap: () {
+                    progressCtrl.setExamModule(isGeneral ? "Academic" : "General Training");
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                    decoration: BoxDecoration(
+                      color: isGeneral ? const Color(0xFF00695C) : const Color(0xFF6A1B9A),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      isGeneral ? "To Academic" : "To General",
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        );
-      },
-    );
+
+          ListView.builder(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: passages.length,
+            itemBuilder: (context, idx) {
+              final pass = passages[idx];
+              return Container(
+                margin: EdgeInsets.only(bottom: 18.h),
+                padding: EdgeInsets.all(18.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      offset: const Offset(0, 4),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                            decoration: BoxDecoration(
+                              color: isGeneral ? const Color(0xFFE0F2F1) : const Color(0xFFF3E5F5),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              pass["passage"],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: isGeneral ? const Color(0xFF004D40) : const Color(0xFF6A1B9A),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Flexible(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                            decoration: BoxDecoration(
+                              color: isGeneral ? const Color(0xFFF1F5F9) : const Color(0xFFEDE7F6),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              pass["difficulty"],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: isGeneral ? const Color(0xFF0F172A) : const Color(0xFF4A148C),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12.h),
+                    Text(
+                      pass["title"],
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                    ),
+                    SizedBox(height: 6.h),
+                    Text(
+                      "${pass["words"]} • Recommended Time: ${pass["time"]}",
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                    ),
+                    SizedBox(height: 16.h),
+                    GestureDetector(
+                      onTap: () {
+                        Get.to(() => IeltsReadingPracticeScreen(
+                          passageTitle: pass["title"] as String,
+                          passageText: pass["summary"] as String,
+                          difficulty: pass["difficulty"] as String,
+                        ));
+                      },
+                      child: Container(
+                        height: 44.h,
+                        decoration: BoxDecoration(
+                          color: isGeneral ? const Color(0xFF00695C) : const Color(0xFF6A1B9A),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.menu_book_rounded, color: Colors.white, size: 18),
+                            SizedBox(width: 6),
+                            Text("Open Timed Reading Arena", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      );
+    });
   }
 
   // --- WRITING MODULE ---
   Widget _buildWritingSkillView() {
-    final List<Map<String, dynamic>> essays = [
+    final progressCtrl = Get.find<IeltsProgressController>();
+
+    final List<Map<String, dynamic>> academicEssays = [
       {
-        "task": "Task 2 (Opinion Essay)",
+        "task": "Task 2 (Academic Essay)",
         "prompt": "Some people believe that artificial intelligence will replace human teachers in the future. To what extent do you agree or disagree?",
         "band": "Band 9.0 Model",
         "structure": "Introduction (Paraphrase + Thesis) -> Body 1 (Adaptive AI algorithms personalized content) -> Body 2 (Irreplaceable human emotional empathy) -> Conclusion (Balanced view)",
@@ -767,94 +867,185 @@ class _ScriptScreenState extends State<ScriptScreen> {
       },
     ];
 
-    return ListView.builder(
-      padding: EdgeInsets.zero,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: essays.length,
-      itemBuilder: (context, idx) {
-        final ess = essays[idx];
-        return Container(
-          margin: EdgeInsets.only(bottom: 18.h),
-          padding: EdgeInsets.all(18.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                offset: const Offset(0, 4),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF3E0),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      ess["task"],
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFE65100)),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE0F2F1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      ess["band"],
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF00695C)),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                ess["prompt"],
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), height: 1.35),
-              ),
-              SizedBox(height: 16.h),
-              GestureDetector(
-                onTap: () {
-                  Get.to(() => IeltsWritingPracticeScreen(
-                    taskType: ess["task"] as String,
-                    prompt: ess["prompt"] as String,
-                    structure: ess["structure"] as String,
-                    lexical: ess["lexical"] as String,
-                    band9Model: ess["sample"] as String,
-                  ));
-                },
-                child: Container(
-                  height: 44.h,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE65100),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.edit_note_rounded, color: Colors.white, size: 20),
-                      SizedBox(width: 6),
-                      Text("Open Writing Arena (Word Count & Timer)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
-                    ],
+    final List<Map<String, dynamic>> generalEssays = [
+      {
+        "task": "Task 1 (GT Formal Letter)",
+        "prompt": "You recently purchased an airline ticket, but due to a technical error you were overcharged. Write a formal letter to the airline customer manager explaining the situation and requesting a refund.",
+        "band": "Band 9.0 Letter",
+        "structure": "Salutation (Dear Sir/Madam) -> Purpose of letter -> Details of booking & transaction discrepancy -> Desired resolution (Prompt refund) -> Sign-off (Yours faithfully)",
+        "lexical": "Discrepancy, booking reference, unwarranted surcharges, rectify the oversight, prompt reimbursement, inconvenience caused.",
+        "sample": "Dear Sir or Madam, I am writing to formally request a full refund regarding an unwarranted double transaction on booking ref #GT8921. I trust you will treat this matter with urgency and rectify the billing discrepancy promptly. Yours faithfully, Candidate.",
+      },
+      {
+        "task": "Task 1 (GT Semi-Formal Letter)",
+        "prompt": "You have recently moved into a rented apartment and discovered several maintenance issues. Write a letter to your landlord describing the problems and requesting urgent repairs.",
+        "band": "Band 8.5 Letter",
+        "structure": "Salutation (Dear Mr. Anderson) -> Reason for writing -> Description of plumbing & electrical faults -> Request for contractor visit -> Sign-off (Yours sincerely)",
+        "lexical": "Tenancy agreement, persistent plumbing leakage, electrical circuit tripping, uninhabitable conditions, schedule an inspection.",
+        "sample": "Dear Mr. Anderson, I am writing regarding apartment 4B to bring urgent maintenance defects to your attention. The kitchen drainage is severely obstructed. Please arrange for a certified technician at your earliest convenience.",
+      },
+      {
+        "task": "Task 2 (GT Opinion Essay)",
+        "prompt": "In many modern cities, people spend long hours commuting to work. What are the main causes, and what measures can governments implement to solve this issue?",
+        "band": "Band 8.5 Essay",
+        "structure": "Introduction -> Causes (Urban sprawl & inadequate transit) -> Solutions (Subsidized public metro & decentralized business hubs) -> Conclusion",
+        "lexical": "Urban sprawl, daily congestion, decentralized infrastructure, high-speed transit networks, alleviate commuting stress.",
+        "sample": "The protracted daily commute endured by modern urbanites stems largely from rapid suburban expansion and underfunded transit infrastructure. Governments must invest decisively in high-speed rail to alleviate road congestion.",
+      },
+    ];
+
+    return Obx(() {
+      final isGeneral = progressCtrl.examModule.value == "General Training";
+      final essays = isGeneral ? generalEssays : academicEssays;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Module Switcher Header
+          Container(
+            margin: EdgeInsets.only(bottom: 16.h),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Stream: ${isGeneral ? 'General (Letters)' : 'Academic (Reports)'}",
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ),
-            ],
+                SizedBox(width: 8.w),
+                GestureDetector(
+                  onTap: () {
+                    progressCtrl.setExamModule(isGeneral ? "Academic" : "General Training");
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                    decoration: BoxDecoration(
+                      color: isGeneral ? const Color(0xFF00695C) : const Color(0xFFE65100),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      isGeneral ? "To Academic" : "To General",
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        );
-      },
-    );
+
+          ListView.builder(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: essays.length,
+            itemBuilder: (context, idx) {
+              final ess = essays[idx];
+              return Container(
+                margin: EdgeInsets.only(bottom: 18.h),
+                padding: EdgeInsets.all(18.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      offset: const Offset(0, 4),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                            decoration: BoxDecoration(
+                              color: isGeneral ? const Color(0xFFE0F2F1) : const Color(0xFFFFF3E0),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              ess["task"],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: isGeneral ? const Color(0xFF004D40) : const Color(0xFFE65100),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Flexible(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE0F2F1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              ess["band"],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF00695C)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12.h),
+                    Text(
+                      ess["prompt"],
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), height: 1.35),
+                    ),
+                    SizedBox(height: 16.h),
+                    GestureDetector(
+                      onTap: () {
+                        Get.to(() => IeltsWritingPracticeScreen(
+                          taskType: ess["task"] as String,
+                          prompt: ess["prompt"] as String,
+                          structure: ess["structure"] as String,
+                          lexical: ess["lexical"] as String,
+                          band9Model: ess["sample"] as String,
+                        ));
+                      },
+                      child: Container(
+                        height: 44.h,
+                        decoration: BoxDecoration(
+                          color: isGeneral ? const Color(0xFF00695C) : const Color(0xFFE65100),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.edit_note_rounded, color: Colors.white, size: 20),
+                            SizedBox(width: 6),
+                            Text("Open Writing Arena (Word Count & Timer)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      );
+    });
   }
 }

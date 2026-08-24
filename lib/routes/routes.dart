@@ -3,6 +3,7 @@ import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:justtsham/featcher/view/authentication/create_account.dart';
 import 'package:justtsham/featcher/view/authentication/verify_email.dart';
 import 'package:justtsham/featcher/view/authentication/verify_otp.dart';
+import '../featcher/view/authentication/candidate_setup_screen.dart';
 import '../featcher/view/authentication/Login_screen.dart';
 import '../featcher/view/authentication/forgot_password.dart';
 import '../featcher/view/authentication/navber_screen.dart';
@@ -14,6 +15,7 @@ class AppRoutes {
   static const String test = "/test";
   static const String splash = "/splash";
   static const String onboard = "/onboard";
+  static const String candidateSetup = "/candidate-setup";
   static const String signup = "/signup";
   static const String verifyOtp = "/verify-otp";
   static const String forgotPass = "/forgot-password";
@@ -35,6 +37,11 @@ class AppRoutes {
     GetPage(
       name: onboard,
       page: () => OnboardingScreen(),
+      transition: Transition.fade,
+    ),
+    GetPage(
+      name: candidateSetup,
+      page: () => const CandidateSetupScreen(),
       transition: Transition.fade,
     ),
     GetPage(

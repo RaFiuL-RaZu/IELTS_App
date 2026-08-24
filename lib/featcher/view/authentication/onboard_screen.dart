@@ -51,7 +51,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     } else {
       PrefsHelper.hasSeenOnboard = true;
       await PrefsHelper.setBool("hasSeenOnboard", true);
-      Get.toNamed(AppRoutes.login);
+      Get.offAllNamed(AppRoutes.candidateSetup);
     }
   }
 
@@ -156,11 +156,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: currentIndex == index ? 20 : 8,
+      width: currentIndex == index ? 24 : 8,
       height: 8,
       decoration: BoxDecoration(
-        color:
-        currentIndex == index ? const Color(0xFF3B2A5A) : Colors.grey,
+        color: currentIndex == index
+            ? AppColor.primary
+            : AppColor.primary.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(5),
       ),
     );

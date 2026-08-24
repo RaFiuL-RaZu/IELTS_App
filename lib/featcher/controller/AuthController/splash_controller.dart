@@ -11,12 +11,15 @@ class  SplashController extends GetxController {
     startSplash();
   }
 
-  void startSplash() {
-    Timer(const Duration(seconds: 3), () {
-      if (PrefsHelper.isLogIn && PrefsHelper.token.isNotEmpty) {
+  void startSplash() async {
+    final hasSetup = await PrefsHelper.getBool("hasSetupCandidate") ?? false;
+    final hasSeenOnboard = await PrefsHelper.getBool("hasSeenOnboard") ?? false;
+
+    Timer(const Duration(seconds: 2), () {
+      if (hasSetup) {
         Get.offAllNamed(AppRoutes.navBer);
-      } else if (PrefsHelper.hasSeenOnboard){
-        Get.offAllNamed(AppRoutes.login);
+      } else if (hasSeenOnboard) {
+        Get.offAllNamed(AppRoutes.candidateSetup);
       } else {
         Get.offAllNamed(AppRoutes.onboard);
       }

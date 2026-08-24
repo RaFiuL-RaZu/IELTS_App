@@ -172,7 +172,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 18.h, bottom: 100.h),
               child: _buildCategoryContent(),
             ),
           ),

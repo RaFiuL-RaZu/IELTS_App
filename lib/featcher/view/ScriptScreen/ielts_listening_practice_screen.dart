@@ -34,34 +34,114 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
   final Map<int, String> _userAnswers = {};
   bool _isSubmitted = false;
 
-  final List<Map<String, dynamic>> _questions = [
-    {
-      "id": 1,
-      "question": "1. What type of accommodation is requested?",
-      "options": ["Single ensuite room", "Double studio apartment", "Shared flat", "Family suite"],
-      "correct": "Single ensuite room",
-      "explanation": "In the dialogue, the caller specifies needing a single ensuite room close to the research campus.",
-    },
-    {
-      "id": 2,
-      "question": "2. Expected arrival date:",
-      "options": ["Friday, 14th October", "Monday, 17th October", "Wednesday, 19th October", "Saturday, 22nd October"],
-      "correct": "Friday, 14th October",
-      "explanation": "The booking assistant confirms arrival on Friday, October 14th before 6:00 PM.",
-    },
-    {
-      "id": 3,
-      "question": "3. Method of payment selected:",
-      "options": ["Credit Card", "Bank Transfer", "Cash on Arrival", "University Voucher"],
-      "correct": "Credit Card",
-      "explanation": "A credit card deposit of 10% is processed immediately over the phone.",
-    },
-  ];
+  late final List<Map<String, dynamic>> _questions;
 
   @override
   void initState() {
     super.initState();
+    _questions = _getQuestionsForSection(widget.sectionNumber, widget.sectionTitle);
     _initTts();
+  }
+
+  List<Map<String, dynamic>> _getQuestionsForSection(String sectionNumber, String title) {
+    if (sectionNumber.contains("2") || title.contains("Campus") || title.contains("Library") || title.contains("Orientation")) {
+      return [
+        {
+          "id": 1,
+          "question": "1. Where is the postgraduate multimedia computer lab located?",
+          "options": ["On the ground floor to the left", "On the second floor east wing", "In the basement archive", "Next to the central cafeteria"],
+          "correct": "On the ground floor to the left",
+          "explanation": "The orientation guide clearly states: 'On your left is the multimedia lab, while research cubicles are located on the second floor.'",
+        },
+        {
+          "id": 2,
+          "question": "2. What is the maximum borrowing limit for research journals?",
+          "options": ["Up to 5 print journals for 14 days", "10 reference textbooks for 7 days", "Unlimited digital papers only", "2 journals for overnight loan only"],
+          "correct": "Up to 5 print journals for 14 days",
+          "explanation": "The library regulations allow enrolled postgraduates up to 5 print journals for a 14-day checkout period.",
+        },
+        {
+          "id": 3,
+          "question": "3. What is required to reserve private study carrels?",
+          "options": ["Advance student ID registration online", "Payment of a daily £5 booking deposit", "Written recommendation from course tutor", "Reservation must be made 1 month prior"],
+          "correct": "Advance student ID registration online",
+          "explanation": "Carrel pods are booked through the student portal using your university credentials.",
+        },
+      ];
+    } else if (sectionNumber.contains("3") || title.contains("Climate") || title.contains("Tutorial") || title.contains("Research")) {
+      return [
+        {
+          "id": 1,
+          "question": "1. What is the student's primary concern regarding the satellite dataset?",
+          "options": ["Resolution inconsistencies across equatorial zones", "Excessive file sizes for university servers", "Corrupted thermal sensor timestamps", "Lack of historical data prior to 1990"],
+          "correct": "Resolution inconsistencies across equatorial zones",
+          "explanation": "The student mentions equatorial cloud cover creating spatial resolution variances in the raw telemetry data.",
+        },
+        {
+          "id": 2,
+          "question": "2. Which statistical methodology did Professor Jenkins recommend?",
+          "options": ["Monte Carlo simulation algorithms", "Standard linear regression models", "Qualitative interview surveying", "Manual chart plotting"],
+          "correct": "Monte Carlo simulation algorithms",
+          "explanation": "Professor Jenkins advises using stochastic Monte Carlo algorithms to model climate variance accurately.",
+        },
+        {
+          "id": 3,
+          "question": "3. What is the agreed deadline for submitting the revised research draft?",
+          "options": ["Next Thursday before 5:00 PM", "End of the current semester", "Tomorrow morning at 9:00 AM", "In two weeks after field tests"],
+          "correct": "Next Thursday before 5:00 PM",
+          "explanation": "The tutor confirms: 'Please email me the updated methodology draft by Thursday 5:00 PM.'",
+        },
+      ];
+    } else if (sectionNumber.contains("4") || title.contains("Cognitive") || title.contains("Language") || title.contains("Lecture")) {
+      return [
+        {
+          "id": 1,
+          "question": "1. Which cerebral region is primarily responsible for syntactic parsing?",
+          "options": ["Broca's area in the frontal lobe", "Wernicke's area in the temporal lobe", "The primary visual cortex", "The cerebellum balance center"],
+          "correct": "Broca's area in the frontal lobe",
+          "explanation": "The lecturer highlights Broca's area for grammar, syntax, and complex structural sentence generation.",
+        },
+        {
+          "id": 2,
+          "question": "2. What neurobiological phenomenon occurs when memory pathways are repeatedly stimulated?",
+          "options": ["Long-term potentiation", "Synaptic deterioration", "Cerebral atrophy", "Axon fragmentation"],
+          "correct": "Long-term potentiation",
+          "explanation": "Repetitive activation induces long-term potentiation (LTP), strengthening synaptic connections.",
+        },
+        {
+          "id": 3,
+          "question": "3. According to recent fMRI studies, bilingual individuals demonstrate:",
+          "options": ["Enhanced executive cognitive control", "Delayed auditory reaction times", "Decreased gray matter density", "Impaired visual recognition"],
+          "correct": "Enhanced executive cognitive control",
+          "explanation": "Managing two linguistic systems activates superior dorsolateral prefrontal cortex executive functions.",
+        },
+      ];
+    } else {
+      // Default / Section 1: Cambridge 18 Student Accommodation
+      return [
+        {
+          "id": 1,
+          "question": "1. What type of accommodation is requested?",
+          "options": ["Single ensuite room", "Double studio apartment", "Shared flat", "Family suite"],
+          "correct": "Single ensuite room",
+          "explanation": "In the dialogue, the caller specifies needing a single ensuite room close to the research campus.",
+        },
+        {
+          "id": 2,
+          "question": "2. Expected arrival date:",
+          "options": ["Friday, 14th October", "Monday, 17th October", "Wednesday, 19th October", "Saturday, 22nd October"],
+          "correct": "Friday, 14th October",
+          "explanation": "The booking assistant confirms arrival on Friday, October 14th before 6:00 PM.",
+        },
+        {
+          "id": 3,
+          "question": "3. Method of payment selected:",
+          "options": ["Credit Card", "Bank Transfer", "Cash on Arrival", "University Voucher"],
+          "correct": "Credit Card",
+          "explanation": "A credit card deposit of 10% is processed immediately over the phone.",
+        },
+      ];
+    }
   }
 
   Future<void> _initTts() async {
@@ -551,17 +631,21 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                   }
                   final double band = correctCount == 3 ? 8.5 : (correctCount == 2 ? 7.5 : 6.5);
                   if (Get.isRegistered<IeltsProgressController>()) {
-                    IeltsProgressController.to.addTestResult(
+                    final ctrl = IeltsProgressController.to;
+                    ctrl.listeningTaskDone.value = true;
+                    ctrl.listeningBand.value = band;
+                    ctrl.addTestResult(
                       skill: "Listening",
                       testName: "${widget.sectionNumber}: ${widget.sectionTitle}",
                       score: correctCount,
                       totalQuestions: _questions.length,
                       bandScore: band,
                     );
+                    ctrl.saveToLocalStorage();
                   }
                   Get.snackbar(
-                    "Test Evaluated! 🎯",
-                    "Score: $correctCount / ${_questions.length} • Band $band saved to dashboard!",
+                    "Listening Test Evaluated! 🎯",
+                    "Score: $correctCount / ${_questions.length} • Band $band saved & Dashboard checklist updated!",
                     snackPosition: SnackPosition.TOP,
                     backgroundColor: const Color(0xFF004D40),
                     colorText: Colors.white,
