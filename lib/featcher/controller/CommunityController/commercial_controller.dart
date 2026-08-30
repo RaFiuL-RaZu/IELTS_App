@@ -234,9 +234,9 @@ class CommercialController extends GetxController {
 
       if (recordedPath == null) return;
 
-      playerController.dispose();
-      playerController = PlayerController();
-      _setupPlayerListeners();
+      try {
+        await playerController.stopPlayer();
+      } catch (_) {}
 
       await playerController.preparePlayer(path: recordedPath!);
 

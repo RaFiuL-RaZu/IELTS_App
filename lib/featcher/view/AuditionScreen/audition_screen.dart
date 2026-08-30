@@ -186,57 +186,65 @@ class AuditionScreen extends StatelessWidget {
             ),
             SizedBox(height: 14.h),
 
-            _buildSectionTile(
-              icon: Icons.headset_rounded,
-              color: const Color(0xFF00695C),
-              bgColor: const Color(0xFFE0F2F1),
-              title: "Listening Module Test",
-              duration: "30 Minutes • 4 Sections • 40 Questions",
-              bandScore: "Target: Band 8.5",
-              onTap: () {
-                Get.to(() => const IeltsListeningPracticeScreen(
-                  sectionTitle: "Cambridge Mock Test 1 - Audio Section",
-                  sectionNumber: "Listening Test 1",
-                  audioSnippet: "Agent: Welcome to Cambridge English Assessment Listening Test 1...",
-                ));
-              },
-            ),
-            SizedBox(height: 12.h),
-            _buildSectionTile(
-              icon: Icons.menu_book_rounded,
-              color: const Color(0xFF6A1B9A),
-              bgColor: const Color(0xFFF3E5F5),
-              title: "Academic Reading Module Test",
-              duration: "60 Minutes • 3 Passages • 40 Questions",
-              bandScore: "Target: Band 8.0",
-              onTap: () {
-                Get.to(() => const IeltsReadingPracticeScreen(
-                  passageTitle: "Cambridge Mock Test 1 - Academic Passage",
-                  passageText: "The Technological Evolution of Renewable Energy grids across European metropolitan centers.",
-                  difficulty: "Challenging (Band 8.0)",
-                ));
-              },
-            ),
-            SizedBox(height: 12.h),
-            _buildSectionTile(
-              icon: Icons.edit_note_rounded,
-              color: const Color(0xFFE65100),
-              bgColor: const Color(0xFFFFF3E0),
-              title: "Writing Module Test (Task 1 & 2)",
-              duration: "60 Minutes • 2 Tasks • Min 400 Words",
-              bandScore: "Target: Band 7.5",
-              onTap: () => Get.find<NavBarController>().changeTab(1),
-            ),
-            SizedBox(height: 12.h),
-            _buildSectionTile(
-              icon: Icons.mic_rounded,
-              color: const Color(0xFF0284C7),
-              bgColor: const Color(0xFFE0F2FE),
-              title: "Speaking Interview Simulator",
-              duration: "11-14 Minutes • Part 1, 2 & 3",
-              bandScore: "Target: Band 8.0",
-              onTap: () => Get.find<NavBarController>().changeTab(1),
-            ),
+            Obx(() => Column(
+              children: [
+                _buildSectionTile(
+                  icon: Icons.headset_rounded,
+                  color: const Color(0xFF00695C),
+                  bgColor: const Color(0xFFE0F2F1),
+                  title: "Listening Module Test",
+                  duration: "30 Minutes • 4 Sections • 40 Questions",
+                  bandScore: "Target: Band 8.5",
+                  prevResult: progressCtrl.getLatestTestResult("Listening"),
+                  onTap: () {
+                    Get.to(() => const IeltsListeningPracticeScreen(
+                      sectionTitle: "Cambridge Mock Test 1 - Audio Section",
+                      sectionNumber: "Listening Test 1",
+                      audioSnippet: "Agent: Welcome to Cambridge English Assessment Listening Test 1...",
+                    ));
+                  },
+                ),
+                SizedBox(height: 12.h),
+                _buildSectionTile(
+                  icon: Icons.menu_book_rounded,
+                  color: const Color(0xFF6A1B9A),
+                  bgColor: const Color(0xFFF3E5F5),
+                  title: "Academic Reading Module Test",
+                  duration: "60 Minutes • 3 Passages • 40 Questions",
+                  bandScore: "Target: Band 8.0",
+                  prevResult: progressCtrl.getLatestTestResult("Reading"),
+                  onTap: () {
+                    Get.to(() => const IeltsReadingPracticeScreen(
+                      passageTitle: "Cambridge Mock Test 1 - Academic Passage",
+                      passageText: "The Technological Evolution of Renewable Energy grids across European metropolitan centers.",
+                      difficulty: "Challenging (Band 8.0)",
+                    ));
+                  },
+                ),
+                SizedBox(height: 12.h),
+                _buildSectionTile(
+                  icon: Icons.edit_note_rounded,
+                  color: const Color(0xFFE65100),
+                  bgColor: const Color(0xFFFFF3E0),
+                  title: "Writing Module Test (Task 1 & 2)",
+                  duration: "60 Minutes • 2 Tasks • Min 400 Words",
+                  bandScore: "Target: Band 7.5",
+                  prevResult: progressCtrl.getLatestTestResult("Writing"),
+                  onTap: () => Get.find<NavBarController>().changeTab(1),
+                ),
+                SizedBox(height: 12.h),
+                _buildSectionTile(
+                  icon: Icons.mic_rounded,
+                  color: const Color(0xFF0284C7),
+                  bgColor: const Color(0xFFE0F2FE),
+                  title: "Speaking Interview Simulator",
+                  duration: "11-14 Minutes • Part 1, 2 & 3",
+                  bandScore: "Target: Band 8.0",
+                  prevResult: progressCtrl.getLatestTestResult("Speaking"),
+                  onTap: () => Get.find<NavBarController>().changeTab(1),
+                ),
+              ],
+            )),
 
             SizedBox(height: 28.h),
 
@@ -350,13 +358,17 @@ class AuditionScreen extends StatelessWidget {
     required String duration,
     required String bandScore,
     required VoidCallback onTap,
+    IeltsTestResult? prevResult,
   }) {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: prevResult != null ? const Color(0xFF80CBC4) : const Color(0xFFE2E8F0),
+          width: prevResult != null ? 1.5 : 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.02),
@@ -380,9 +392,32 @@ class AuditionScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (prevResult != null) ...[
+                      SizedBox(width: 6.w),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 2.h),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8F5E9),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFA5D6A7)),
+                        ),
+                        child: Text(
+                          "✓ Band ${prevResult.bandScore}",
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF2E7D32)),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 SizedBox(height: 3.h),
                 Text(
@@ -398,12 +433,12 @@ class AuditionScreen extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
               decoration: BoxDecoration(
-                color: color,
+                color: prevResult != null ? const Color(0xFF004D40) : color,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text(
-                "Take Test",
-                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white),
+              child: Text(
+                prevResult != null ? "Retake" : "Take Test",
+                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white),
               ),
             ),
           ),

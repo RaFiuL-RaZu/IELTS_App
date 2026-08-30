@@ -14,7 +14,7 @@ Last updated: August 2026
 </p>
 
 <p>
-Welcome to IELTS Vault. We are committed to protecting your personal information and your right to privacy. This Privacy Policy outlines our practices regarding information collection, usage, and data security when you use our mobile application.
+Welcome to IELTS Angon. We are committed to protecting your personal information and your right to privacy. This Privacy Policy outlines our practices regarding information collection, usage, and data security when you use our mobile application.
 </p>
 
 <h2>1. Information We Collect</h2>

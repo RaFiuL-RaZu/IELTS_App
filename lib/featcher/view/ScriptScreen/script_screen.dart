@@ -201,6 +201,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
               final card = IeltsData.cueCardPool[index];
               return Obx(() {
                 final isBookmarked = progressCtrl.savedCueCardIds.contains(card.id);
+                final prevResult = progressCtrl.getLatestTestResult(card.title);
 
                 return Container(
                   margin: EdgeInsets.only(bottom: 18.h),
@@ -208,7 +209,10 @@ class _ScriptScreenState extends State<ScriptScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(22),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(
+                      color: prevResult != null ? const Color(0xFF80CBC4) : const Color(0xFFE2E8F0),
+                      width: prevResult != null ? 1.5 : 1,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.02),
@@ -223,19 +227,48 @@ class _ScriptScreenState extends State<ScriptScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE0F2F1),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              card.topicCategory,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF004D40),
-                              ),
+                          Expanded(
+                            child: Wrap(
+                              spacing: 8.w,
+                              runSpacing: 6.h,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE0F2F1),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    card.topicCategory,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF004D40),
+                                    ),
+                                  ),
+                                ),
+                                if (prevResult != null)
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE8F5E9),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: const Color(0xFFA5D6A7)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.check_circle_rounded, size: 13, color: Color(0xFF2E7D32)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "Completed (Band ${prevResult.bandScore})",
+                                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF2E7D32)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
                           GestureDetector(
@@ -306,23 +339,24 @@ class _ScriptScreenState extends State<ScriptScreen> {
                           Get.to(() => PracticeScreen(
                             content: "${card.title}\n\n${card.bulletPoints.join('\n')}\n\nBand 8.5 Model Answer:\n${card.sampleAnswer}",
                             title: card.topicCategory,
+                            cardTitle: card.title,
                           ));
                         },
                         child: Container(
                           height: 44.h,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00695C),
+                            color: prevResult != null ? const Color(0xFF004D40) : const Color(0xFF00695C),
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.mic_none_rounded, color: Colors.white, size: 18),
-                              SizedBox(width: 6),
+                            children: [
+                              Icon(prevResult != null ? Icons.replay_rounded : Icons.mic_none_rounded, color: Colors.white, size: 18),
+                              const SizedBox(width: 6),
                               Text(
-                                "Start 1-Min Prep & Record",
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
+                                prevResult != null ? "Retake / Practice Again" : "Start 1-Min Prep & Record",
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
                               ),
                             ],
                           ),
@@ -529,6 +563,8 @@ class _ScriptScreenState extends State<ScriptScreen> {
       },
     ];
 
+    final progressCtrl = Get.find<IeltsProgressController>();
+
     return ListView.builder(
       padding: EdgeInsets.zero,
       shrinkWrap: true,
@@ -536,90 +572,130 @@ class _ScriptScreenState extends State<ScriptScreen> {
       itemCount: sections.length,
       itemBuilder: (context, idx) {
         final sec = sections[idx];
-        return Container(
-          margin: EdgeInsets.only(bottom: 18.h),
-          padding: EdgeInsets.all(18.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                offset: const Offset(0, 4),
-                blurRadius: 8,
+        return Obx(() {
+          final prevResult = progressCtrl.getLatestTestResult(sec["title"] as String) ?? progressCtrl.getLatestTestResult(sec["section"] as String);
+
+          return Container(
+            margin: EdgeInsets.only(bottom: 18.h),
+            padding: EdgeInsets.all(18.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(
+                color: prevResult != null ? const Color(0xFF80CBC4) : const Color(0xFFE2E8F0),
+                width: prevResult != null ? 1.5 : 1,
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  offset: const Offset(0, 4),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Wrap(
+                        spacing: 8.w,
+                        runSpacing: 6.h,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8F5E9),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              sec["section"],
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF2E7D32)),
+                            ),
+                          ),
+                          if (prevResult != null)
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F5E9),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFFA5D6A7)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.check_circle_rounded, size: 13, color: Color(0xFF2E7D32)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    "Completed (Band ${prevResult.bandScore})",
+                                    style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF2E7D32)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF7ED),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        sec["band"],
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFEA580C)),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12.h),
+                Text(
+                  sec["title"],
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                ),
+                SizedBox(height: 6.h),
+                Text(
+                  "${sec["type"]} • ${sec["duration"]} • ${sec["questions"]}",
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                ),
+                SizedBox(height: 16.h),
+                GestureDetector(
+                  onTap: () {
+                    Get.to(() => IeltsListeningPracticeScreen(
+                      sectionTitle: sec["title"] as String,
+                      sectionNumber: sec["section"] as String,
+                      audioSnippet: sec["audioSnippet"] as String,
+                      audioUrl: sec["audioUrl"] as String,
+                    ));
+                  },
+                  child: Container(
+                    height: 44.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8F5E9),
-                      borderRadius: BorderRadius.circular(20),
+                      color: prevResult != null ? const Color(0xFF004D40) : const Color(0xFF00695C),
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Text(
-                      sec["section"],
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF2E7D32)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(prevResult != null ? Icons.replay_rounded : Icons.play_arrow_rounded, color: Colors.white, size: 20),
+                        const SizedBox(width: 6),
+                        Text(
+                          prevResult != null ? "Retake Listening Arena" : "Open Listening Arena & Auto-Score",
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
+                        ),
+                      ],
                     ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7ED),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      sec["band"],
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFEA580C)),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                sec["title"],
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
-              ),
-              SizedBox(height: 6.h),
-              Text(
-                "${sec["type"]} • ${sec["duration"]} • ${sec["questions"]}",
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
-              ),
-              SizedBox(height: 16.h),
-              GestureDetector(
-                onTap: () {
-                  Get.to(() => IeltsListeningPracticeScreen(
-                    sectionTitle: sec["title"] as String,
-                    sectionNumber: sec["section"] as String,
-                    audioSnippet: sec["audioSnippet"] as String,
-                    audioUrl: sec["audioUrl"] as String,
-                  ));
-                },
-                child: Container(
-                  height: 44.h,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00695C),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
-                      SizedBox(width: 6),
-                      Text("Open Listening Arena & Auto-Score", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
-                    ],
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
+              ],
+            ),
+          );
+        });
       },
     );
   }
@@ -737,49 +813,81 @@ class _ScriptScreenState extends State<ScriptScreen> {
             itemCount: passages.length,
             itemBuilder: (context, idx) {
               final pass = passages[idx];
-              return Container(
-                margin: EdgeInsets.only(bottom: 18.h),
-                padding: EdgeInsets.all(18.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
-                      offset: const Offset(0, 4),
-                      blurRadius: 8,
+              return Obx(() {
+                final prevResult = progressCtrl.getLatestTestResult(pass["title"] as String);
+
+                return Container(
+                  margin: EdgeInsets.only(bottom: 18.h),
+                  padding: EdgeInsets.all(18.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: prevResult != null ? const Color(0xFFCE93D8) : const Color(0xFFE2E8F0),
+                      width: prevResult != null ? 1.5 : 1,
                     ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                            decoration: BoxDecoration(
-                              color: isGeneral ? const Color(0xFFE0F2F1) : const Color(0xFFF3E5F5),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              pass["passage"],
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: isGeneral ? const Color(0xFF004D40) : const Color(0xFF6A1B9A),
-                              ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        offset: const Offset(0, 4),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Wrap(
+                              spacing: 8.w,
+                              runSpacing: 6.h,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                                  decoration: BoxDecoration(
+                                    color: isGeneral ? const Color(0xFFE0F2F1) : const Color(0xFFF3E5F5),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    pass["passage"],
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: isGeneral ? const Color(0xFF004D40) : const Color(0xFF6A1B9A),
+                                    ),
+                                  ),
+                                ),
+                                if (prevResult != null)
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF3E5F5),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: const Color(0xFFCE93D8)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.check_circle_rounded, size: 13, color: Color(0xFF6A1B9A)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "Completed (Band ${prevResult.bandScore})",
+                                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF6A1B9A)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Flexible(
-                          child: Container(
+                          SizedBox(width: 8.w),
+                          Container(
                             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                             decoration: BoxDecoration(
                               color: isGeneral ? const Color(0xFFF1F5F9) : const Color(0xFFEDE7F6),
@@ -796,47 +904,50 @@ class _ScriptScreenState extends State<ScriptScreen> {
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 12.h),
-                    Text(
-                      pass["title"],
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
-                    ),
-                    SizedBox(height: 6.h),
-                    Text(
-                      "${pass["words"]} • Recommended Time: ${pass["time"]}",
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
-                    ),
-                    SizedBox(height: 16.h),
-                    GestureDetector(
-                      onTap: () {
-                        Get.to(() => IeltsReadingPracticeScreen(
-                          passageTitle: pass["title"] as String,
-                          passageText: pass["summary"] as String,
-                          difficulty: pass["difficulty"] as String,
-                        ));
-                      },
-                      child: Container(
-                        height: 44.h,
-                        decoration: BoxDecoration(
-                          color: isGeneral ? const Color(0xFF00695C) : const Color(0xFF6A1B9A),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.menu_book_rounded, color: Colors.white, size: 18),
-                            SizedBox(width: 6),
-                            Text("Open Timed Reading Arena", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
-                          ],
+                        ],
+                      ),
+                      SizedBox(height: 12.h),
+                      Text(
+                        pass["title"],
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        "${pass["words"]} • Recommended Time: ${pass["time"]}",
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                      ),
+                      SizedBox(height: 16.h),
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(() => IeltsReadingPracticeScreen(
+                            passageTitle: pass["title"] as String,
+                            passageText: pass["summary"] as String,
+                            difficulty: pass["difficulty"] as String,
+                          ));
+                        },
+                        child: Container(
+                          height: 44.h,
+                          decoration: BoxDecoration(
+                            color: isGeneral ? const Color(0xFF00695C) : const Color(0xFF6A1B9A),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(prevResult != null ? Icons.replay_rounded : Icons.menu_book_rounded, color: Colors.white, size: 18),
+                              const SizedBox(width: 6),
+                              Text(
+                                prevResult != null ? "Retake Reading Arena" : "Open Timed Reading Arena",
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
+                    ],
+                  ),
+                );
+              });
             },
           ),
         ],
@@ -949,49 +1060,81 @@ class _ScriptScreenState extends State<ScriptScreen> {
             itemCount: essays.length,
             itemBuilder: (context, idx) {
               final ess = essays[idx];
-              return Container(
-                margin: EdgeInsets.only(bottom: 18.h),
-                padding: EdgeInsets.all(18.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
-                      offset: const Offset(0, 4),
-                      blurRadius: 8,
+              return Obx(() {
+                final prevResult = progressCtrl.getLatestTestResult(ess["task"] as String) ?? progressCtrl.getLatestTestResult(ess["prompt"] as String);
+
+                return Container(
+                  margin: EdgeInsets.only(bottom: 18.h),
+                  padding: EdgeInsets.all(18.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: prevResult != null ? const Color(0xFFFFCC80) : const Color(0xFFE2E8F0),
+                      width: prevResult != null ? 1.5 : 1,
                     ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                            decoration: BoxDecoration(
-                              color: isGeneral ? const Color(0xFFE0F2F1) : const Color(0xFFFFF3E0),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              ess["task"],
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: isGeneral ? const Color(0xFF004D40) : const Color(0xFFE65100),
-                              ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        offset: const Offset(0, 4),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Wrap(
+                              spacing: 8.w,
+                              runSpacing: 6.h,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                                  decoration: BoxDecoration(
+                                    color: isGeneral ? const Color(0xFFE0F2F1) : const Color(0xFFFFF3E0),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    ess["task"],
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: isGeneral ? const Color(0xFF004D40) : const Color(0xFFE65100),
+                                    ),
+                                  ),
+                                ),
+                                if (prevResult != null)
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF3E0),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: const Color(0xFFFFCC80)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.check_circle_rounded, size: 13, color: Color(0xFFE65100)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "Completed (Band ${prevResult.bandScore})",
+                                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFE65100)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Flexible(
-                          child: Container(
+                          SizedBox(width: 8.w),
+                          Container(
                             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                             decoration: BoxDecoration(
                               color: const Color(0xFFE0F2F1),
@@ -1004,44 +1147,47 @@ class _ScriptScreenState extends State<ScriptScreen> {
                               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF00695C)),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 12.h),
-                    Text(
-                      ess["prompt"],
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), height: 1.35),
-                    ),
-                    SizedBox(height: 16.h),
-                    GestureDetector(
-                      onTap: () {
-                        Get.to(() => IeltsWritingPracticeScreen(
-                          taskType: ess["task"] as String,
-                          prompt: ess["prompt"] as String,
-                          structure: ess["structure"] as String,
-                          lexical: ess["lexical"] as String,
-                          band9Model: ess["sample"] as String,
-                        ));
-                      },
-                      child: Container(
-                        height: 44.h,
-                        decoration: BoxDecoration(
-                          color: isGeneral ? const Color(0xFF00695C) : const Color(0xFFE65100),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.edit_note_rounded, color: Colors.white, size: 20),
-                            SizedBox(width: 6),
-                            Text("Open Writing Arena (Word Count & Timer)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
-                          ],
+                        ],
+                      ),
+                      SizedBox(height: 12.h),
+                      Text(
+                        ess["prompt"],
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), height: 1.35),
+                      ),
+                      SizedBox(height: 16.h),
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(() => IeltsWritingPracticeScreen(
+                            taskType: ess["task"] as String,
+                            prompt: ess["prompt"] as String,
+                            structure: ess["structure"] as String,
+                            lexical: ess["lexical"] as String,
+                            band9Model: ess["sample"] as String,
+                          ));
+                        },
+                        child: Container(
+                          height: 44.h,
+                          decoration: BoxDecoration(
+                            color: isGeneral ? const Color(0xFF00695C) : const Color(0xFFE65100),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(prevResult != null ? Icons.replay_rounded : Icons.edit_note_rounded, color: Colors.white, size: 20),
+                              const SizedBox(width: 6),
+                              Text(
+                                prevResult != null ? "Retake Essay Arena" : "Open Writing Arena (Word Count & Timer)",
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
+                    ],
+                  ),
+                );
+              });
             },
           ),
         ],

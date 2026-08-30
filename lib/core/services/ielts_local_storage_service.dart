@@ -224,8 +224,28 @@ class IeltsProgressController extends GetxController {
     );
 
     testHistory.insert(0, newResult);
+    testHistory.refresh();
     _recalculateStats();
     saveToLocalStorage();
+  }
+
+  IeltsTestResult? getLatestTestResult(String query) {
+    final cleanQuery = query.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), ' ').trim();
+    if (cleanQuery.isEmpty) return null;
+
+    for (var t in testHistory) {
+      final cleanName = t.testName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), ' ').trim();
+      if (cleanName == cleanQuery) {
+        return t;
+      }
+      if (cleanQuery.length >= 15 && cleanName.contains(cleanQuery)) {
+        return t;
+      }
+      if (cleanName.length >= 15 && cleanQuery.contains(cleanName)) {
+        return t;
+      }
+    }
+    return null;
   }
 
   void toggleSpeakingTask() {

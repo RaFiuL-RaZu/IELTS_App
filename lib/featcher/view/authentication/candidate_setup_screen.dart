@@ -126,7 +126,7 @@ class _CandidateSetupScreenState extends State<CandidateSetupScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
                             Text(
-                              "Welcome to IELTS Vault",
+                              "Welcome to IELTS Angon",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -350,7 +350,7 @@ class _CandidateSetupScreenState extends State<CandidateSetupScreen> {
 
                 // Submit Button
                 CommonButton(
-                  titleText: "Start IELTS Preparation 🚀",
+                  titleText: "Get Started",
                   buttonRadius: 18,
                   onTap: _submitSetup,
                 ),

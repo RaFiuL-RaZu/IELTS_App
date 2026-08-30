@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>IELTS Preparation & Analytics Mobile App — Project Report & Presentation Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  @page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #1E293B;
+    background-color: #FFFFFF;
+    line-height: 1.6;
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .header-card {
+    background: linear-gradient(135deg, #004D40 0%, #00796B 100%);
+    color: white;
+    padding: 24px 28px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 14px rgba(0, 77, 64, 0.15);
+  }
+
+  .badge-tag {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    color: #E0F2F1;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+
+  .header-title {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.5px;
+  }
+
+  .header-sub {
+    font-size: 13px;
+    opacity: 0.92;
+    margin: 0;
+  }
+
+  .meta-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 11.5px;
+  }
+
+  h2 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0F172A;
+    border-left: 4px solid #00796B;
+    padding-left: 10px;
+    margin: 22px 0 12px 0;
+    display: flex;
+    align-items: center;
+  }
+
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #004D40;
+    margin: 14px 0 6px 0;
+  }
+
+  p {
+    margin: 0 0 10px 0;
+    color: #334155;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .feature-box {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .feature-box.highlight {
+    background: #F0FDF4;
+    border-color: #BBF7D0;
+  }
+
+  .box-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0F172A;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .box-desc {
+    font-size: 11.5px;
+    color: #64748B;
+    margin: 0;
+  }
+
+  .table-custom {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 12px;
+  }
+
+  .table-custom th {
+    background: #F1F5F9;
+    color: #0F172A;
+    font-weight: 700;
+    text-align: left;
+    padding: 9px 12px;
+    border: 1px solid #E2E8F0;
+  }
+
+  .table-custom td {
+    padding: 9px 12px;
+    border: 1px solid #E2E8F0;
+    color: #334155;
+  }
+
+  .table-custom tr:nth-child(even) {
+    background-color: #F8FAFC;
+  }
+
+  .flow-container {
+    background: #F8FAFC;
+    border: 1px dashed #CBD5E1;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 11.5px;
+    color: #0F172A;
+    line-height: 1.5;
+  }
+
+  .quote-box {
+    background: #F0FDF4;
+    border-left: 4px solid #16A34A;
+    padding: 12px 16px;
+    border-radius: 0 10px 10px 0;
+    margin: 14px 0;
+    font-style: italic;
+    color: #14532D;
+    font-size: 12.5px;
+  }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10.5px;
+    font-weight: 700;
+  }
+  .pill-teal { background: #CCFBF1; color: #0F766E; }
+  .pill-purple { background: #F3E8FF; color: #7E22CE; }
+  .pill-orange { background: #FFEDD5; color: #C2410C; }
+  .pill-blue { background: #E0F2FE; color: #0369A1; }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  .footer-note {
+    margin-top: 24px;
+    padding-top: 12px;
+    border-top: 1px solid #E2E8F0;
+    text-align: center;
+    font-size: 10.5px;
+    color: #94A3B8;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header Banner -->
+  <div class="header-card">
+    <div class="badge-tag">Academic Project Presentation</div>
+    <div class="header-title">IELTS Preparation & Analytics Mobile App</div>
+    <div class="header-sub">Comprehensive System Architecture, Module Lifecycle & Presentation Documentation</div>
+    <div class="meta-bar">
+      <span><strong>Framework:</strong> Flutter (Dart 3.x) & GetX</span>
+      <span><strong>Storage:</strong> Local-First (SharedPreferences)</span>
+      <span><strong>Audience:</strong> Project Supervisor / Faculty</span>
+    </div>
+  </div>
+
+  <!-- 1. Executive Summary -->
+  <h2>1. Executive Summary (প্রকল্পের সারসংক্ষেপ)</h2>
+  <div class="quote-box">
+    <strong>প্রেজেন্টেশন ওপেনিং স্টেটমেন্ট:</strong> "Sir, this application is a comprehensive, local-first IELTS preparation and real-time candidate analytics mobile solution designed to provide end-to-end practice across all 4 IELTS skill modules (Listening, Reading, Writing, Speaking) with Cambridge-standard automated band score estimation and dynamic performance tracking."
+  </div>
+
+  <!-- 2. System Architecture & Tech Stack -->
+  <h2>2. System Architecture & Technology Stack</h2>
+  <div class="grid-2">
+    <div class="feature-box">
+      <div class="box-title">📱 Frontend & UI Layer</div>
+      <p class="box-desc">Built with <strong>Flutter SDK</strong> and <strong>flutter_screenutil</strong> ensuring pixel-perfect responsive layouts across any screen density with custom Material 3 teal-slate design language.</p>
+    </div>
+    <div class="feature-box">
+      <div class="box-title">⚡ State Management & DI</div>
+      <p class="box-desc">Powered by <strong>GetX</strong> for reactive state updates (<code>.obs</code>, <code>Obx</code>) and clean decoupled Dependency Injection (<code>Get.put</code>, <code>Get.find</code>).</p>
+    </div>
+    <div class="feature-box">
+      <div class="box-title">💾 Persistence & Offline Engine</div>
+      <p class="box-desc">Engineered with a local-first caching architecture via <strong>SharedPreferences</strong> preserving user test history, band trends, and candidate goals without network dependencies.</p>
+    </div>
+    <div class="feature-box">
+      <div class="box-title">🎙️ Audio Processing & Streams</div>
+      <p class="box-desc">Integrated with <strong>just_audio</strong>, <strong>audio_waveforms</strong>, and <strong>waveform_flutter</strong> enabling live audio streaming, microphone recording, and interactive visual waveforms.</p>
+    </div>
+  </div>
+
+  <!-- 3. Application Lifecycle Flow -->
+  <h2>3. Application Flow & User Journey (কাজের ধারা)</h2>
+  <div class="flow-container">
+[ Application Launch ]
+       │
+       ▼
+[ Splash Controller ] ──► (Reads persistent local state flags)
+       │
+       ├── Case 1: First-Time User ─────────► [ Onboarding Screen ] ──► [ Candidate Setup Screen ]
+       ├── Case 2: Incomplete Setup ────────► [ Candidate Setup Screen ] (Sets Target Band & Exam Date)
+       └── Case 3: Registered Candidate ────► [ Main Bottom Navigation Hub (5 Core Tabs) ]
+  </div>
+
+  <!-- 4. Core Module Breakdown -->
+  <h2>4. Core Modules Breakdown (মূল ৫টি মডিউল)</h2>
+  <table class="table-custom">
+    <thead>
+      <tr>
+        <th style="width: 22%;">Tab / Module</th>
+        <th style="width: 38%;">Core Responsibilities</th>
+        <th style="width: 40%;">Key Technical Highlights</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. Dashboard</strong><br><span class="pill pill-teal">HomeScreen</span></td>
+        <td>Candidate overview, daily 4-skill checklist, vocabulary booster, and band score calculator launcher.</td>
+        <td>Reactive daily checklist state syncing with local storage; instant target band progress banner.</td>
+      </tr>
+      <tr>
+        <td><strong>2. 4 Skills Practice</strong><br><span class="pill pill-purple">ScriptScreen</span></td>
+        <td>Modular practice engine for Listening, Reading, Writing, and Speaking tasks.</td>
+        <td>Includes timed passages, live word counter for essays, audio streaming player, and cue cards.</td>
+      </tr>
+      <tr>
+        <td><strong>3. Mock & Audition</strong><br><span class="pill pill-orange">AuditionScreen</span></td>
+        <td>Speaking exam simulator with audio recording and audition review.</td>
+        <td>Live microphone waveform rendering, real-time timer, and local audio persistence.</td>
+      </tr>
+      <tr>
+        <td><strong>4. Community</strong><br><span class="pill pill-blue">CommunityScreen</span></td>
+        <td>Collaborative study resource sharing and educational drive access.</td>
+        <td>Integrated external resource launchers and categorized topic feeds.</td>
+      </tr>
+      <tr>
+        <td><strong>5. Analytics</strong><br><span class="pill pill-teal">SettingScreen</span></td>
+        <td>Skill-by-Skill Performance dashboard, Cambridge score calculators, and goal reconfigurator.</td>
+        <td>Live-updating accuracy progress bars and official Cambridge band score rounding engine.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="page-break"></div>
+
+  <!-- 5. Analytics & Scoring Engine Deep Dive -->
+  <h2>5. Analytics & Scoring Engine Deep Dive (ডাইনামিক স্কোরিং লজিক)</h2>
+  <p>The app's performance tracking (<strong>Skill-by-Skill Performance</strong>) is completely dynamic and recalculates across all modules in real-time:</p>
+
+  <div class="grid-4">
+    <div class="feature-box">
+      <div class="box-title">🎧 Listening</div>
+      <p class="box-desc">Tracks score accuracy against total questions and estimates Band (0 - 9.0).</p>
+    </div>
+    <div class="feature-box">
+      <div class="box-title">📖 Reading</div>
+      <p class="box-desc">Calculates passage score percentages and logs historical attempts.</p>
+    </div>
+    <div class="feature-box">
+      <div class="box-title">✍️ Writing</div>
+      <p class="box-desc">Monitors submission counts, word length compliance, and rubric bands.</p>
+    </div>
+    <div class="feature-box">
+      <div class="box-title">🗣️ Speaking</div>
+      <p class="box-desc">Logs cue card practice consistency and estimated fluency metrics.</p>
+    </div>
+  </div>
+
+  <div class="feature-box highlight">
+    <div class="box-title">📐 Official Cambridge Band Score Rounding Formula:</div>
+    <p class="box-desc" style="color: #166534;">
+      <code>Average = (Listening + Reading + Writing + Speaking) / 4.0</code><br>
+      • If fractional remainder &lt; 0.25 ➔ Rounded down to nearest whole band.<br>
+      • If fractional remainder &ge; 0.25 and &lt; 0.75 ➔ Rounded to half band (.5).<br>
+      • If fractional remainder &ge; 0.75 ➔ Rounded up to next whole band.
+    </p>
+  </div>
+
+  <!-- 6. Key Advantages & Presentation Highlights -->
+  <h2>6. Key Highlights & Strengths for Presentation (স্যারকে বলার জন্য বিশেষ পয়েন্ট)</h2>
+  <div class="grid-2">
+    <div class="feature-box">
+      <div class="box-title">1. Local-First & Zero Latency</div>
+      <p class="box-desc">Users can practice listening audios, reading passages, and study offline without interruptions or costly server latencies.</p>
+    </div>
+    <div class="feature-box">
+      <div class="box-title">2. Reactive Data Architecture</div>
+      <p class="box-desc">Every completed quiz immediately broadcasts changes through GetX reactive streams without needing manual page reloads.</p>
+    </div>
+    <div class="feature-box">
+      <div class="box-title">3. Official IELTS Rubric Alignment</div>
+      <p class="box-desc">Includes official Cambridge band descriptors and calculation logic, making it pedagogically accurate for actual test takers.</p>
+    </div>
+    <div class="feature-box">
+      <div class="box-title">4. Future Extensibility (AI Ready)</div>
+      <p class="box-desc">Modular controller structure allows seamless integration with AI APIs (like Gemini for automatic essay grading and speech analysis).</p>
+    </div>
+  </div>
+
+  <!-- 7. Conclusion -->
+  <h2>7. Conclusion & Next Milestones</h2>
+  <p>
+    This project demonstrates a production-ready Flutter mobile architecture blending state-of-the-art state management, audio hardware integration, and pedagogical testing algorithms to create a seamless IELTS test-preparation journey.
+  </p>
+
+  <div class="footer-note">
+    Prepared for Academic Project Presentation • IELTS Prep App (Flutter / GetX) • Generated on August 30, 2026
+  </div>
+
+</body>
+</html>

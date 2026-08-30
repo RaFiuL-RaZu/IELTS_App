@@ -45,7 +45,7 @@ class CreateAccount extends StatelessWidget {
                 Center(
                   child: CommonText(
                     align: TextAlign.center,
-                    title: "Join IELTS Vault and start your preparation.",
+                    title: "Join IELTS Angon and start your preparation.",
                     fSize: 16.sp,
                     fWeight: FontWeight.w500,
                     color: AppColor.secondary,

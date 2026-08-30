@@ -9,11 +9,13 @@ import '../../controller/ScriptController/practice_controller.dart';
 class PracticeScreen extends StatefulWidget {
   final String content;
   final String title;
+  final String? cardTitle;
 
   const PracticeScreen({
     super.key,
     required this.content,
     required this.title,
+    this.cardTitle,
   });
 
   @override
@@ -398,7 +400,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
                         // Submit / Complete Speaking Test
                         GestureDetector(
-                          onTap: () => controller.createCommunity(),
+                          onTap: () => controller.createCommunity(
+                            cueCardTitle: widget.cardTitle ?? widget.title,
+                            category: widget.title,
+                          ),
                           child: Container(
                             height: 52.h,
                             width: 52.w,

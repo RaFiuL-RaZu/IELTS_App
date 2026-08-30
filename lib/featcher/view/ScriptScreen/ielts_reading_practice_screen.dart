@@ -483,7 +483,7 @@ class _IeltsReadingPracticeScreenState extends State<IeltsReadingPracticeScreen>
                     ctrl.readingBand.value = band;
                     ctrl.addTestResult(
                       skill: "Reading",
-                      testName: "Reading: ${widget.passageTitle}",
+                      testName: widget.passageTitle,
                       score: correctCount,
                       totalQuestions: _readingQuestions.length,
                       bandScore: band,

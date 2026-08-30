@@ -322,23 +322,25 @@ class PracticeController extends GetxController {
 
 
 
-  Future<void> createCommunity() async {
+  Future<void> createCommunity({String? cueCardTitle, String? category}) async {
     isLoading(true);
 
     try {
-
       debugPrint("saveAudition :");
       await Future.delayed(const Duration(milliseconds: 400));
 
       if (Get.isRegistered<IeltsProgressController>()) {
-        IeltsProgressController.to.speakingTaskDone.value = true;
-        IeltsProgressController.to.addTestResult(
+        final ctrl = IeltsProgressController.to;
+        ctrl.speakingTaskDone.value = true;
+        ctrl.speakingBand.value = 7.5;
+        ctrl.addTestResult(
           skill: "Speaking",
-          testName: "Speaking Cue Card Practice",
+          testName: cueCardTitle ?? category ?? "Speaking Cue Card Practice",
           score: 8,
           totalQuestions: 9,
           bandScore: 7.5,
         );
+        ctrl.saveToLocalStorage();
       }
 
       Get.back();
