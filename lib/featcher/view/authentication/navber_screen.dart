@@ -28,8 +28,8 @@ class NavBarScreen extends StatelessWidget {
         "icon": Icons.auto_stories_rounded,
       },
       {
-        "label": "Analytics",
-        "icon": Icons.bar_chart_rounded,
+        "label": "Profile",
+        "icon": Icons.person_rounded,
       },
     ];
 

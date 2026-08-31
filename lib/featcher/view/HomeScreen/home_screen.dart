@@ -5,6 +5,7 @@ import 'package:justtsham/core/services/ielts_local_storage_service.dart';
 import 'package:justtsham/core/widgets/common_text.dart';
 import 'package:justtsham/featcher/controller/AuthController/navber_controller.dart';
 import 'package:justtsham/featcher/view/HomeScreen/ielts_band_calculator_modal.dart';
+import 'package:justtsham/featcher/view/HomeScreen/ielts_exam_date_modal.dart';
 import 'package:justtsham/featcher/view/HomeScreen/ielts_grammar_screen.dart';
 import 'package:justtsham/featcher/view/HomeScreen/ielts_vocabulary_screen.dart';
 import 'package:justtsham/featcher/view/HomeScreen/notification_screen.dart';
@@ -147,33 +148,46 @@ class HomeScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.18),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            "🎯 Target: Band $targetBand",
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                        GestureDetector(
+                          onTap: () => IeltsExamDateModal.show(context),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.18),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              "🎯 Target: Band $targetBand",
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.18),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            "⏳ $days Days Left",
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF80CBC4),
+                        GestureDetector(
+                          onTap: () => IeltsExamDateModal.show(context),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.22),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: const Color(0xFF80CBC4).withOpacity(0.4)),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "⏳ $days Days Left",
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF80CBC4),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(Icons.edit_calendar_rounded, size: 13, color: Color(0xFF80CBC4)),
+                              ],
                             ),
                           ),
                         ),
@@ -222,7 +236,9 @@ class HomeScreen extends StatelessWidget {
                               ),
                               SizedBox(height: 6.h),
                               Text(
-                                "Overall Accuracy: $accuracy%",
+                                progressCtrl.testHistory.isEmpty
+                                    ? "Overall Accuracy: 0.0% (No tests yet)"
+                                    : "Overall Accuracy: $accuracy%",
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -505,7 +521,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 4.h),
                           const Text(
-                            "Collocations & Lexical sets",
+                            "Word Families & Collocations",
                             style: TextStyle(fontSize: 11, color: Color(0xFF80CBC4), fontWeight: FontWeight.w500),
                           ),
                         ],
@@ -541,12 +557,12 @@ class HomeScreen extends StatelessWidget {
                           const Text("📐", style: TextStyle(fontSize: 24)),
                           SizedBox(height: 10.h),
                           const Text(
-                            "Grammar Range",
+                            "Grammar Rules",
                             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
                           ),
                           SizedBox(height: 4.h),
                           const Text(
-                            "Band 9 Complex formulas",
+                            "Topic Rules & Examples",
                             style: TextStyle(fontSize: 11, color: Color(0xFFE1BEE7), fontWeight: FontWeight.w500),
                           ),
                         ],

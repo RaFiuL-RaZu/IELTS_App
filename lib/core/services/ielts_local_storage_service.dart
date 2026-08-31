@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../constant/prefs_helper.dart';
 
 class IeltsTestResult {
   final String id;
@@ -54,23 +55,49 @@ class IeltsProgressController extends GetxController {
   var candidateName = "IELTS Aspirant".obs;
   var targetBand = 8.0.obs;
   var examDaysRemaining = 28.obs;
+  var examDateString = "".obs;
   var examModule = "Academic".obs; // Academic vs General Training
-  var overallBand = 7.5.obs;
-  var overallAccuracy = 84.5.obs;
+  var overallBand = 8.0.obs;
+  var overallAccuracy = 0.0.obs;
 
   double get overallBandScore => overallBand.value;
 
-  // Individual Skill Bands
-  var listeningBand = 8.0.obs;
-  var readingBand = 7.5.obs;
-  var writingBand = 7.0.obs;
-  var speakingBand = 7.5.obs;
+  int get dynamicDaysRemaining {
+    if (examDateString.value.isNotEmpty) {
+      try {
+        final target = DateTime.parse(examDateString.value);
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        final examDay = DateTime(target.year, target.month, target.day);
+        final diff = examDay.difference(today).inDays;
+        return diff >= 0 ? diff : 0;
+      } catch (_) {}
+    }
+    return examDaysRemaining.value;
+  }
 
-  // Individual Skill Accuracies
-  var listeningAccuracy = 88.0.obs;
-  var readingAccuracy = 82.0.obs;
-  var writingAccuracy = 78.0.obs;
-  var speakingAccuracy = 85.0.obs;
+  Future<void> setExamDate(DateTime date) async {
+    final str = "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    examDateString.value = str;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final examDay = DateTime(date.year, date.month, date.day);
+    final diff = examDay.difference(today).inDays;
+    examDaysRemaining.value = diff >= 0 ? diff : 0;
+    await saveToLocalStorage();
+  }
+
+  // Individual Skill Bands (default to target band)
+  var listeningBand = 8.0.obs;
+  var readingBand = 8.0.obs;
+  var writingBand = 8.0.obs;
+  var speakingBand = 8.0.obs;
+
+  // Individual Skill Accuracies (0.0% for new accounts)
+  var listeningAccuracy = 0.0.obs;
+  var readingAccuracy = 0.0.obs;
+  var writingAccuracy = 0.0.obs;
+  var speakingAccuracy = 0.0.obs;
 
   // Daily Study Routine Checkboxes
   var speakingTaskDone = false.obs;
@@ -85,84 +112,90 @@ class IeltsProgressController extends GetxController {
   var savedCueCardIds = <String>{}.obs;
   var savedVocabWords = <String>{}.obs;
 
+  String _userKey(String baseKey) {
+    final email = PrefsHelper.myEmail.trim().toLowerCase();
+    if (email.isNotEmpty) {
+      return 'user_${email}_$baseKey';
+    }
+    return baseKey;
+  }
+
   @override
   void onInit() {
     super.onInit();
     loadFromLocalStorage();
   }
 
-  Future<void> loadFromLocalStorage() async {
+  Future<void> loadForUser(String email) async {
+    await loadFromLocalStorage(userEmail: email);
+  }
+
+  Future<void> loadFromLocalStorage({String? userEmail}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final effectiveEmail = (userEmail ?? PrefsHelper.myEmail).trim().toLowerCase();
+      final keyPrefix = effectiveEmail.isNotEmpty ? 'user_${effectiveEmail}_' : '';
 
-      candidateName.value = prefs.getString('candidate_name') ?? prefs.getString('myName') ?? "IELTS Aspirant";
-      targetBand.value = prefs.getDouble('target_band') ?? 8.0;
-      examDaysRemaining.value = prefs.getInt('exam_days_remaining') ?? 28;
-      examModule.value = prefs.getString('exam_module') ?? "Academic";
+      candidateName.value = prefs.getString('${keyPrefix}candidate_name') ??
+          prefs.getString('candidate_name') ??
+          (PrefsHelper.myName.isNotEmpty ? PrefsHelper.myName : "IELTS Aspirant");
 
-      listeningBand.value = prefs.getDouble('listening_band') ?? 8.0;
-      readingBand.value = prefs.getDouble('reading_band') ?? 7.5;
-      writingBand.value = prefs.getDouble('writing_band') ?? 7.0;
-      speakingBand.value = prefs.getDouble('speaking_band') ?? 7.5;
+      final target = prefs.getDouble('${keyPrefix}target_band') ?? prefs.getDouble('target_band') ?? 8.0;
+      targetBand.value = target;
 
-      listeningAccuracy.value = prefs.getDouble('listening_acc') ?? 88.0;
-      readingAccuracy.value = prefs.getDouble('reading_acc') ?? 82.0;
-      writingAccuracy.value = prefs.getDouble('writing_acc') ?? 78.0;
-      speakingAccuracy.value = prefs.getDouble('speaking_acc') ?? 85.0;
+      examDateString.value = prefs.getString('${keyPrefix}exam_date') ?? prefs.getString('exam_date') ?? "";
+      if (examDateString.value.isNotEmpty) {
+        try {
+          final targetDate = DateTime.parse(examDateString.value);
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          final examDay = DateTime(targetDate.year, targetDate.month, targetDate.day);
+          final diff = examDay.difference(today).inDays;
+          examDaysRemaining.value = diff >= 0 ? diff : 0;
+        } catch (_) {
+          examDaysRemaining.value = prefs.getInt('${keyPrefix}exam_days_remaining') ?? prefs.getInt('exam_days_remaining') ?? 28;
+        }
+      } else {
+        examDaysRemaining.value = prefs.getInt('${keyPrefix}exam_days_remaining') ?? prefs.getInt('exam_days_remaining') ?? 28;
+      }
 
-      speakingTaskDone.value = prefs.getBool('speaking_task_done') ?? true;
-      listeningTaskDone.value = prefs.getBool('listening_task_done') ?? true;
-      readingTaskDone.value = prefs.getBool('reading_task_done') ?? false;
-      writingTaskDone.value = prefs.getBool('writing_task_done') ?? false;
+      examModule.value = prefs.getString('${keyPrefix}exam_module') ?? prefs.getString('exam_module') ?? "Academic";
 
-      final historyJson = prefs.getString('test_history');
+      listeningBand.value = prefs.getDouble('${keyPrefix}listening_band') ?? prefs.getDouble('listening_band') ?? target;
+      readingBand.value = prefs.getDouble('${keyPrefix}reading_band') ?? prefs.getDouble('reading_band') ?? target;
+      writingBand.value = prefs.getDouble('${keyPrefix}writing_band') ?? prefs.getDouble('writing_band') ?? target;
+      speakingBand.value = prefs.getDouble('${keyPrefix}speaking_band') ?? prefs.getDouble('speaking_band') ?? target;
+
+      listeningAccuracy.value = prefs.getDouble('${keyPrefix}listening_acc') ?? prefs.getDouble('listening_acc') ?? 0.0;
+      readingAccuracy.value = prefs.getDouble('${keyPrefix}reading_acc') ?? prefs.getDouble('reading_acc') ?? 0.0;
+      writingAccuracy.value = prefs.getDouble('${keyPrefix}writing_acc') ?? prefs.getDouble('writing_acc') ?? 0.0;
+      speakingAccuracy.value = prefs.getDouble('${keyPrefix}speaking_acc') ?? prefs.getDouble('speaking_acc') ?? 0.0;
+
+      speakingTaskDone.value = prefs.getBool('${keyPrefix}speaking_task_done') ?? prefs.getBool('speaking_task_done') ?? false;
+      listeningTaskDone.value = prefs.getBool('${keyPrefix}listening_task_done') ?? prefs.getBool('listening_task_done') ?? false;
+      readingTaskDone.value = prefs.getBool('${keyPrefix}reading_task_done') ?? prefs.getBool('reading_task_done') ?? false;
+      writingTaskDone.value = prefs.getBool('${keyPrefix}writing_task_done') ?? prefs.getBool('writing_task_done') ?? false;
+
+      final historyJson = prefs.getString('${keyPrefix}test_history') ?? (keyPrefix.isEmpty ? prefs.getString('test_history') : null);
       if (historyJson != null) {
         final List decoded = jsonDecode(historyJson);
         testHistory.value = decoded.map((e) => IeltsTestResult.fromJson(e)).toList();
       } else {
-        // Seed default high-quality initial practice history
-        testHistory.value = [
-          IeltsTestResult(
-            id: "1",
-            skill: "Listening",
-            testName: "Cambridge 18 - Section 1 Hotel Booking",
-            score: 9,
-            totalQuestions: 10,
-            accuracy: 90.0,
-            bandScore: 8.0,
-            date: "Today, 10:30 AM",
-          ),
-          IeltsTestResult(
-            id: "2",
-            skill: "Reading",
-            testName: "Academic Passage 1 - Renewable Tech",
-            score: 11,
-            totalQuestions: 13,
-            accuracy: 84.6,
-            bandScore: 7.5,
-            date: "Yesterday, 04:15 PM",
-          ),
-          IeltsTestResult(
-            id: "3",
-            skill: "Speaking",
-            testName: "Cue Card - Artificial Intelligence in Higher Ed",
-            score: 8,
-            totalQuestions: 9,
-            accuracy: 88.0,
-            bandScore: 7.5,
-            date: "2 days ago",
-          ),
-        ];
+        testHistory.value = [];
       }
 
-      final savedCards = prefs.getStringList('saved_cue_cards');
+      final savedCards = prefs.getStringList('${keyPrefix}saved_cue_cards') ?? prefs.getStringList('saved_cue_cards');
       if (savedCards != null) {
         savedCueCardIds.value = savedCards.toSet();
+      } else {
+        savedCueCardIds.clear();
       }
 
-      final savedWords = prefs.getStringList('saved_vocab');
+      final savedWords = prefs.getStringList('${keyPrefix}saved_vocab') ?? prefs.getStringList('saved_vocab');
       if (savedWords != null) {
         savedVocabWords.value = savedWords.toSet();
+      } else {
+        savedVocabWords.clear();
       }
 
       _recalculateStats();
@@ -174,34 +207,76 @@ class IeltsProgressController extends GetxController {
   Future<void> saveToLocalStorage() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final keyPrefix = _userKey('');
+
+      await prefs.setString('${keyPrefix}candidate_name', candidateName.value);
+      await prefs.setDouble('${keyPrefix}target_band', targetBand.value);
+      await prefs.setInt('${keyPrefix}exam_days_remaining', examDaysRemaining.value);
+      await prefs.setString('${keyPrefix}exam_date', examDateString.value);
+      await prefs.setString('${keyPrefix}exam_module', examModule.value);
+
+      await prefs.setDouble('${keyPrefix}listening_band', listeningBand.value);
+      await prefs.setDouble('${keyPrefix}reading_band', readingBand.value);
+      await prefs.setDouble('${keyPrefix}writing_band', writingBand.value);
+      await prefs.setDouble('${keyPrefix}speaking_band', speakingBand.value);
+
+      await prefs.setDouble('${keyPrefix}listening_acc', listeningAccuracy.value);
+      await prefs.setDouble('${keyPrefix}reading_acc', readingAccuracy.value);
+      await prefs.setDouble('${keyPrefix}writing_acc', writingAccuracy.value);
+      await prefs.setDouble('${keyPrefix}speaking_acc', speakingAccuracy.value);
+
+      await prefs.setBool('${keyPrefix}speaking_task_done', speakingTaskDone.value);
+      await prefs.setBool('${keyPrefix}listening_task_done', listeningTaskDone.value);
+      await prefs.setBool('${keyPrefix}reading_task_done', readingTaskDone.value);
+      await prefs.setBool('${keyPrefix}writing_task_done', writingTaskDone.value);
+
+      final historyJson = jsonEncode(testHistory.map((e) => e.toJson()).toList());
+      await prefs.setString('${keyPrefix}test_history', historyJson);
+
+      await prefs.setStringList('${keyPrefix}saved_cue_cards', savedCueCardIds.toList());
+      await prefs.setStringList('${keyPrefix}saved_vocab', savedVocabWords.toList());
+
+      // Also mirror to global default keys for backward compatibility
       await prefs.setString('candidate_name', candidateName.value);
       await prefs.setDouble('target_band', targetBand.value);
       await prefs.setInt('exam_days_remaining', examDaysRemaining.value);
       await prefs.setString('exam_module', examModule.value);
-
-      await prefs.setDouble('listening_band', listeningBand.value);
-      await prefs.setDouble('reading_band', readingBand.value);
-      await prefs.setDouble('writing_band', writingBand.value);
-      await prefs.setDouble('speaking_band', speakingBand.value);
-
-      await prefs.setDouble('listening_acc', listeningAccuracy.value);
-      await prefs.setDouble('reading_acc', readingAccuracy.value);
-      await prefs.setDouble('writing_acc', writingAccuracy.value);
-      await prefs.setDouble('speaking_acc', speakingAccuracy.value);
-
-      await prefs.setBool('speaking_task_done', speakingTaskDone.value);
-      await prefs.setBool('listening_task_done', listeningTaskDone.value);
-      await prefs.setBool('reading_task_done', readingTaskDone.value);
-      await prefs.setBool('writing_task_done', writingTaskDone.value);
-
-      final historyJson = jsonEncode(testHistory.map((e) => e.toJson()).toList());
       await prefs.setString('test_history', historyJson);
-
-      await prefs.setStringList('saved_cue_cards', savedCueCardIds.toList());
-      await prefs.setStringList('saved_vocab', savedVocabWords.toList());
     } catch (e) {
       debugPrint("Error saving IELTS local storage: $e");
     }
+  }
+
+  Future<void> resetPracticeHistory() async {
+    testHistory.clear();
+    testHistory.refresh();
+    listeningBand.value = targetBand.value;
+    readingBand.value = targetBand.value;
+    writingBand.value = targetBand.value;
+    speakingBand.value = targetBand.value;
+    listeningAccuracy.value = 0.0;
+    readingAccuracy.value = 0.0;
+    writingAccuracy.value = 0.0;
+    speakingAccuracy.value = 0.0;
+    overallBand.value = targetBand.value;
+    overallAccuracy.value = 0.0;
+    speakingTaskDone.value = false;
+    listeningTaskDone.value = false;
+    readingTaskDone.value = false;
+    writingTaskDone.value = false;
+    savedCueCardIds.clear();
+    savedVocabWords.clear();
+    await saveToLocalStorage();
+  }
+
+  Future<void> resetUserData({String? newName, double? targetBandVal, String? module, bool clearHistory = true}) async {
+    candidateName.value = newName ?? "IELTS Aspirant";
+    if (targetBandVal != null) targetBand.value = targetBandVal;
+    if (module != null) examModule.value = module;
+    if (clearHistory) {
+      await resetPracticeHistory();
+    }
+    await saveToLocalStorage();
   }
 
   void addTestResult({
@@ -304,7 +379,19 @@ class IeltsProgressController extends GetxController {
   }
 
   void _recalculateStats() {
-    if (testHistory.isEmpty) return;
+    if (testHistory.isEmpty) {
+      overallAccuracy.value = 0.0;
+      listeningAccuracy.value = 0.0;
+      readingAccuracy.value = 0.0;
+      writingAccuracy.value = 0.0;
+      speakingAccuracy.value = 0.0;
+      overallBand.value = targetBand.value;
+      listeningBand.value = targetBand.value;
+      readingBand.value = targetBand.value;
+      writingBand.value = targetBand.value;
+      speakingBand.value = targetBand.value;
+      return;
+    }
 
     double totalAcc = 0;
     double readingAccSum = 0; int readingCount = 0;

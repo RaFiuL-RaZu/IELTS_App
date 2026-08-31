@@ -311,16 +311,70 @@ class _PracticeScreenState extends State<PracticeScreen> {
                       ),
                     );
                   } else if (controller.isRecorded.value) {
-                    return AudioFileWaveforms(
-                      backgroundColor: Colors.transparent,
-                      size: Size(double.infinity, 44.h),
-                      playerController: controller.playerController,
-                      waveformType: WaveformType.fitWidth,
-                      playerWaveStyle: const PlayerWaveStyle(
-                        fixedWaveColor: Color(0xFFCBD5E1),
-                        liveWaveColor: Color(0xFF00695C),
-                        spacing: 5,
-                        waveThickness: 3,
+                    final current = controller.currentPosition.value;
+                    final total = controller.totalDuration.value > 0
+                        ? controller.totalDuration.value
+                        : (controller.seconds.value * 1000);
+                    final progress = (total > 0) ? (current / total).clamp(0.0, 1.0) : 0.0;
+                    final isPlaying = controller.playerState.value == PlayerState.playing;
+
+                    return Container(
+                      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Animated Wave Bars & Status
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(24, (i) {
+                              final heightFactor = (i % 4 == 0)
+                                  ? 1.0
+                                  : (i % 3 == 0)
+                                      ? 0.7
+                                      : (i % 2 == 0)
+                                          ? 0.45
+                                          : 0.3;
+                              final isActive = (i / 24.0) <= progress;
+                              return Container(
+                                margin: EdgeInsets.symmetric(horizontal: 2.w),
+                                width: 3.5.w,
+                                height: 22.h * (isPlaying ? (heightFactor * (0.6 + (i % 5) * 0.1)) : heightFactor),
+                                decoration: BoxDecoration(
+                                  color: isActive
+                                      ? const Color(0xFF00695C)
+                                      : const Color(0xFF94A3B8),
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              );
+                            }),
+                          ),
+                          SizedBox(height: 6.h),
+                          // Scrubber & Timings
+                          SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              trackHeight: 3.h,
+                              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6.r),
+                              overlayShape: RoundSliderOverlayShape(overlayRadius: 12.r),
+                              activeTrackColor: const Color(0xFF00695C),
+                              inactiveTrackColor: const Color(0xFFCBD5E1),
+                              thumbColor: const Color(0xFF004D40),
+                            ),
+                            child: Slider(
+                              value: current.toDouble().clamp(0.0, total.toDouble()),
+                              min: 0.0,
+                              max: total > 0 ? total.toDouble() : 1.0,
+                              onChanged: (val) async {
+                                await controller.playerController.seekTo(val.toInt());
+                                controller.currentPosition.value = val.toInt();
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   } else {
@@ -427,11 +481,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
                     );
                   } else {
                     // Ready to Record / Active Recording State
+                    final isRec = controller.isRecording.value;
+                    final isProc = controller.isProcessing.value;
+
                     return Column(
                       children: [
                         GestureDetector(
                           onTap: () async {
-                            if (controller.isRecording.value) {
+                            if (isProc) return;
+                            if (isRec) {
                               await controller.stopRecording();
                             } else {
                               await controller.startRecording();
@@ -442,12 +500,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
                             width: 76.w,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: controller.isRecording.value
+                              color: isRec
                                   ? const Color(0xFFEF4444)
                                   : const Color(0xFF00695C),
                               boxShadow: [
                                 BoxShadow(
-                                  color: (controller.isRecording.value
+                                  color: (isRec
                                           ? const Color(0xFFEF4444)
                                           : const Color(0xFF00695C))
                                       .withOpacity(0.35),
@@ -457,25 +515,31 @@ class _PracticeScreenState extends State<PracticeScreen> {
                               ],
                             ),
                             child: Center(
-                              child: Icon(
-                                controller.isRecording.value
-                                    ? Icons.stop_rounded
-                                    : Icons.mic_rounded,
-                                color: Colors.white,
-                                size: 38,
-                              ),
+                              child: isProc
+                                  ? const SizedBox(
+                                      height: 28,
+                                      width: 28,
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                                    )
+                                  : Icon(
+                                      isRec ? Icons.stop_rounded : Icons.mic_rounded,
+                                      color: Colors.white,
+                                      size: 38,
+                                    ),
                             ),
                           ),
                         ),
                         SizedBox(height: 10.h),
                         Text(
-                          controller.isRecording.value
-                              ? "Recording in progress... (Tap to finish)"
-                              : "Tap mic to start speaking response",
+                          isProc
+                              ? "Finalizing audio response..."
+                              : isRec
+                                  ? "Recording in progress... (Tap to stop)"
+                                  : "Tap mic to start speaking response",
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: controller.isRecording.value
+                            color: isRec
                                 ? const Color(0xFFEF4444)
                                 : const Color(0xFF64748B),
                           ),

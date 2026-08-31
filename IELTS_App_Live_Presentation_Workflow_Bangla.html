@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>IELTS Master App - লাইভ প্রেজেন্টেশন ও ডেমো ওয়ার্কফ্লো স্ক্রিপ্ট</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
+
+    @page {
+      size: A4;
+      margin: 14mm 14mm 14mm 14mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Hind Siliguri', 'Segoe UI', Roboto, sans-serif;
+      color: #0F172A;
+      background-color: #FFFFFF;
+      line-height: 1.6;
+      font-size: 14px;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .cover-header {
+      background: linear-gradient(135deg, #004D40 0%, #00695C 60%, #00897B 100%);
+      color: #FFFFFF;
+      padding: 34px 28px;
+      border-radius: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 25px rgba(0, 77, 64, 0.15);
+    }
+
+    .cover-header h1 {
+      font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif;
+      font-size: 27px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .cover-header p {
+      font-size: 15px;
+      color: #E0F2F1;
+      font-weight: 500;
+    }
+
+    .cover-meta {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge-white { background: rgba(255, 255, 255, 0.2); color: #FFFFFF; }
+    .badge-amber { background: #FEF3C7; color: #92400E; }
+    .badge-teal { background: #E0F2F1; color: #004D40; }
+    .badge-blue { background: #E0F2FE; color: #0369A1; }
+    .badge-purple { background: #F3E8FF; color: #6B21A8; }
+
+    .step-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 22px;
+      page-break-inside: avoid;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+    }
+
+    .step-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1.5px solid #F1F5F9;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .step-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #004D40;
+    }
+
+    .speech-box {
+      background: #F0FDF4;
+      border-left: 4px solid #10B981;
+      border-radius: 0 12px 12px 0;
+      padding: 14px 18px;
+      margin: 12px 0 16px 0;
+      color: #064E3B;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .speech-box strong {
+      color: #047857;
+      display: block;
+      font-size: 14.5px;
+      margin-bottom: 4px;
+    }
+
+    .action-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+
+    .action-box h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    ul, ol {
+      margin-left: 22px;
+      margin-bottom: 10px;
+      color: #334155;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #E2E8F0;
+      color: #94A3B8;
+      font-size: 12px;
+    }
+
+    @media print {
+      body { background: transparent; }
+      .container { max-width: 100%; padding: 0; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- COVER HEADER -->
+  <div class="cover-header">
+    <h1>IELTS Master Prep App</h1>
+    <p>লাইভ প্রেজেন্টেশন ও ডেমো স্ক্রিপ্ট (Step-by-Step Defense Guide)</p>
+    <div class="cover-meta">
+      <span class="badge badge-white">প্রেজেন্টেশন ধরন: Live Demo Script</span>
+      <span class="badge badge-white">ভাষ্য: বাংলা (Bangla)</span>
+      <span class="badge badge-white">লক্ষ্য: পূর্ণাঙ্গ প্রজেক্ট ডিফেন্স</span>
+    </div>
+  </div>
+
+  <!-- INTRO OPENING PITCH -->
+  <div class="speech-box">
+    <strong>🎙️ প্রেজেন্টেশন শুরুর উদ্বোধনী বক্তব্য (Opening Pitch):</strong>
+    "সম্মানিত বিচারকমণ্ডলী / স্যার, আসসালামু আলাইকুম। আজ আমি আপনাদের সামনে উপস্থাপন করতে যাচ্ছি আমাদের <strong>IELTS Master Prep App</strong>। এটি একটি স্বয়ংসম্পূর্ণ, ডেটা-ড্রিভেন এবং পারসোনালাইজড মোবাইল প্ল্যাটফর্ম, যা একজন শিক্ষার্থীকে IELTS পরীক্ষায় Band 7.5 থেকে 9.0 অর্জনে সরাসরি সাহায্য করে। চলুন আমি অ্যাপটি ওপেন করে আপনাদের সম্পূর্ণ ওয়ার্কফ্লোটি লাইভ ডেমো দিয়ে দেখাচ্ছি..."
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-title">🎬 ধাপ ১: ফার্স্ট টাইম ইউজার জার্নি (Splash ➔ Onboard ➔ Setup)</div>
+      <span class="badge badge-teal">Phase 1</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 স্ক্রিনে যা যা দেখাবেন ও অ্যাকশন করবেন:</h4>
+      <ol>
+        <li><strong>Splash Screen:</strong> অ্যাপ ওপেন করবেন এবং লোগো অ্যানিমেশন দেখাবেন।</li>
+        <li><strong>Onboarding Slides:</strong> স্লাইডগুলো ডান থেকে বামে সোয়াইপ করে ৩টি মূল ফিচার দেখিয়ে "Get Started" চাপবেন।</li>
+        <li><strong>Candidate Setup:</strong> নাম হিসেবে <code>Razu</code>, টার্গেট <code>Band 8.0</code> এবং মডিউল <code>Academic</code> সিলেক্ট করে "Complete Setup" এ চাপবেন।</li>
+      </ol>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ আপনি মুখে যা বলবেন:</strong>
+      "অ্যাপটি ওপেন করার সাথে সাথেই দেখতে পাচ্ছেন আমাদের প্রিমিয়াম ব্র্যান্ডিং স্প্ল্যাশ স্ক্রিন। ব্যাকগ্রাউন্ডে <code>SplashController</code> মাত্র ২ সেকেন্ডে যাচাই করে নিচ্ছে ইউজার কি নতুন নাকি পুরাতন। যেহেতু আমি নতুন পরীক্ষার্থী হিসেবে ঢুকছি, অ্যাপটি আমাকে সুন্দর অনবোর্ডিং স্লাইডার এবং ক্যান্ডিডেট গোল সেটআপ স্ক্রিনে নিয়ে এসেছে। এখানে নাম, টার্গেট ব্যান্ড স্কোর (Band 8.0) এবং এক্সাম মডিউল (Academic) সিলেক্ট করে সাবমিট করলেই পুরো অ্যাপটি শিক্ষার্থীর জন্য কাস্টমাইজড হয়ে যাবে।"
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="page-break"></div>
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-title">🎬 ধাপ ২: ড্যাশবোর্ড ও লাইভ ইন্টেলিজেন্স (Main Dashboard Demo)</div>
+      <span class="badge badge-blue">Phase 2</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 স্ক্রিনে যা যা দেখাবেন ও অ্যাকশন করবেন:</h4>
+      <ol>
+        <li><strong>গ্রিটিং ও কাউন্টডাউন:</strong> "Good Afternoon, Razu" এবং উপরের সবুজ হিরো কার্ডের <code>Target: Band 8.0</code> ও <code>⏳ 30 Days Left</code> দেখাবেন।</li>
+        <li><strong>লাইভ ক্যালেন্ডার পিকার (ক্লিক করবেন):</strong> <code>⏳ 30 Days Left</code> ব্যাজে ট্যাপ করে ক্যালেন্ডার ওপেন করে আগামী মাসের একটি তারিখ সিলেক্ট করে সেভ করবেন।</li>
+        <li><strong>ব্যান্ড ক্যালকুলেটর (ক্লিক করবেন):</strong> "Calculator" বাটনে ট্যাপ করে স্লাইডার ঘুরিয়ে ৩৫ মার্কসে Band 8.0 কনভার্সন দেখাবেন।</li>
+        <li><strong>দৈনিক রুটিন চেকলিস্ট:</strong> Today's Study Checklist (3/4 Completed) এ একটি টাস্কে টিক দিয়ে দেখাবেন।</li>
+      </ol>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ আপনি মুখে যা বলবেন:</strong>
+      "ড্যাশবোর্ডে প্রবেশের সাথে সাথে দেখতে পাচ্ছেন সময় অনুযায়ী গ্রিটিং দেখাচ্ছে: 'Good Afternoon, Razu'। উপরে মূল সবুজ কার্ডটিতে লাইভ দেখাচ্ছে Target Band এবং ⏳ 30 Days Left। এই 'Days Left' কোনো স্ট্যাটিক সংখ্যা নয়; আমি এতে ট্যাপ করলেই দেখুন রিয়েল এক্সাম ক্যালেন্ডার ওপেন হচ্ছে। আমি পরীক্ষার আসল তারিখ সিলেক্ট করলে অ্যাপটি প্রতিদিন বাকি দিনগুলো নিজে নিজেই এক দিন করে কমাবে। মাঝখানে দেখতে পাচ্ছেন Predicted Band (7.5 / 9.0) ও Overall Accuracy (80.5%) যা টেস্ট দেওয়ার সাথে সাথে লাইভ আপডেট হয়। এছাড়া ডানের বাটনে ট্যাপ করলে অফিসিয়াল ক্যামব্রিজ ব্যান্ড ক্যালকুলেটর ওপেন হয়।"
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="page-break"></div>
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-title">🎬 ধাপ ৩: ৪-স্কিল প্র্যাকটিস হাব ও ভয়েস রেকর্ডার (Practice Hub Demo)</div>
+      <span class="badge badge-amber">Core Engine</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 স্ক্রিনে যা যা দেখাবেন ও অ্যাকশন করবেন:</h4>
+      <ol>
+        <li><strong>ট্যাব বার:</strong> উপরে Speaking, Listening, Reading, Writing এর স্লিক সেগমেন্টেড ট্যাব দেখাবেন।</li>
+        <li><strong>Speaking Cue Card & Recorder (লাইভ ডেমো):</strong> একটি কিউ কার্ড ওপেন করে <strong>"🎙️ Practice Speaking"</strong> বাটনে চাপ দিয়ে ২-৩ সেকেন্ড কথা রেকর্ড করবেন, স্টপ করবেন এবং স্লাইডার টেনে নিজের ভয়েস প্লে করে শোনাবেন।</li>
+        <li><strong>Writing Arena:</strong> Writing ট্যাবে গিয়ে একটি Task 2 রচনা ওপেন করে ৪০ মিনিটের টাইমার, লাইভ ওয়ার্ড কাউন্টার এবং পাশের ব্যান্ড ৯ মডেল রচনা দেখাবেন।</li>
+        <li><strong>Listening ও Reading:</strong> লিসেনিং অডিও প্লেয়ার ও রিডিং প্যাসেজ ড্রিল ওপেন করে দেখাবেন।</li>
+      </ol>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ আপনি মুখে যা বলবেন:</strong>
+      "এবার চলুন আমাদের মূল ইঞ্জিন—Practice Hub-এ যাই। Speaking ট্যাবে ক্যামব্রিজের রিয়েল কিউ কার্ড রয়েছে যার নিচে ব্যান্ড ৮.৫+ মডেল উত্তর দেওয়া আছে। এবার আমি '🎙️ Practice Speaking' বাটনে চাপ দিচ্ছি। দেখুন আমাদের ডেডিকেটেড ভয়েস রেকর্ডার ওপেন হয়েছে। শিক্ষার্থী এখানে কথা রেকর্ড করার পর স্টপ করলেই সাথে সাথে কোনো ল্যাগ ছাড়াই এটি M4A ফাইলে সেভ হয়ে যায় এবং নিচে অ্যানিমেটেড সাউন্ড ওয়েভফর্ম ও স্ক্রাবার চলে আসে। স্লাইডার টেনে শিক্ষার্থী নিজের উচ্চারণ স্পষ্ট শুনতে পারে। Writing ট্যাবে রয়েছে আমাদের লাইভ Writing Arena যেখানে ৪০ মিনিটের টাইমার ও রিয়েল-টাইম ওয়ার্ড কাউন্টার রয়েছে।"
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-title">🎬 ধাপ ৪: মাস্টার রিসোর্স ভল্ট (Resources Vault Demo)</div>
+      <span class="badge badge-purple">Phase 4</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 স্ক্রিনে যা যা দেখাবেন ও অ্যাকশন করবেন:</h4>
+      <ol>
+        <li>Resources ট্যাবে গিয়ে <strong>Cheat Sheets</strong> এ ট্যাপ করে লিঙ্কিং ওয়ার্ডস কপি করে দেখাবেন।</li>
+        <li><strong>50+ Spelling Traps</strong> ট্যাব খুলে ডাবল লেটার বানানের নিয়ম দেখাবেন।</li>
+        <li><strong>Speaking Models</strong> এ গিয়ে <strong>"Listen Audio 🎙️"</strong> বাটনে চাপ দিয়ে ব্রিটিশ অ্যাকসেন্টের অডিও প্লে করে শোনাবেন।</li>
+      </ol>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ আপনি মুখে যা বলবেন:</strong>
+      "এবার আমরা যাচ্ছি Resources ভল্টে। এখানে অপ্রয়োজনীয় কোনো তথ্য নেই; রয়েছে ৫টি প্রিমিয়াম ক্যাটাগরি—ব্যান্ড ৮.৫+ লিঙ্কিং ওয়ার্ডস চিটশিট (যা ওয়ান-ট্যাপে কপি করা যায়), বিশ্বসেরা পডকাস্ট তালিকা, পরীক্ষায় সবচেয়ে বেশি ভুল হওয়া ৫০টি বানানের ফাঁদ এবং সরাসরি ব্রিটিশ অ্যাকসেন্টে স্পিকিং মডেল অডিও শোনার ব্যবস্থা।"
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="page-break"></div>
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-title">🎬 ধাপ ৫: পারসোনালাইজড স্টাডি প্ল্যান ও কোয়েশ্চেন ব্যাংক (Profile Demo)</div>
+      <span class="badge badge-teal">Phase 5</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 স্ক্রিনে যা যা দেখাবেন ও অ্যাকশন করবেন:</h4>
+      <ol>
+        <li>Profile ট্যাবে গিয়ে <strong>Personalized Study Plan</strong> ওপেন করে ১৪/৩০/৬০ দিনের প্ল্যান সুইচ করে দেখাবেন।</li>
+        <li>স্কিল উইকনেস ডায়াগনস্টিকস ও দৈনিক পড়ার রিকমেন্ডেড টাইম (1.5-2.0 hrs) দেখাবেন।</li>
+        <li><strong>IELTS Practice Question Bank</strong> ওপেন করে সার্চ বারে টাইপ করে ইনস্ট্যান্ট ফিল্টারিং ডেমো দেবেন।</li>
+      </ol>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ আপনি মুখে যা বলবেন:</strong>
+      "Profile ট্যাবে রয়েছে আমাদের Personalized Study Plan যা একজন শিক্ষার্থীর ব্যক্তিগত মেন্টর হিসেবে কাজ করে। শিক্ষার্থী তার পরীক্ষার সময়ের ওপর ভিত্তি করে ১৪, ৩০ বা ৬০ দিনের রোডম্যাপ সিলেক্ট করতে পারে। অ্যাপটি হিসাব করে দেয় লক্ষ্য পূরণে প্রতিদিন গড়ে কত ঘণ্টা পড়তে হবে এবং কোন কোন স্কিলে দুর্বলতা রয়েছে। এছাড়া কোয়েশ্চেন ব্যাংকে রয়েছে ৫০০+ ক্যামব্রিজ প্রশ্নের ক্যাটাগরাইজড আর্কাইভ।"
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-title">🎬 ধাপ ৬: টেকনিক্যাল ডিফেন্স ও সমাপ্তি (Conclusion & Defense)</div>
+      <span class="badge badge-amber">Closing</span>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ আপনি মুখে যা বলে প্রেজেন্টেশন শেষ করবেন:</strong>
+      "টেকনিক্যাল দিক থেকে আমাদের পুরো অ্যাপটি তৈরি করা হয়েছে Flutter & Dart দিয়ে এবং স্টেট ম্যানেজমেন্টের জন্য ব্যবহার করা হয়েছে GetX, যা অ্যাপটিকে দেয় জিরো-ল্যাগ এবং সুপারফাস্ট রেসপন্স। অডিও ম্যানেজমেন্টের জন্য ব্যবহার করা হয়েছে অপ্টিমাইজড M4A এনকোডিং এবং সম্পূর্ণ অফলাইন ডেটা স্টোরেজ। আমাদের এই অ্যাপটি একজন IELTS শিক্ষার্থীর সম্পূর্ণ প্রস্তুতিকে ঘরে বসেই সফল করার জন্য একটি পূর্ণাঙ্গ সমাধান। ধন্যবাদ সবাইকে। এখন আপনাদের যেকোনো প্রশ্ন থাকলে আমি সানন্দে উত্তর দেব।"
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>© 2026 IELTS Master Prep App • লাইভ প্রেজেন্টেশন ও ডিফেন্স স্ক্রিপ্ট</p>
+    <p class="no-print" style="margin-top: 8px; font-weight: 700; color: #00695C;">
+      💡 টিপস: ব্রাউজারে <strong>Ctrl + P</strong> (Windows) বা <strong>Cmd + P</strong> (Mac) চেপে <strong>"Save as PDF"</strong> সিলেক্ট করে ফাইলটি প্রিন্ট বা PDF আকারে সেভ করুন।
+    </p>
+  </div>
+
+</div>
+
+</body>
+</html>

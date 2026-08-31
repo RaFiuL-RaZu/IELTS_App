@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>IELTS Master App - সম্পূর্ণ পার্ট-বাই-পার্ট মাস্টার প্রেজেন্টেশন ও ডিফেন্স প্লেবুক</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
+    @page {
+      size: A4;
+      margin: 12mm 12mm 12mm 12mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Hind Siliguri', 'Segoe UI', Roboto, sans-serif;
+      color: #0F172A;
+      background-color: #FFFFFF;
+      line-height: 1.65;
+      font-size: 13.5px;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 15px;
+    }
+
+    .cover-header {
+      background: linear-gradient(135deg, #004D40 0%, #00695C 60%, #00897B 100%);
+      color: #FFFFFF;
+      padding: 32px 25px;
+      border-radius: 18px;
+      margin-bottom: 22px;
+      box-shadow: 0 8px 20px rgba(0, 77, 64, 0.15);
+    }
+
+    .cover-header h1 {
+      font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .cover-header p {
+      font-size: 14.5px;
+      color: #E0F2F1;
+      font-weight: 500;
+    }
+
+    .cover-meta {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    .badge-white { background: rgba(255, 255, 255, 0.2); color: #FFFFFF; }
+    .badge-amber { background: #FEF3C7; color: #92400E; }
+    .badge-teal { background: #E0F2F1; color: #004D40; }
+    .badge-blue { background: #E0F2FE; color: #0369A1; }
+    .badge-purple { background: #F3E8FF; color: #6B21A8; }
+    .badge-red { background: #FEE2E2; color: #991B1B; }
+
+    .part-section {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 22px;
+      page-break-inside: avoid;
+      box-shadow: 0 3px 12px rgba(15, 23, 42, 0.03);
+    }
+
+    .part-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #F1F5F9;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .part-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #004D40;
+    }
+
+    .action-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .action-box h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 6px;
+    }
+
+    .speech-box {
+      background: #F0FDF4;
+      border-left: 4px solid #10B981;
+      border-radius: 0 12px 12px 0;
+      padding: 14px 18px;
+      margin: 12px 0 14px 0;
+      color: #064E3B;
+      font-size: 13.5px;
+      line-height: 1.65;
+    }
+
+    .speech-box strong {
+      color: #047857;
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .qa-box {
+      background: #FFFBEB;
+      border-left: 4px solid #F59E0B;
+      border-radius: 0 12px 12px 0;
+      padding: 12px 16px;
+      margin-top: 10px;
+      color: #78350F;
+      font-size: 13px;
+    }
+
+    .qa-box strong {
+      color: #B45309;
+      display: block;
+      font-size: 13.5px;
+      margin-bottom: 2px;
+    }
+
+    h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F172A;
+      margin: 10px 0 4px 0;
+    }
+
+    p {
+      margin-bottom: 8px;
+      color: #334155;
+    }
+
+    ul, ol {
+      margin-left: 20px;
+      margin-bottom: 10px;
+      color: #334155;
+    }
+
+    li {
+      margin-bottom: 4px;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #E2E8F0;
+      color: #94A3B8;
+      font-size: 12px;
+    }
+
+    @media print {
+      body { background: transparent; }
+      .container { max-width: 100%; padding: 0; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- COVER HEADER -->
+  <div class="cover-header">
+    <h1>IELTS Master Prep App</h1>
+    <p>সম্পূর্ণ পার্ট-বাই-পার্ট প্রেজেন্টেশন ও ডিফেন্স মাস্টার প্লেবুক</p>
+    <div class="cover-meta">
+      <span class="badge badge-white">মোট পার্ট: ১৩টি পর্ব</span>
+      <span class="badge badge-white">ভাষ্য: বাংলা ডেমো স্ক্রিপ্ট</span>
+      <span class="badge badge-white">আর্কিটেকচার: Clean MVVM & GetX</span>
+      <span class="badge badge-white">ডিফেন্স Q&A সহ প্রস্তুতকৃত</span>
+    </div>
+  </div>
+
+  <!-- PART 1 -->
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">🎯 পার্ট ১: প্রজেক্ট ওভারভিউ ও প্রবলেম স্টেটমেন্ট (Introduction & Problem Solving)</div>
+      <span class="badge badge-teal">Part 01</span>
+    </div>
+    
+    <div class="action-box">
+      <h4>📌 মূল কনসেপ্ট ও সমস্যা সমাধান:</h4>
+      <ul>
+        <li><strong>সমস্যা:</strong> IELTS শিক্ষার্থীরা সাধারণত ফিজিক্যাল বই এবং বিচ্ছিন্ন অডিও ফাইলের ওপর নির্ভর করে, যেখানে কোনো রিয়েল-টাইম স্কোরিং, ভয়েস ফিডব্যাক, টাইম-বাউন্ড রাইটিং ট্র্যাকিং বা পারসোনালাইজড রোডম্যাপ থাকে না।</li>
+        <li><strong>আমাদের সমাধান:</strong> <em>IELTS Master Prep App</em> একটি অল-ইন-ওয়ান ইকোসিস্টেম—যেখানে ৪টি স্কিল প্র্যাকটিস, লাইভ ব্যান্ড ক্যালকুলেটর, জিরো-ল্যাটেন্সি ভয়েস রেকর্ডার ও লাইভ এক্সাম কাউন্টডাউন এক জায়গায় পাওয়া যায়।</li>
+      </ul>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ প্রেজেন্টেশন বক্তব্য (Opening Pitch):</strong>
+      "সম্মানিত বিচারকমণ্ডলী / স্যার, আসসালামু আলাইকুম। আজ আমি আপনাদের সামনে উপস্থাপন করতে যাচ্ছি আমাদের <strong>IELTS Master Prep App</strong>। বর্তমানে IELTS প্রস্তুতিতে শিক্ষার্থীদের মূল সমস্যা হলো পর্যাপ্ত সেলফ-ইভালুয়েশন টুলের অভাব। আমাদের এই প্ল্যাটফর্মটি শিক্ষার্থীদের ঘরে বসেই একটি বাস্তবসম্মত ক্যামব্রিজ এক্সাম সিমুলেশন এবং ডেটা-ড্রিভেন পারসোনালাইজড মেন্টরশিপের অভিজ্ঞতা দেয়। চলুন আমরা এক এক করে অ্যাপটির প্রতিটি অংশ বিস্তারিতভাবে ঘুরে দেখি।"
+    </div>
+  </div>
+
+  <!-- PART 2 -->
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">🚀 পার্ট ২: অনবোর্ডিং ও ক্যান্ডিডেট ইনিশিয়ালাইজেশন (Splash ➔ Setup)</div>
+      <span class="badge badge-blue">Part 02</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 স্ক্রিন অ্যাকশন ও ডেমো:</h4>
+      <ol>
+        <li><strong>Splash Screen:</strong> অ্যাপ ওপেন করবেন এবং লোগো অ্যানিমেশন দেখাবেন।</li>
+        <li><strong>Onboarding Slides:</strong> স্লাইডগুলো সোয়াইপ করে ৩টি মূল পিলার দেখাবেন।</li>
+        <li><strong>Candidate Setup:</strong> শিক্ষার্থীর নাম (যেমন: <code>Razu</code>), টার্গেট (যেমন: <code>Band 8.0</code>) এবং মডিউল (যেমন: <code>Academic</code>) ইনপুট দিয়ে সাবমিট করবেন।</li>
+      </ol>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ প্রেজেন্টেশন বক্তব্য:</strong>
+      "অ্যাপটি ওপেন করার সাথে সাথেই দেখতে পাচ্ছেন আমাদের প্রিমিয়াম স্প্ল্যাশ স্ক্রিন। ব্যাকগ্রাউন্ডে <code>SplashController</code> মাত্র ২ সেকেন্ডে যাচাই করে দেখে ইউজার নতুন নাকি পুরাতন। নতুন ব্যবহারকারীর জন্য অনবোর্ডিং স্লাইডার অ্যাপের মূল ফিচারগুলো তুলে ধরে। এরপর ক্যান্ডিডেট সেটআপ পেজে শিক্ষার্থী তার নাম, টার্গেট ব্যান্ড (Band 8.0) এবং এক্সাম মডিউল (Academic) সেট করে। এই ডেটাগুলোর ওপর ভিত্তি করে পুরো অ্যাপটি ইউজারের প্রয়োজন অনুযায়ী সম্পূর্ণ পারসোনালাইজড হয়ে প্রস্তুত হয়ে যায়।"
+    </div>
+
+    <div class="qa-box">
+      <strong>❓ সম্ভাব্য প্রশ্ন (Defense Q&A):</strong>
+      <em>"ইউজার কি পরবর্তীতে তার টার্গেট ব্যান্ড পরিবর্তন করতে পারবে?"</em><br>
+      <strong>উত্তর:</strong> "হ্যাঁ, প্রোফাইল সেকশন অথবা হোমস্ক্রিনের টার্গেট ব্যাজে ট্যাপ করে যেকোনো সময় টার্গেট ও পরীক্ষার তারিখ আপডেট করা যায়।"
+    </div>
+  </div>
+
+  <!-- PART 3 -->
+  <div class="page-break"></div>
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">📊 পার্ট ৩: সেন্ট্রাল ড্যাশবোর্ড ও লাইভ অ্যানালিটিক্স (Main Dashboard)</div>
+      <span class="badge badge-amber">Part 03</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 স্ক্রিন অ্যাকশন ও ডেমো:</h4>
+      <ol>
+        <li><strong>গ্রিটিং:</strong> <em>"Good Afternoon, Razu"</em> এবং উপরের সবুজ হিরো কার্ডটি দেখাবেন।</li>
+        <li><strong>লাইভ এক্সাম কাউন্টডাউন (ট্যাপ করে দেখাবেন):</strong> <code>⏳ 30 Days Left</code> এ ট্যাপ করে ক্যালেন্ডার ওপেন করবেন এবং আগামী মাসের একটি তারিখ সিলেক্ট করে কাউন্টডাউন পরিবর্তন দেখাবেন।</li>
+        <li><strong>ব্যান্ড ক্যালকুলেটর (ট্যাপ করে দেখাবেন):</strong> "Calculator" এ ট্যাপ করে ৩৫ নম্বরে Band 8.0 কনভার্সন দেখাবেন।</li>
+        <li><strong>৪-স্কিল গ্রিড ও চেকলিস্ট:</strong> Listening, Reading, Writing, Speaking এর লাইভ স্কোর এবং Today's Study Checklist (3/4 Completed) ডেমো দেবেন।</li>
+      </ol>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ প্রেজেন্টেশন বক্তব্য:</strong>
+      "ড্যাশবোর্ডটি হলো শিক্ষার্থীর কন্ট্রোল সেন্টার। এখানে দেখতে পাচ্ছেন লাইভ কাউন্টডাউন <code>⏳ 30 Days Left</code>। এতে ট্যাপ করলে রিয়েল এক্সাম ডেট পিকার ওপেন হয় এবং আসল পরীক্ষার তারিখ সিলেক্ট করলে প্রতিদিন অ্যাপটি স্বয়ংক্রিয়ভাবে দিন কমিয়ে হিসাব করে। মাঝখানে দেখতে পাচ্ছেন <code>Predicted Band (7.5 / 9.0)</code> এবং <code>Overall Accuracy (80.5%)</code>—যা প্রতিটি টেস্টের পারফরম্যান্স অনুযায়ী লাইভ আপডেট হয়। এছাড়া রয়েছে অফিসিয়াল ক্যামব্রিজ ব্যান্ড ক্যালকুলেটর এবং দৈনন্দিন রুটিন বজায় রাখার জন্য Today's Study Checklist।"
+    </div>
+  </div>
+
+  <!-- PART 4 -->
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">🗣️ পার্ট ৪: স্পিকিং প্র্যাকটিস ইঞ্জিন ও ভয়েস রেকর্ডার (Speaking Module)</div>
+      <span class="badge badge-red">Part 04</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 স্ক্রিন অ্যাকশন ও ডেমো:</h4>
+      <ol>
+        <li>Practice ট্যাবে গিয়ে <strong>Speaking</strong> সিলেক্ট করবেন।</li>
+        <li>একটি ক্যামব্রিজ কিউ কার্ড ওপেন করবেন এবং নিচে থাকা <strong>Band 8.5+ Model Answer</strong> ও কোলোকেশন দেখাবেন।</li>
+        <li><strong>"🎙️ Practice Speaking"</strong> বাটনে ট্যাপ করে ভয়েস রেকর্ডার চালু করবেন, ২-৩ সেকেন্ড কথা বলবেন, স্টপ করবেন এবং সাউন্ড ওয়েভ স্ক্রাবার টেনে নিজের কথা স্পষ্ট শোনাবেন।</li>
+        <li><strong>Custom AI Generator:</strong> যেকোনো টপিকে নতুন কিউ কার্ড তৈরির ড্রপডাউন ডেমো দেবেন।</li>
+      </ol>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ প্রেজেন্টেশন বক্তব্য:</strong>
+      "এবার আমি আপনাদের নিয়ে যাচ্ছি আমাদের স্পিকিং মডিউলে। এখানে রয়েছে রিয়েল ক্যামব্রিজ কিউ কার্ড লাইব্রেরি। যেকোনো কিউ কার্ডে ট্যাপ করে শিক্ষার্থী সরাসরি আমাদের ডেডিকেটেড ভয়েস রেকর্ডারে চলে যায়। ১ মিনিটের প্রিপারেশন টাইমার শেষে শিক্ষার্থী তার উত্তর রেকর্ড করতে পারে। রেকর্ড স্টপ করার সাথে সাথে কোনো ল্যাগ ছাড়াই এটি M4A ফরম্যাটে সেভ হয়ে যায় এবং নিচে লাইভ সাউন্ড ওয়েভফর্ম ও স্ক্রাবার চলে আসে। শিক্ষার্থী নিজের উচ্চারণ শুনে ব্যান্ড ৮.৫+ মডেল উত্তরের সাথে তুলনা করে নিজেকে নিজেই মূল্যায়ন করতে পারে।"
+    </div>
+
+    <div class="qa-box">
+      <strong>❓ সম্ভাব্য প্রশ্ন (Defense Q&A):</strong>
+      <em>"রেকর্ডিংগুলো কোথায় সেভ হয় এবং কতটুকু স্পেস নেয়?"</em><br>
+      <strong>উত্তর:</strong> "রেকর্ডিংগুলো ডিভাইসের লোকাল অ্যাপ ডিরেক্টরিতে কম্প্রেসড M4A ফরম্যাটে সংরক্ষিত হয়, ফলে ইন্টারনেট ছাড়াই সম্পূর্ণ অফলাইনে চলে এবং মেমোরি নষ্ট হয় না।"
+    </div>
+  </div>
+
+  <!-- PART 5 -->
+  <div class="page-break"></div>
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">✍️ পার্ট ৫: রাইটিং অ্যারেনা ও ক্যামব্রিজ সিমুলেশন (Writing Module)</div>
+      <span class="badge badge-purple">Part 05</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 স্ক্রিন অ্যাকশন ও ডেমো:</h4>
+      <ol>
+        <li>Practice ট্যাবে গিয়ে <strong>Writing</strong> সিলেক্ট করবেন।</li>
+        <li>একটি Task 2 রচনা ওপেন করবেন এবং <strong>"✍️ Open Writing Arena"</strong> তে ক্লিক করবেন।</li>
+        <li>টাইমার চলাকালীন টাইপ করে লাইভ ওয়ার্ড কাউন্টার (যেমন: 250 words requirement) দেখাবেন।</li>
+        <li>পাশে থাকা ব্যান্ড ৯ মডেল রচনা এবং প্যারাগ্রাফ স্ট্রাকচার রেফারেন্স দেখাবেন।</li>
+      </ol>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ প্রেজেন্টেশন বক্তব্য:</strong>
+      "Writing মডিউলে রয়েছে Task 1 (গ্রাফ ও চার্ট) এবং Task 2 (প্রবন্ধ) এর বিশাল প্রম্পট পুল। রাইটিং অ্যারেনায় রয়েছে আসল পরীক্ষার মতো ৪০ মিনিটের কাউন্টডাউন টাইমার। শিক্ষার্থী লেখার সাথে সাথে আমাদের রিয়েল-টাইম ওয়ার্ড কাউন্টার শব্দ সংখ্যা গণনা করে ২৫০ শব্দের শর্ত পূরণ হয়েছে কিনা তা লাইভ প্রদর্শন করে। একই সাথে লেখার সুবিধার্থে পাশে ব্যান্ড ৯ মডেল রচনা এবং লেক্সিক্যাল রিসোর্স এক নজরে দেখার ব্যবস্থা রয়েছে।"
+    </div>
+  </div>
+
+  <!-- PART 6 -->
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">🎧 & 📖 পার্ট ৬: লিসেনিং ও রিডিং এক্সাম মডিউল (Listening & Reading)</div>
+      <span class="badge badge-blue">Part 06</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 স্ক্রিন অ্যাকশন ও ডেমো:</h4>
+      <ul>
+        <li><strong>Listening:</strong> সেকশন ১ থেকে ৪-এর অডিও ট্র্যাক প্লে করে ফর্ম ফিলিং ও MCQ ড্রিল দেখাবেন। সাবমিট করার পর ইনস্ট্যান্ট স্কোরিং ও উত্তরের ব্যাখ্যা ডেমো দেবেন।</li>
+        <li><strong>Reading:</strong> বিজ্ঞান ও ইতিহাসের দীর্ঘ একাডেমিক প্যাসেজ স্ক্রোল করবেন এবং <em>True/False/Not Given</em> প্রশ্নে প্যাসেজের এভিডেন্স হাইলাইটার দেখাবেন।</li>
+      </ul>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ প্রেজেন্টেশন বক্তব্য:</strong>
+      "লিসেনিং সেকশনে রয়েছে সেকশন ১ থেকে ৪ পর্যন্ত ক্যামব্রিজ স্ট্যান্ডার্ড অডিও ট্র্যাক এবং প্রশ্ন। রিডিং সেকশনে রয়েছে দীর্ঘ একাডেমিক প্যাসেজ এবং ট্রু/ফলস/নট গিভেন ও হেডিং ম্যাচিং প্রশ্ন। উত্তর সাবমিট করার সাথে সাথে অ্যাপটি শুধু স্কোর দেখায় না, বরং প্যাসেজের কোন লাইনটির জন্য উত্তরটি সঠিক বা ভুল হয়েছে তা বিশদ ব্যাখ্যা সহ তুলে ধরে।"
+    </div>
+  </div>
+
+  <!-- PART 7 -->
+  <div class="page-break"></div>
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">🧪 পার্ট ৭: ফুল মক টেস্ট অ্যারেনা (Full Mock Test Simulation)</div>
+      <span class="badge badge-amber">Part 07</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📌 পরীক্ষার আসল পরিবেশ সিমুলেশন:</h4>
+      <p>টানা ২ ঘণ্টা ৪৫ মিনিটের একটি নিরবচ্ছিন্ন ফুল মক টেস্ট (লিসেনিং ➔ রিডিং ➔ রাইটিং) যা শিক্ষার্থীকে আসল পরীক্ষার মানসিক প্রস্তুতি ও স্ট্যামিনা তৈরিতে সাহায্য করে।</p>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ প্রেজেন্টেশন বক্তব্য:</strong>
+      "পৃথক প্র্যাকটিসের পাশাপাশি আমাদের অ্যাপে রয়েছে ফুল মক টেস্ট অ্যারেনা। আসল পরীক্ষার নিয়মে শিক্ষার্থীকে টানা ২ ঘণ্টা ৪৫ মিনিট একটানা টেস্ট দিতে হয়, যা পরীক্ষার হলের টাইম ম্যানেজমেন্ট ও ভীতি দূর করতে অত্যন্ত কার্যকর।"
+    </div>
+  </div>
+
+  <!-- PART 8 -->
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">📚 পার্ট ৮: মাস্টার রিসোর্স ভল্ট (IELTS Resource Vault)</div>
+      <span class="badge badge-teal">Part 08</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 ৫টি ডেডিকেটেড ট্যাবের লাইভ ডেমো:</h4>
+      <ol>
+        <li><strong>Cheat Sheets:</strong> ব্যান্ড ৮.৫+ লিঙ্কিং ওয়ার্ডস এবং ওয়ান-ট্যাপ কপি বাটন দেখাবেন।</li>
+        <li><strong>Podcasts & Sources:</strong> বিবিসি ৬ মিনিট ইংলিশ ও টেড টকস এর গাইডলাইন।</li>
+        <li><strong>50+ Spelling Traps:</strong> Accommodation, Embarrassment এর মতো বানানের ফাঁদ।</li>
+        <li><strong>Speaking Models:</strong> "Listen Audio 🎙️" বাটনে চাপ দিয়ে ব্রিটিশ অ্যাকসেন্টের অডিও প্লে করে শোনাবেন।</li>
+        <li><strong>Test Day Rules:</strong> পরীক্ষার হলের চেকলিস্ট ও নিয়মাবলী।</li>
+      </ol>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ প্রেজেন্টেশন বক্তব্য:</strong>
+      "Resources ভল্টটি হলো শিক্ষার্থীর রেফারেন্স লাইব্রেরি। এখানে রয়েছে ব্যান্ড ৮.৫+ লিঙ্কিং ওয়ার্ডস চিটশিট যা এক ক্লিকেই কপি করা যায়, বিশ্বসেরা পডকাস্টের তালিকা, সবচেয়ে বেশি ভুল হওয়া ৫০টি বানানের ফাঁদ এবং সরাসরি ব্রিটিশ উচ্চারণে স্পিকিং মডেল অডিও শোনার ব্যবস্থা। এর ফলে শিক্ষার্থীকে বাড়তি কোনো নোটবই খুঁজতে হয় না।"
+    </div>
+  </div>
+
+  <!-- PART 9 -->
+  <div class="page-break"></div>
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">📈 পার্ট ৯: পারসোনালাইজড স্টাডি রোডম্যাপ ও উইকনেস ডায়াগনস্টিকস (Study Plan)</div>
+      <span class="badge badge-purple">Part 09</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 স্ক্রিন অ্যাকশন ও ডেমো:</h4>
+      <ol>
+        <li>Profile থেকে <strong>Personalized Study Plan</strong> ওপেন করবেন।</li>
+        <li>১৪ দিন, ৩০ দিন বা ৬০ দিনের প্ল্যান সুইচ করে দেখাবেন।</li>
+        <li>টার্গেট পূরণে প্রতিদিন কত ঘণ্টা পড়তে হবে (যেমন: 1.5 - 2.0 hrs/day) এবং ৪ সপ্তাহের সুস্পষ্ট মাইলস্টোন দেখাবেন।</li>
+        <li>স্কিল উইকনেস ডায়াগনস্টিকস ও স্টাডি কনসিসটেন্সি কার্ড দেখাবেন।</li>
+      </ol>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ প্রেজেন্টেশন বক্তব্য:</strong>
+      "আমাদের Personalized Study Plan টি একজন শিক্ষার্থীর ব্যক্তিগত মেন্টর হিসেবে কাজ করে। শিক্ষার্থী তার পরীক্ষার তারিখের ওপর ভিত্তি করে ১৪, ৩০ বা ৬০ দিনের রোডম্যাপ নির্বাচন করতে পারে। অ্যাপটি স্বয়ংক্রিয়ভাবে হিসাব করে দেয় টার্গেট ব্যান্ড অর্জন করতে প্রতিদিন গড়ে কত ঘণ্টা পড়তে হবে এবং কোন কোন স্কিলে বেশি মনোযোগ দেওয়া দরকার।"
+    </div>
+  </div>
+
+  <!-- PART 10 -->
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">📝 পার্ট ১০: ক্যামব্রিজ কোয়েশ্চেন ব্যাংক (IELTS Practice Question Bank)</div>
+      <span class="badge badge-teal">Part 10</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📱 স্ক্রিন অ্যাকশন ও ডেমো:</h4>
+      <p>Profile থেকে <strong>Question Bank</strong> ওপেন করে সার্চ বারে টপিক টাইপ করে ইনস্ট্যান্ট ফিল্টারিং এবং যেকোনো প্রশ্নে ট্যাপ করে সরাসরি প্র্যাকটিস শুরু করার ডেমো দেবেন।</p>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ প্রেজেন্টেশন বক্তব্য:</strong>
+      "কোয়েশ্চেন ব্যাংকে রয়েছে Speaking, Writing, Reading ও Listening এর ৫০০+ ক্যামব্রিজ প্রশ্নের একটি সুবিন্যস্ত আর্কাইভ। শিক্ষার্থী যেকোনো প্রশ্নের ওপর ট্যাপ করলেই সাথে সাথে সেই রিলেটেড টেস্ট বা রেকর্ডার ওপেন হয়ে যায়।"
+    </div>
+  </div>
+
+  <!-- PART 11 -->
+  <div class="page-break"></div>
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">📚 পার্ট ১১: হাই-ইল্ড গ্রামার ও অক্সফোর্ড একাডেমিক ভোকাবুলারি ব্যাংক</div>
+      <span class="badge badge-blue">Part 11</span>
+    </div>
+
+    <div class="action-box">
+      <h4>📌 মূল উপাদান:</h4>
+      <ul>
+        <li><strong>Grammar Hub:</strong> ১৮টি নির্দিষ্ট গ্রামার রুলস (Conditionals, Inversion, Passive Voice)।</li>
+        <li><strong>Vocabulary Bank:</strong> ৫০০+ অক্সফোর্ড/ক্যামব্রিজ একাডেমিক শব্দ, অর্থ, উচ্চারণ ও উদাহরণ বাক্য।</li>
+      </ul>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ প্রেজেন্টেশন বক্তব্য:</strong>
+      "Writing এবং Speaking-এ উচ্চ ব্যান্ড পাওয়ার প্রধান শর্ত হলো ভালো গ্রামাটিক্যাল রেঞ্জ ও লেক্সিক্যাল রিসোর্স। সেজন্য আমাদের হোমস্ক্রিনে রয়েছে ১৮টি বিশেষ গ্রামার রুলস হাব এবং ৫০০+ একাডেমিক ভোকাবুলারি ব্যাংক।"
+    </div>
+  </div>
+
+  <!-- PART 12 -->
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">⚙️ পার্ট ১২: টেকনিক্যাল আর্কিটেকচার, স্টেট ম্যানেজমেন্ট ও ডাটা পারসিস্টেন্স</div>
+      <span class="badge badge-amber">Part 12</span>
+    </div>
+
+    <div class="action-box">
+      <h4>🛠️ টেকনিক্যাল স্ট্যাক ও আর্কিটেকচারাল প্যাটার্ন:</h4>
+      <ul>
+        <li><strong>UI & Responsiveness:</strong> Flutter & Dart (Material 3) সাথে <code>flutter_screenutil</code> ব্যবহারের মাধ্যমে যেকোনো স্ক্রিন সাইজে পারফেক্ট স্কেলিং।</li>
+        <li><strong>State Management:</strong> GetX (Reactive State, Dependency Injection, Controller Lifecycle)।</li>
+        <li><strong>Data Persistence:</strong> <code>SharedPreferences</code> ও JSON সিরিয়ালাইজেশনের মাধ্যমে ১০০% অফলাইন স্টোরেজ।</li>
+        <li><strong>Audio Engine:</strong> <code>audio_waveforms</code> ও <code>flutter_tts</code> দিয়ে অপ্টিমাইজড M4A অডিও পাইপলাইন।</li>
+      </ul>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ প্রেজেন্টেশন বক্তব্য:</strong>
+      "টেকনিক্যাল দিক থেকে পুরো অ্যাপটি Clean MVVM আর্কিটেকচারে তৈরি। স্টেট ম্যানেজমেন্টের জন্য আমরা GetX ব্যবহার করেছি, যা অপ্রয়োজনীয় উইজেট রি-বিল্ড বন্ধ করে অ্যাপটিকে সর্বোচ্চ ফ্লুইড ও ফাস্ট রাখে। সমস্ত ডেটা ও অডিও লোকাল স্টোরেজে নিরাপদে সংরক্ষিত থাকায় অ্যাপটি কোনো ইন্টারনেট ছাড়াই সম্পূর্ণ অফলাইনে মসৃণভাবে চলে।"
+    </div>
+  </div>
+
+  <!-- PART 13 -->
+  <div class="part-section">
+    <div class="part-header">
+      <div class="part-title">🎤 পার্ট ১৩: সমাপনী ও ডিফেন্স প্রশ্নোত্তর (Conclusion & Defense Q&A)</div>
+      <span class="badge badge-teal">Part 13</span>
+    </div>
+
+    <div class="speech-box">
+      <strong>🗣️ সমাপনী বক্তব্য (Closing Pitch):</strong>
+      "পরিশেষে বলা যায়, <strong>IELTS Master Prep App</strong> শুধু একটি প্র্যাকটিস অ্যাপ নয়, এটি একজন শিক্ষার্থীর সার্বক্ষণিক ডিজিটাল মেন্টর যা তাকে লক্ষ্য অর্জনে এগিয়ে নিয়ে যায়। আমাদের এই প্রজেক্টের পেছনে আপনাদের মূল্যবান মতামত ও প্রশ্নের জন্য আমি প্রস্তুত। ধন্যবাদ সবাইকে।"
+    </div>
+
+    <div class="qa-box">
+      <strong>❓ গুরুত্বপূর্ণ ডিফেন্স প্রশ্নোত্তর (Top Viva / Defense Q&A):</strong><br><br>
+      <strong>১. প্রশ্ন: "কেন আপনারা GetX স্টেট ম্যানেজমেন্ট বেছে নিলেন?"</strong><br>
+      <strong>উত্তর:</strong> "GetX এর রিঅ্যাক্টিভ প্রোগ্রামিং (Rx/Obx) এবং লাইটওয়েট মেমোরি ম্যানেজমেন্ট আমাদের জটিল অডিও প্লেব্যাক ও লাইভ স্কোর ক্যালকুলেশনে জিরো-ল্যাগ পারফরম্যান্স নিশ্চিত করে।"<br><br>
+      <strong>২. প্রশ্ন: "স্পিকিং রেকর্ডারে সাধারণ প্লাগইনের তুলনায় আপনাদের অপ্টিমাইজেশন কী?"</strong><br>
+      <strong>উত্তর:</strong> "আমরা টাইমার ক্যান্সেলেশনকে জিরো-ল্যাটেন্সিতে এনেছি এবং ভারী নেটিভ প্রসেসিং বন্ধ করে কাস্টম অ্যানিমেটেড ওয়েভ স্ক্রাবার তৈরি করেছি, যার ফলে কোনো অডিও ডেডলক বা হ্যাং হয় না।"
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>© 2026 IELTS Master Prep App • সম্পূর্ণ পার্ট-বাই-পার্ট মাস্টার প্রেজেন্টেশন প্লেবুক</p>
+    <p class="no-print" style="margin-top: 8px; font-weight: 700; color: #00695C;">
+      💡 টিপস: ব্রাউজারে <strong>Ctrl + P</strong> (Windows) বা <strong>Cmd + P</strong> (Mac) চেপে <strong>"Save as PDF"</strong> সিলেক্ট করে এই সম্পূর্ণ প্লেবুকটি প্রিন্ট বা PDF আকারে সেভ করুন।
+    </p>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -56,7 +56,7 @@ class PrefsHelper extends GetxController {
     }
   }
 
-  ///<<<======================== Get All Data Form Shared Preference ============>
+  ///<<<======================== Clear User Session & Log Out ============>
   static Future<void> removeAllPrefData() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.setString("token", "");
@@ -65,9 +65,11 @@ class PrefsHelper extends GetxController {
     await preferences.setString("myImage", "");
     await preferences.setString("myName", "");
     await preferences.setString("myEmail", "");
+    await preferences.setString("candidate_name", "");
     await preferences.setBool("isLogIn", false);
     await preferences.setBool("isVerify", false);
     await preferences.setBool("isNotifications", true);
+    await preferences.setBool("hasSetupCandidate", false);
     await preferences.setString("mySubscription", "free");
 
     token = "";
@@ -79,6 +81,10 @@ class PrefsHelper extends GetxController {
     isLogIn = false;
     isVerify = false;
     // hasSeenOnboard is intentionally kept — no onboard repeat after logout
+  }
+
+  static Future<void> logOut() async {
+    await removeAllPrefData();
   }
 
   ///<<<======================== Get Data Form Shared Preference ==============>

@@ -4,11 +4,11 @@ import 'package:get/get.dart';
 import 'package:justtsham/core/services/ielts_local_storage_service.dart';
 import 'package:justtsham/featcher/controller/AuthController/navber_controller.dart';
 import 'package:justtsham/featcher/view/HomeScreen/ielts_band_calculator_modal.dart';
-import 'package:justtsham/featcher/view/ScriptScreen/ielts_listening_practice_screen.dart';
-import 'package:justtsham/featcher/view/ScriptScreen/ielts_reading_practice_screen.dart';
+import 'package:justtsham/featcher/view/SkillsPracticeScreen/ielts_listening_practice_screen.dart';
+import 'package:justtsham/featcher/view/SkillsPracticeScreen/ielts_reading_practice_screen.dart';
 
-class AuditionScreen extends StatelessWidget {
-  const AuditionScreen({super.key});
+class MockExamScreen extends StatelessWidget {
+  const MockExamScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -4,14 +4,16 @@ import 'package:get/get.dart';
 import 'package:justtsham/core/constant/prefs_helper.dart';
 import 'package:justtsham/core/services/ielts_local_storage_service.dart';
 import 'package:justtsham/featcher/view/HomeScreen/ielts_band_calculator_modal.dart';
-import 'package:justtsham/featcher/view/SettingScreen/ielts_band_descriptors_screen.dart';
-import 'package:justtsham/featcher/view/SettingScreen/privacy_screen.dart';
-import 'package:justtsham/featcher/view/SettingScreen/terms_conditions.dart';
+import 'package:justtsham/featcher/view/ProfileScreen/ielts_band_descriptors_screen.dart';
+import 'package:justtsham/featcher/view/ProfileScreen/ielts_question_bank_screen.dart';
+import 'package:justtsham/featcher/view/ProfileScreen/ielts_study_plan_screen.dart';
+import 'package:justtsham/featcher/view/ProfileScreen/privacy_screen.dart';
+import 'package:justtsham/featcher/view/ProfileScreen/terms_conditions.dart';
 import 'package:justtsham/featcher/view/authentication/candidate_setup_screen.dart';
 import 'package:justtsham/routes/routes.dart';
 
-class SettingScreen extends StatelessWidget {
-  const SettingScreen({super.key});
+class CandidateProfileScreen extends StatelessWidget {
+  const CandidateProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -99,9 +101,20 @@ class SettingScreen extends StatelessWidget {
                             ),
                           ],
                         ),
+                        if (PrefsHelper.myEmail.isNotEmpty) ...[
+                          SizedBox(height: 2.h),
+                          Text(
+                            PrefsHelper.myEmail,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
                         SizedBox(height: 3.h),
                         Text(
-                          "Target: Band ${progressCtrl.targetBand.value} • Academic Module",
+                          "Target: Band ${progressCtrl.targetBand.value} • ${progressCtrl.examModule.value}",
                           style: const TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w600,
@@ -235,6 +248,18 @@ class SettingScreen extends StatelessWidget {
               child: Column(
                 children: [
                   _buildMenuTile(
+                    icon: Icons.insights_rounded,
+                    title: "Personalized Study Plan & Progress",
+                    onTap: () => Get.to(() => const IeltsStudyPlanScreen()),
+                  ),
+                  const Divider(height: 1),
+                  _buildMenuTile(
+                    icon: Icons.quiz_outlined,
+                    title: "IELTS Practice Question Bank",
+                    onTap: () => Get.to(() => const IeltsQuestionBankScreen()),
+                  ),
+                  const Divider(height: 1),
+                  _buildMenuTile(
                     icon: Icons.calculate_outlined,
                     title: "Cambridge Band Score Calculator",
                     onTap: () => IeltsBandCalculatorModal.show(context),
@@ -267,35 +292,96 @@ class SettingScreen extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 16.h),
+            SizedBox(height: 28.h),
 
-            // Reset Profile Button Tile
+            // Account & Practice Data Management
+            const Text(
+              "Account & Data Management",
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+            SizedBox(height: 14.h),
+
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: const Color(0xFFFEE2E2)),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
-              child: ListTile(
-                onTap: () => _showResetConfirmation(context),
-                leading: Container(
-                  padding: const EdgeInsets.all(9),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFEF2F2),
-                    borderRadius: BorderRadius.circular(12),
+              child: Column(
+                children: [
+                  // Reset Practice History Only
+                  ListTile(
+                    onTap: () => _showResetHistoryConfirmation(context, progressCtrl),
+                    leading: Container(
+                      padding: const EdgeInsets.all(9),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFBEB),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.cleaning_services_rounded, color: Color(0xFFD97706), size: 20),
+                    ),
+                    title: const Text(
+                      "Reset Practice Tests & Scores",
+                      style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                    ),
+                    subtitle: const Text(
+                      "Wipes test logs and resets score history to 0",
+                      style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF94A3B8), size: 14),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
                   ),
-                  child: const Icon(Icons.restart_alt_rounded, color: Color(0xFFDC2626), size: 20),
-                ),
-                title: const Text(
-                  "Reset Profile & Goals",
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFFDC2626),
+                  const Divider(height: 1),
+
+                  // Reset Candidate Profile & Target
+                  ListTile(
+                    onTap: () => _showResetConfirmation(context),
+                    leading: Container(
+                      padding: const EdgeInsets.all(9),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.restart_alt_rounded, color: Color(0xFF00695C), size: 20),
+                    ),
+                    title: const Text(
+                      "Reset Profile & Goals",
+                      style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                    ),
+                    subtitle: const Text(
+                      "Reconfigure name, exam module & target band",
+                      style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF94A3B8), size: 14),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
                   ),
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFFCA5A5), size: 14),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                  // Create New Candidate Account & Full Reset
+                  ListTile(
+                    onTap: () => _showNewAccountConfirmation(context),
+                    leading: Container(
+                      padding: const EdgeInsets.all(9),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.person_add_alt_1_rounded, color: Color(0xFFDC2626), size: 20),
+                    ),
+                    title: const Text(
+                      "Create New Account / Reset All",
+                      style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFFDC2626)),
+                    ),
+                    subtitle: const Text(
+                      "Clear previous history and setup a fresh candidate profile",
+                      style: TextStyle(fontSize: 11.5, color: Color(0xFF94A3B8)),
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFFCA5A5), size: 14),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                  ),
+                ],
               ),
             ),
 
@@ -450,7 +536,7 @@ class SettingScreen extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
-            Icon(Icons.restart_alt_rounded, color: Color(0xFFDC2626), size: 24),
+            Icon(Icons.restart_alt_rounded, color: Color(0xFF00695C), size: 24),
             SizedBox(width: 10),
             Text(
               "Reset Profile & Goals",
@@ -459,7 +545,99 @@ class SettingScreen extends StatelessWidget {
           ],
         ),
         content: const Text(
-          "Do you want to reset your candidate profile and change your target band score?",
+          "Do you want to reconfigure your candidate name, target band score, and exam module?",
+          style: TextStyle(fontSize: 13.5, color: Color(0xFF475569)),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel", style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00695C),
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await PrefsHelper.setBool("hasSetupCandidate", false);
+              Get.to(() => const CandidateSetupScreen());
+            },
+            child: const Text("Reconfigure", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showResetHistoryConfirmation(BuildContext context, IeltsProgressController progressCtrl) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.cleaning_services_rounded, color: Color(0xFFD97706), size: 24),
+            SizedBox(width: 10),
+            Text(
+              "Reset Test Scores?",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+            ),
+          ],
+        ),
+        content: const Text(
+          "This will clear all logged practice tests, score history, and skill accuracy stats for this account, allowing you to start fresh. Your profile details will remain intact.",
+          style: TextStyle(fontSize: 13.5, color: Color(0xFF475569)),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel", style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD97706),
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await progressCtrl.resetPracticeHistory();
+              Get.snackbar(
+                "History Cleared! 🧹",
+                "Your test logs and practice stats have been reset to 0.",
+                snackPosition: SnackPosition.TOP,
+                backgroundColor: const Color(0xFFD97706),
+                colorText: Colors.white,
+              );
+            },
+            child: const Text("Clear History", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showNewAccountConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.person_add_alt_1_rounded, color: Color(0xFFDC2626), size: 24),
+            SizedBox(width: 10),
+            Text(
+              "Create New Account",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+            ),
+          ],
+        ),
+        content: const Text(
+          "Do you want to reset all test history and create a fresh candidate profile with a new name and target score?",
           style: TextStyle(fontSize: 13.5, color: Color(0xFF475569)),
         ),
         actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -476,10 +654,16 @@ class SettingScreen extends StatelessWidget {
             ),
             onPressed: () async {
               Navigator.pop(ctx);
+              await PrefsHelper.removeAllPrefData();
               await PrefsHelper.setBool("hasSetupCandidate", false);
-              Get.offAll(() => const CandidateSetupScreen());
+              await PrefsHelper.setString("candidate_name", "");
+              await PrefsHelper.setString("myName", "");
+              if (Get.isRegistered<IeltsProgressController>()) {
+                await IeltsProgressController.to.resetUserData(newName: "", clearHistory: true);
+              }
+              Get.offAll(() => const CandidateSetupScreen(isNewAccount: true));
             },
-            child: const Text("Reset & Reconfigure", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+            child: const Text("Create New Profile", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
           ),
         ],
       ),

@@ -65,7 +65,7 @@ class AuditionModel {
     required this.likeCount,
     required this.commentCount,
     required this.isLiked,
-    bool isFavorite = true, // favourite list এ true
+    bool isFavorite = true, // default true in favorites list
     required this.createdAt,
     required this.updatedAt,
   }) : isFavorite = isFavorite.obs;

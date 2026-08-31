@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:justtsham/core/constant/other_helper.dart';
-import 'package:justtsham/core/utils/app_colors.dart';
-import 'package:justtsham/core/widgets/common_text.dart';
-import 'package:justtsham/featcher/controller/HomeController/notify_controller.dart';
-
-import '../../../core/utils/app_icons.dart';
+import 'package:justtsham/core/services/ielts_local_storage_service.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -17,89 +11,239 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
+  final List<Map<String, dynamic>> _notifications = [
+    {
+      "title": "Speaking Practice Reminder",
+      "body": "Practice today's Speaking Part 2 Cue Card: 'Artificial Intelligence in Education'. Record your answer and review Band 8+ vocabulary.",
+      "time": "10 mins ago",
+      "icon": Icons.mic_rounded,
+      "color": Color(0xFF00695C),
+      "bgColor": Color(0xFFE0F2F1),
+      "isUnread": true,
+    },
+    {
+      "title": "Cambridge Reading Tip",
+      "body": "Remember to skim the topic sentence of each paragraph first before attempting 'List of Headings' questions.",
+      "time": "2 hours ago",
+      "icon": Icons.menu_book_rounded,
+      "color": Color(0xFF0D9488),
+      "bgColor": Color(0xFFF0FDFA),
+      "isUnread": true,
+    },
+    {
+      "title": "Listening Mock Test Available",
+      "body": "A new Section 2 dialogue listening test is ready in your Practice tab with auto-scoring and audio transcript.",
+      "time": "Yesterday",
+      "icon": Icons.headset_rounded,
+      "color": Color(0xFF0284C7),
+      "bgColor": Color(0xFFE0F2FE),
+      "isUnread": false,
+    },
+    {
+      "title": "Writing Task 2 Model Strategy",
+      "body": "Check out the new Band 9 opinion essay analysis on 'Renewable Energy Production' in the Resources section.",
+      "time": "2 days ago",
+      "icon": Icons.edit_note_rounded,
+      "color": Color(0xFFE65100),
+      "bgColor": Color(0xFFFFF3E0),
+      "isUnread": false,
+    },
+    {
+      "title": "Study Goal Milestone",
+      "body": "Keep up the daily consistency! Your upcoming exam preparation schedule is on track.",
+      "time": "3 days ago",
+      "icon": Icons.emoji_events_rounded,
+      "color": Color(0xFF7C3AED),
+      "bgColor": Color(0xFFEDE9FE),
+      "isUnread": false,
+    },
+  ];
 
-  final NotifyController controller=Get.put(NotifyController());
-  @override
-  void initState() {
-   controller.getNotify();
-    super.initState();
-  }
   @override
   Widget build(BuildContext context) {
+    final progressCtrl = Get.find<IeltsProgressController>();
+
     return Scaffold(
-      backgroundColor: AppColor.background,
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: AppColor.background,
-        title: CommonText(title: "Notifications",fSize: 22,fWeight: FontWeight.w700,color: AppColor.primary,),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        toolbarHeight: 65.h,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF0F172A), size: 20),
+          onPressed: () => Get.back(),
+        ),
+        title: const Text(
+          "Study Notifications",
+          style: TextStyle(
+            color: Color(0xFF0F172A),
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.done_all_rounded, color: Color(0xFF00695C), size: 22),
+            tooltip: "Mark all as read",
+            onPressed: () {
+              setState(() {
+                for (var n in _notifications) {
+                  n["isUnread"] = false;
+                }
+              });
+              Get.snackbar(
+                "Updated",
+                "All notifications marked as read",
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: const Color(0xFF004D40),
+                colorText: Colors.white,
+                duration: const Duration(seconds: 2),
+                margin: const EdgeInsets.all(16),
+              );
+            },
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Obx((){
-              if(controller.isLoading.value){
-                return Center(child: CircularProgressIndicator(color: AppColor.primary,),);
-              }else if(controller.notifyList.isEmpty){
-                return Center(child: CommonText(title: "No Data Found"),);
-              }else{
-                return ListView.builder(
-                    itemCount: controller.notifyList.length,
-                    physics: ScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (context,index){
-                      final notify=controller.notifyList[index];
-                      return Container(
-                        padding: EdgeInsets.symmetric(vertical: 5),
-                        // margin: EdgeInsets.only(bottom: 10),
-                        // color: Color(0xFFD2CBFA),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 10),
-                          child: Row(
+      body: _notifications.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: 80.h,
+                    width: 80.h,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF1F5F9),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.notifications_off_outlined, color: Color(0xFF94A3B8), size: 36),
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  const Text(
+                    "No Notifications",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
+                  ),
+                  SizedBox(height: 6.h),
+                  const Text(
+                    "You're all caught up with your IELTS prep schedule!",
+                    style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                  ),
+                ],
+              ),
+            )
+          : ListView.separated(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+              itemCount: _notifications.length,
+              separatorBuilder: (context, index) => SizedBox(height: 12.h),
+              itemBuilder: (context, index) {
+                final item = _notifications[index];
+                final isUnread = item["isUnread"] as bool;
+
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      item["isUnread"] = false;
+                    });
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: isUnread ? const Color(0xFF00695C).withOpacity(0.3) : const Color(0xFFE2E8F0),
+                        width: isUnread ? 1.5 : 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isUnread
+                              ? const Color(0xFF00695C).withOpacity(0.06)
+                              : Colors.black.withOpacity(0.02),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 44.h,
+                          width: 44.h,
+                          decoration: BoxDecoration(
+                            color: item["bgColor"] as Color,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              item["icon"] as IconData,
+                              color: item["color"] as Color,
+                              size: 22.sp,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 14.w),
+                        Expanded(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                height: 48.h,
-                                width: 48.w,
-                                decoration: BoxDecoration(
-                                    color: Color(0xFFFFE2E2),
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 3,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      item["title"] as String,
+                                      style: TextStyle(
+                                        fontSize: 14.5.sp,
+                                        fontWeight: isUnread ? FontWeight.w800 : FontWeight.w700,
+                                        color: const Color(0xFF0F172A),
                                       ),
-                                    ]
-                                ),child:Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Icon(Icons.notifications,color: AppColor.primary,),
+                                    ),
+                                  ),
+                                  if (isUnread)
+                                    Container(
+                                      height: 8,
+                                      width: 8,
+                                      margin: EdgeInsets.only(left: 6.w),
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF00695C),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                ],
                               ),
-                              ),
-                              SizedBox(width: 15.w,),
-                              Expanded(
-                                child: Column(
-                                  spacing: 3,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    CommonText(title: notify.message!.title ?? "",fSize: 14,fWeight: FontWeight.w700,color: AppColor.primary,),
-                                    CommonText(title: '"${notify.message!.body}"',fSize: 14,fWeight: FontWeight.w500,color: AppColor.secondary,),
-                                  ],
+                              SizedBox(height: 6.h),
+                              Text(
+                                item["body"] as String,
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFF475569),
+                                  height: 1.35,
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 2),
-                                child: CommonText(title: OtherHelper.timeAgo(notify.createdAt.toString()),fSize: 10,fWeight: FontWeight.w700,color: AppColor.secondary,),
+                              SizedBox(height: 8.h),
+                              Text(
+                                item["time"] as String,
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF94A3B8),
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      );
-                    });
-              }
-            })
-          ],
-        ),
-      ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

@@ -3,24 +3,25 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/data/ielts_data.dart';
 import 'package:justtsham/core/services/ielts_local_storage_service.dart';
-import 'package:justtsham/featcher/view/ScriptScreen/ielts_listening_practice_screen.dart';
-import 'package:justtsham/featcher/view/ScriptScreen/ielts_reading_practice_screen.dart';
-import 'package:justtsham/featcher/view/ScriptScreen/ielts_writing_practice_screen.dart';
-import 'package:justtsham/featcher/view/ScriptScreen/practice_screen.dart';
+import 'package:justtsham/featcher/view/SkillsPracticeScreen/ielts_listening_practice_screen.dart';
+import 'package:justtsham/featcher/view/SkillsPracticeScreen/ielts_reading_practice_screen.dart';
+import 'package:justtsham/featcher/view/SkillsPracticeScreen/ielts_writing_practice_screen.dart';
+import 'package:justtsham/featcher/view/SkillsPracticeScreen/practice_screen.dart';
 
-class ScriptScreen extends StatefulWidget {
-  const ScriptScreen({super.key});
+class SkillsPracticeScreen extends StatefulWidget {
+  const SkillsPracticeScreen({super.key});
 
   @override
-  State<ScriptScreen> createState() => _ScriptScreenState();
+  State<SkillsPracticeScreen> createState() => _SkillsPracticeScreenState();
 }
 
-class _ScriptScreenState extends State<ScriptScreen> {
+class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
   int _activeSkillIndex = 0; // 0: Speaking, 1: Listening, 2: Reading, 3: Writing
   int _speakingSubTab = 0; // 0: Cue Cards, 1: Part 1 Topics, 2: Generator
   String _selectedCategory = "Technology & AI";
   final TextEditingController _customTopicController = TextEditingController();
-  String _generatedCueCard = "";
+  _CustomCueCardData? _generatedCard;
+  bool _showModelAnswer = true;
 
   final List<String> _categories = [
     "Technology & AI",
@@ -31,21 +32,55 @@ class _ScriptScreenState extends State<ScriptScreen> {
     "Hometown & Daily Life",
   ];
 
+  final List<String> _quickTopicSuggestions = [
+    "Artificial Intelligence",
+    "Renewable Energy",
+    "Remote Working",
+    "An Unforgettable Trip",
+    "Higher Education Reform",
+    "A Skill I Mastered",
+  ];
+
   void _generateCustomCueCard() {
-    final topic = _customTopicController.text.trim().isNotEmpty
+    final rawTopic = _customTopicController.text.trim().isNotEmpty
         ? _customTopicController.text.trim()
         : _selectedCategory;
 
+    final topic = rawTopic;
+
+    String title = "Describe an important experience or innovation in $topic";
+    String prompt = "Describe a significant aspect or personal experience related to $topic that has had a meaningful impact on you.";
+    List<String> bullets = [
+      "What it is and how you first became familiar with it",
+      "Why this particular aspect of $topic is important",
+      "What key benefits, changes, or challenges it involves",
+      "And explain why it holds lasting personal or societal significance.",
+    ];
+    String modelAnswer =
+        "I would like to talk about $topic, which has undoubtedly played a transformative role in my perspective. "
+        "I first encountered this a couple of years ago, and since then, it has completely reshaped my daily routine and outlook. "
+        "What strikes me the most is how rapidly $topic has gained traction across diverse communities. "
+        "On one hand, it provides unprecedented efficiency and opens up a wide array of new possibilities. On the other hand, navigating its nuances requires dedication and continuous adaptation. "
+        "Looking ahead, I am convinced that $topic will continue to be a pivotal factor for future innovation and personal development. "
+        "All things considered, embracing this experience has been immensely rewarding for my intellectual growth.";
+    String strategy = "Structure your response into 3 parts: engaging background context, specific details/examples with contrast linkers ('On the one hand...'), and a forward-looking conclusion.";
+    List<String> vocab = [
+      "Transformative role",
+      "Gained significant traction",
+      "Unprecedented efficiency",
+      "Pivotal factor",
+      "Immensely rewarding",
+    ];
+
     setState(() {
-      _generatedCueCard =
-          "Describe a significant development in $topic that has impacted your community.\n\n"
-          "You should say:\n"
-          "• What this development is\n"
-          "• When and where it happened\n"
-          "• How people in your society responded to it\n"
-          "• And explain why you consider it to be of paramount importance for the future.\n\n"
-          "Band 9 Model Strategy:\n"
-          "Start by framing the societal context, utilize complex inversion structures ('Not only did this innovation...'), and conclude with a nuanced perspective.";
+      _generatedCard = _CustomCueCardData(
+        title: title,
+        prompt: prompt,
+        bulletPoints: bullets,
+        modelAnswer: modelAnswer,
+        strategy: strategy,
+        keyVocab: vocab,
+      );
     });
   }
 
@@ -71,23 +106,23 @@ class _ScriptScreenState extends State<ScriptScreen> {
       ),
       body: Column(
         children: [
-          // 4-Skill Segmented Bar
+          // 4-Skill Compact Segmented Bar
           Container(
             color: Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             child: Container(
-              height: 52.h,
-              padding: EdgeInsets.all(5.w),
+              height: 42.h,
+              padding: EdgeInsets.all(3.5.w),
               decoration: BoxDecoration(
                 color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(26),
+                borderRadius: BorderRadius.circular(21),
               ),
               child: Row(
                 children: [
-                  _buildSkillTab("Speaking", 0, Icons.mic_rounded),
-                  _buildSkillTab("Listening", 1, Icons.headset_rounded),
-                  _buildSkillTab("Reading", 2, Icons.menu_book_rounded),
-                  _buildSkillTab("Writing", 3, Icons.edit_note_rounded),
+                  _buildSkillTab("Speaking", 0),
+                  _buildSkillTab("Listening", 1),
+                  _buildSkillTab("Reading", 2),
+                  _buildSkillTab("Writing", 3),
                 ],
               ),
             ),
@@ -97,7 +132,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 18.h, bottom: 100.h),
+              padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 16.h, bottom: 100.h),
               child: _buildActiveSkillView(progressCtrl),
             ),
           ),
@@ -106,7 +141,7 @@ class _ScriptScreenState extends State<ScriptScreen> {
     );
   }
 
-  Widget _buildSkillTab(String title, int index, IconData icon) {
+  Widget _buildSkillTab(String title, int index) {
     final isSelected = _activeSkillIndex == index;
     return Expanded(
       child: GestureDetector(
@@ -120,36 +155,24 @@ class _ScriptScreenState extends State<ScriptScreen> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: isSelected ? const Color(0xFF00695C) : Colors.transparent,
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(18),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF00695C).withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
+                      color: const Color(0xFF00695C).withOpacity(0.25),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
                   ]
                 : null,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 17,
-                color: isSelected ? Colors.white : const Color(0xFF64748B),
-              ),
-              SizedBox(width: 5.w),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                  color: isSelected ? Colors.white : const Color(0xFF64748B),
-                ),
-              ),
-            ],
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 12.5.sp,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+              color: isSelected ? Colors.white : const Color(0xFF64748B),
+            ),
           ),
         ),
       ),
@@ -431,58 +454,297 @@ class _ScriptScreenState extends State<ScriptScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(22),
               border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Generate Custom IELTS Cue Card", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
-                SizedBox(height: 14.h),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE0F2F1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.auto_awesome_rounded, color: Color(0xFF00695C), size: 20),
+                    ),
+                    SizedBox(width: 10.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Generate Custom IELTS Cue Card",
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                          ),
+                          Text(
+                            "Create personalized Part 2 topics with Band 8.5+ Model Answers",
+                            style: TextStyle(fontSize: 11.5.sp, color: const Color(0xFF64748B)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16.h),
+
+                // Category Selector
                 DropdownButtonFormField<String>(
                   value: _selectedCategory,
                   decoration: InputDecoration(
                     labelText: "Select Category",
+                    labelStyle: TextStyle(fontSize: 13.sp, color: const Color(0xFF64748B)),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   ),
-                  items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                  items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 13)))).toList(),
                   onChanged: (v) {
                     if (v != null) setState(() => _selectedCategory = v);
                   },
                 ),
                 SizedBox(height: 14.h),
+
+                // Custom Topic Input
                 TextField(
                   controller: _customTopicController,
                   decoration: InputDecoration(
-                    hintText: "Or type specific topic (e.g. Electric Cars)...",
+                    hintText: "Or type your own topic (e.g. Electric Vehicles)...",
+                    hintStyle: TextStyle(fontSize: 12.5.sp, color: const Color(0xFF94A3B8)),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   ),
                 ),
+                SizedBox(height: 10.h),
+
+                // Quick Topic Suggestions Chips
+                Wrap(
+                  spacing: 6.w,
+                  runSpacing: 6.h,
+                  children: _quickTopicSuggestions.map((sug) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _customTopicController.text = sug;
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Text(
+                          "+ $sug",
+                          style: TextStyle(fontSize: 11.sp, color: const Color(0xFF475569), fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+
                 SizedBox(height: 16.h),
+
+                // Generate Button
                 GestureDetector(
                   onTap: _generateCustomCueCard,
                   child: Container(
-                    height: 46.h,
+                    height: 48.h,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00695C),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF004D40), Color(0xFF00695C)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                       borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF00695C).withOpacity(0.25),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    child: const Center(
-                      child: Text("Generate Prompt & Model Answer", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.psychology_rounded, color: Colors.white, size: 20),
+                        SizedBox(width: 8.w),
+                        const Text(
+                          "Generate Cue Card & Model Answer",
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13.5),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                if (_generatedCueCard.isNotEmpty) ...[
-                  SizedBox(height: 18.h),
+
+                // Generated Output Display
+                if (_generatedCard != null) ...[
+                  SizedBox(height: 20.h),
                   Container(
+                    width: double.infinity,
                     padding: EdgeInsets.all(16.w),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE0F2F1),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF80CBC4)),
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0xFF00695C).withOpacity(0.3), width: 1.5),
                     ),
-                    child: Text(_generatedCueCard, style: const TextStyle(fontSize: 13, height: 1.5, color: Color(0xFF004D40))),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Card Header
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF00695C),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text("IELTS Speaking Part 2", style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white)),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE0F2F1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text("Band 8.5+ Ready", style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF004D40))),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 12.h),
+
+                        // Main Prompt
+                        Text(
+                          _generatedCard!.prompt,
+                          style: TextStyle(fontSize: 14.5.sp, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A), height: 1.35),
+                        ),
+                        SizedBox(height: 12.h),
+
+                        // Bullet Points
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text("You should say:", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF00695C))),
+                              SizedBox(height: 6.h),
+                              ..._generatedCard!.bulletPoints.map((b) => Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text("• ", style: TextStyle(color: Color(0xFF00695C), fontWeight: FontWeight.bold)),
+                                    Expanded(child: Text(b, style: TextStyle(fontSize: 12.sp, color: const Color(0xFF334155), height: 1.3))),
+                                  ],
+                                ),
+                              )),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 12.h),
+
+                        // Band 8.5 Model Answer Toggle
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text("Band 8.5+ Model Answer", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
+                            GestureDetector(
+                              onTap: () => setState(() => _showModelAnswer = !_showModelAnswer),
+                              child: Text(_showModelAnswer ? "Hide" : "Show", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF00695C))),
+                            ),
+                          ],
+                        ),
+
+                        if (_showModelAnswer) ...[
+                          SizedBox(height: 8.h),
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(12.w),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE0F2F1).withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFB2DFDB)),
+                            ),
+                            child: Text(
+                              "\"${_generatedCard!.modelAnswer}\"",
+                              style: TextStyle(fontSize: 12.sp, fontStyle: FontStyle.italic, color: const Color(0xFF004D40), height: 1.45),
+                            ),
+                          ),
+                        ],
+
+                        SizedBox(height: 12.h),
+
+                        // Key Vocab Tags
+                        const Text("High-Yield Collocations:", style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF475569))),
+                        SizedBox(height: 6.h),
+                        Wrap(
+                          spacing: 6.w,
+                          runSpacing: 6.h,
+                          children: _generatedCard!.keyVocab.map((v) => Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            child: Text(v, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF0F172A))),
+                          )).toList(),
+                        ),
+
+                        SizedBox(height: 16.h),
+
+                        // Start Speaking & Recording Button
+                        GestureDetector(
+                          onTap: () {
+                            Get.to(() => PracticeScreen(
+                              title: _generatedCard!.title,
+                              cardTitle: _generatedCard!.title,
+                              content: "${_generatedCard!.prompt}\n\n"
+                                  "You should say:\n${_generatedCard!.bulletPoints.map((b) => "• $b").join("\n")}\n\n"
+                                  "Band 8.5+ Model Answer:\n${_generatedCard!.modelAnswer}",
+                            ));
+                          },
+                          child: Container(
+                            height: 46.h,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00695C),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.mic_rounded, color: Colors.white, size: 20),
+                                SizedBox(width: 8.w),
+                                const Text(
+                                  "🎙️ Practice Speaking on This Cue Card",
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ],
@@ -1195,3 +1457,22 @@ class _ScriptScreenState extends State<ScriptScreen> {
     });
   }
 }
+
+class _CustomCueCardData {
+  final String title;
+  final String prompt;
+  final List<String> bulletPoints;
+  final String modelAnswer;
+  final String strategy;
+  final List<String> keyVocab;
+
+  const _CustomCueCardData({
+    required this.title,
+    required this.prompt,
+    required this.bulletPoints,
+    required this.modelAnswer,
+    required this.strategy,
+    required this.keyVocab,
+  });
+}
+

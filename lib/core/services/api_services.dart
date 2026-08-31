@@ -9,7 +9,7 @@ import "package:http/http.dart" as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import '../../featcher/model/Api_response_model.dart';
-import '../../featcher/view/authentication/Login_screen.dart';
+import '../../featcher/view/authentication/candidate_setup_screen.dart';
 import '../constant/prefs_helper.dart';
 import '../utils/app_string.dart';
 
@@ -254,7 +254,7 @@ class ApiService {
       case 401:
         if (PrefsHelper.isLogIn) {
           PrefsHelper.removeAllPrefData();
-          Get.offAll(() => LoginScreen());
+          Get.offAll(() => const CandidateSetupScreen());
         }
         return ApiResponseModel(response.statusCode, data['message'], data);
       case 400:

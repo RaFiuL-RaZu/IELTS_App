@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:justtsham/core/constant/prefs_helper.dart';
-import 'package:justtsham/featcher/view/AuditionScreen/audition_screen.dart';
-import 'package:justtsham/featcher/view/CummunityScreen/community_screen.dart';
-import 'package:justtsham/featcher/view/ScriptScreen/script_screen.dart';
-import 'package:justtsham/featcher/view/SettingScreen/setting_screen.dart';
-
-import '../../view/HomeScreen/home_screen.dart';
-import '../../view/authentication/Login_screen.dart';
+import 'package:justtsham/featcher/view/HomeScreen/home_screen.dart';
+import 'package:justtsham/featcher/view/SkillsPracticeScreen/skills_practice_screen.dart';
+import 'package:justtsham/featcher/view/MockExamScreen/mock_exam_screen.dart';
+import 'package:justtsham/featcher/view/ResourcesScreen/ielts_resources_screen.dart';
+import 'package:justtsham/featcher/view/ProfileScreen/candidate_profile_screen.dart';
 
 class NavBarController extends GetxController {
   var selectedIndex = 0.obs;
@@ -18,10 +15,10 @@ class NavBarController extends GetxController {
 
   final List<Widget> pages = [
     const HomeScreen(),
-    const ScriptScreen(),
-    const AuditionScreen(),
-    const CommunityScreen(),
-    const SettingScreen(),
+    const SkillsPracticeScreen(),
+    const MockExamScreen(),
+    const IeltsResourcesScreen(),
+    const CandidateProfileScreen(),
   ];
 
   final List<String> label = [
@@ -29,6 +26,6 @@ class NavBarController extends GetxController {
     "4 Skills",
     "Mock Exam",
     "Resources",
-    "Analytics",
+    "Profile",
   ];
 }

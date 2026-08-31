@@ -21,22 +21,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final PageController _controller = PageController();
   int currentIndex = 0;
-  final List<Map<String, String>> pages = [
+  final List<Map<String, dynamic>> pages = [
     {
       "image": AppImage.banner1,
-      "icon": AppIcons.icon3,
+      "iconData": Icons.record_voice_over_rounded,
       "title": "Practice Speaking Cue Cards",
       "desc": "Record your responses, review sample Band 8+ answers, and get real-time audio waveform feedback.",
     },
     {
       "image": AppImage.banner3,
-      "icon": AppIcons.icon2,
+      "iconData": Icons.insights_rounded,
       "title": "Track Mock Tests & Bands",
       "desc": "Monitor your band score progress, manage upcoming test dates, and evaluate your preparation.",
     },
     {
       "image": AppImage.banner2,
-      "icon": AppIcons.icon1,
+      "iconData": Icons.groups_rounded,
       "title": "IELTS Study Community",
       "desc": "Share speaking recordings and essays to get peer feedback and expert band ratings.",
     },
@@ -66,19 +66,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         },
         itemBuilder: (context, index) {
           return buildPage(
-            title: pages[index]["title"]!,
-            desc: pages[index]["desc"]!, image:pages[index]["image"]!, icon: pages[index]["icon"]!,
+            title: pages[index]["title"] as String,
+            desc: pages[index]["desc"] as String,
+            image: pages[index]["image"] as String,
+            iconData: pages[index]["iconData"] as IconData,
           );
         },
       ),
     );
   }
 
-  Widget buildPage({required String title, required String desc,required String image, required String icon}) {
+  Widget buildPage({
+    required String title,
+    required String desc,
+    required String image,
+    required IconData iconData,
+  }) {
     return Stack(
       children: [
         SizedBox(
-          height:580.h,
+          height: 580.h,
           width: 392.w,
           child: Image.asset(
             image,
@@ -90,26 +97,54 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         Align(
           alignment: Alignment.bottomCenter,
           child: Container(
-            height: 360.h,
+            height: 375.h,
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
               color: AppColor.background,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
               ),
             ),
             child: Column(
               children: [
-                SizedBox(height: 20.h,),
-                Image.asset(icon,height: 100.w,width: 100.w,fit: BoxFit.cover,),
+                SizedBox(height: 22.h),
+
+                // Center Themed Soft Teal Icon
+                Container(
+                  height: 64.h,
+                  width: 64.h,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFFF0FDFA),
+                    border: Border.all(color: const Color(0xFFCCFBF1), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF00695C).withOpacity(0.06),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Icon(
+                      iconData,
+                      color: const Color(0xFF00695C),
+                      size: 30.sp,
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 14.h),
+
                 Text(
                   title,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 22.sp,
                     fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0F172A),
                   ),
                 ),
                 SizedBox(height: 10.h),
@@ -117,9 +152,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   desc,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 16.sp,
+                    fontSize: 14.5.sp,
                     color: AppColor.secondary,
-                    fontWeight: FontWeight.w500
+                    fontWeight: FontWeight.w500,
+                    height: 1.35,
                   ),
                 ),
 
@@ -129,20 +165,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
                     pages.length,
-                        (index) => buildIndicator(index),
+                    (index) => buildIndicator(index),
                   ),
                 ),
 
                 SizedBox(height: 20.h),
 
-               CommonButton(
-                 onTap: nextPage,
-                 titleText:
-                   currentIndex == pages.length - 1
-                       ? "Get Started"
-                       : "Continue",
-                 buttonRadius: 16,
-                 ),
+                CommonButton(
+                  onTap: nextPage,
+                  titleText: currentIndex == pages.length - 1 ? "Get Started" : "Continue",
+                  buttonRadius: 16,
+                ),
                 SizedBox(height: 20.h),
               ],
             ),

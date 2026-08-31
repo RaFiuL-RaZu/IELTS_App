@@ -5,8 +5,6 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:justtsham/featcher/controller/CommunityController/community_controller.dart';
-import 'package:justtsham/featcher/controller/ScriptController/script_controller.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -157,22 +155,24 @@ class PracticeController extends GetxController {
     super.onClose();
   }
 
-  Future<void> startRecording() async {
-    if (_isRequestingPermission || isRecording.value) return;
+  var isProcessing = false.obs;
+  bool _isActionInProgress = false;
 
-    _isRequestingPermission = true;
+  Future<void> startRecording() async {
+    if (_isRequestingPermission || isRecording.value || _isActionInProgress) return;
+    _isActionInProgress = true;
 
     PermissionStatus status;
     try {
+      _isRequestingPermission = true;
       status = await Permission.microphone.request();
     } finally {
       _isRequestingPermission = false;
     }
 
     if (!status.isGranted) {
+      _isActionInProgress = false;
       debugPrint("Permission denied: $status");
-      // On iOS, after first denial status is 'denied' (not permanentlyDenied)
-      // because iOS never re-prompts — user must go to Settings.
       final bool needSettings =
           status.isPermanentlyDenied || (Platform.isIOS && status.isDenied);
 
@@ -211,45 +211,84 @@ class PracticeController extends GetxController {
     }
 
     try {
-      await recorderController.record();
+      // ⚡ Explicit file path in app documents directory for reliable Android storage
+      final dir = await getApplicationDocumentsDirectory();
+      final filePath = '${dir.path}/ielts_speaking_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      recordedPath = filePath;
 
+      await recorderController.record(path: filePath);
+      isRecorded.value = false;
       isRecording.value = true;
       seconds.value = 0;
 
       _startTimer();
 
-      debugPrint("Recording started");
+      debugPrint("Recording started at: $filePath");
     } catch (e) {
       debugPrint("Start error: $e");
+    } finally {
+      _isActionInProgress = false;
     }
   }
 
   Future<void> stopRecording() async {
-    if (!isRecording.value) return;
+    if (!isRecording.value || _isActionInProgress) return;
+    _isActionInProgress = true;
+
+    // ⚡ Cancel timer and switch state IMMEDIATELY so the clock and UI stop with zero lag!
+    _timer?.cancel();
+    _timer = null;
+    isRecording.value = false;
+    isProcessing.value = true;
+    final capturedSeconds = seconds.value;
 
     try {
-      recordedPath = await recorderController.stop();
+      final stopPath = await recorderController.stop();
+      if (stopPath != null && stopPath.isNotEmpty) {
+        recordedPath = stopPath;
+      }
 
-      if (recordedPath == null) return;
+      if (recordedPath != null && recordedPath!.isNotEmpty) {
+        try {
+          await playerController.stopPlayer();
+        } catch (_) {}
 
-      await playerController.stopPlayer(); // 🔥 ADD THIS
+        try {
+          // ⚡ Instant non-blocking player preparation
+          await playerController.preparePlayer(
+            path: recordedPath!,
+            volume: 1.0,
+            shouldExtractWaveform: false,
+          );
+        } catch (e) {
+          debugPrint("preparePlayer error: $e");
+        }
 
-      await playerController.preparePlayer(path: recordedPath!);
+        try {
+          await playerController.setVolume(1.0);
+        } catch (_) {}
 
-      totalDuration.value = await playerController.getDuration();
-      playerState.value = playerController.playerState;
+        try {
+          final duration = await playerController.getDuration();
+          totalDuration.value = duration > 0 ? duration : (capturedSeconds * 1000);
+        } catch (_) {
+          totalDuration.value = capturedSeconds * 1000;
+        }
 
-      isRecorded.value = true;
+        currentPosition.value = 0;
+        playerState.value = playerController.playerState;
+        isRecorded.value = true;
+      }
     } catch (e) {
       debugPrint("Stop error: $e");
     } finally {
-      isRecording.value = false;
-      _timer?.cancel();
+      isProcessing.value = false;
+      _isActionInProgress = false;
     }
   }
 
   Future<void> toggleRecording() async {
-    if (_isRequestingPermission) return;
+    if (_isRequestingPermission || _isActionInProgress) return;
 
     if (isRecording.value) {
       await stopRecording();
@@ -270,7 +309,9 @@ class PracticeController extends GetxController {
 
     playerState.value = PlayerState.stopped;
 
-    playerController.stopPlayer();
+    try {
+      playerController.stopPlayer();
+    } catch (_) {}
 
     seconds.value = 0;
 
@@ -278,14 +319,20 @@ class PracticeController extends GetxController {
     _timer = null;
   }
 
-
   Future<void> playPause() async {
+    if (_isActionInProgress) return;
     try {
       final isPlaying = playerState.value == PlayerState.playing;
       if (isPlaying) {
         playerState.value = PlayerState.paused;
         await playerController.pausePlayer();
       } else {
+        // If track is at the end, replay from start
+        if (currentPosition.value >= totalDuration.value && totalDuration.value > 0) {
+          await playerController.seekTo(0);
+          currentPosition.value = 0;
+        }
+        await playerController.setVolume(1.0);
         playerState.value = PlayerState.playing;
         await playerController.startPlayer();
       }

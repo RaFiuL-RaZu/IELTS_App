@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/data/ielts_data.dart';
-import 'package:justtsham/core/widgets/common_text.dart';
 
 class IeltsVocabularyScreen extends StatefulWidget {
   const IeltsVocabularyScreen({super.key});
@@ -13,121 +12,97 @@ class IeltsVocabularyScreen extends StatefulWidget {
 
 class _IeltsVocabularyScreenState extends State<IeltsVocabularyScreen> {
   int _selectedTopicIndex = 0;
-  final Set<int> _savedWords = {};
+  String _searchQuery = "";
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final topics = IeltsData.vocabularyTopics;
-    final currentTopic = topics[_selectedTopicIndex];
+    final topics = IeltsData.wordFamilyTopics;
+    final currentTopic = topics[_selectedTopicIndex.clamp(0, topics.length - 1)];
+
+    // Filtered words based on search
+    final filteredWords = _searchQuery.trim().isEmpty
+        ? currentTopic.words
+        : currentTopic.words.where((wf) {
+            final q = _searchQuery.toLowerCase();
+            return wf.noun.toLowerCase().contains(q) ||
+                wf.verb.toLowerCase().contains(q) ||
+                wf.adjective.toLowerCase().contains(q) ||
+                wf.adverb.toLowerCase().contains(q);
+          }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF111827), size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF0F172A), size: 20),
           onPressed: () => Get.back(),
         ),
         title: const Text(
-          "Band 8.0+ Vocabulary Bank",
+          "IELTS Vocabulary Bank",
           style: TextStyle(
-            color: Color(0xFF111827),
+            color: Color(0xFF0F172A),
             fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header Banner
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF004D40), Color(0xFF00796B)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+      body: Column(
+        children: [
+          // 1. Search Bar
+          Container(
+            color: Colors.white,
+            padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (val) => setState(() => _searchQuery = val),
+              decoration: InputDecoration(
+                hintText: "Search noun, verb, adjective, adverb...",
+                hintStyle: TextStyle(fontSize: 13.sp, color: const Color(0xFF94A3B8)),
+                prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF00695C), size: 22),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 18, color: Color(0xFF94A3B8)),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = "");
+                        },
+                      )
+                    : null,
+                contentPadding: EdgeInsets.symmetric(vertical: 10.h),
+                filled: true,
+                fillColor: const Color(0xFFF1F5F9),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF00796B).withOpacity(0.25),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          "📚 LEXICAL RESOURCE",
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF80CBC4),
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        "${currentTopic.words.length} High-Yield Words",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10.h),
-                  Text(
-                    "IELTS ${currentTopic.topicName}",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  const Text(
-                    "Master academic collocations and synonyms to boost your Speaking and Writing Band scores.",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFFB2DFDB),
-                      height: 1.35,
-                    ),
-                  ),
-                ],
               ),
             ),
+          ),
 
-            SizedBox(height: 16.h),
-
-            // Topic Selector Horizontal Chips
-            SingleChildScrollView(
+          // 2. Horizontal Topic Filter Pills (17 Topics)
+          Container(
+            color: Colors.white,
+            padding: EdgeInsets.only(bottom: 12.h),
+            child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Row(
                 children: List.generate(topics.length, (index) {
                   final isSelected = _selectedTopicIndex == index;
                   final topic = topics[index];
+
                   return Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: EdgeInsets.only(right: 8.w),
                     child: GestureDetector(
                       onTap: () {
                         setState(() {
@@ -136,34 +111,31 @@ class _IeltsVocabularyScreenState extends State<IeltsVocabularyScreen> {
                       },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+                        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF00695C) : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          color: isSelected ? const Color(0xFF00695C) : const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected ? const Color(0xFF00695C) : const Color(0xFFE5E7EB),
+                            color: isSelected ? const Color(0xFF00695C) : const Color(0xFFE2E8F0),
+                            width: isSelected ? 1.5 : 1,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.02),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: const Color(0xFF00695C).withOpacity(0.2),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ]
+                              : null,
                         ),
-                        child: Row(
-                          children: [
-                            Text(topic.icon, style: const TextStyle(fontSize: 14)),
-                            SizedBox(width: 6.w),
-                            Text(
-                              topic.topicName,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                                color: isSelected ? Colors.white : const Color(0xFF374151),
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          topic.topicName,
+                          style: TextStyle(
+                            fontSize: 12.5.sp,
+                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                            color: isSelected ? Colors.white : const Color(0xFF475569),
+                          ),
                         ),
                       ),
                     ),
@@ -171,127 +143,210 @@ class _IeltsVocabularyScreenState extends State<IeltsVocabularyScreen> {
                 }),
               ),
             ),
+          ),
 
-            SizedBox(height: 18.h),
+          const Divider(height: 1, color: Color(0xFFE2E8F0)),
 
-            // Word Cards List
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: currentTopic.words.length,
-              itemBuilder: (context, index) {
-                final word = currentTopic.words[index];
-                final isSaved = _savedWords.contains(index);
-
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 14),
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF00897B).withOpacity(0.04),
-                        offset: const Offset(0, 4),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            word.word,
-                            style: const TextStyle(
-                              fontSize: 19,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF111827),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                if (isSaved) {
-                                  _savedWords.remove(index);
-                                } else {
-                                  _savedWords.add(index);
-                                }
-                              });
-                              Get.snackbar(
-                                isSaved ? "Removed" : "Saved to Wordbank! ⭐",
-                                isSaved ? "${word.word} removed from favorites" : "${word.word} added to your active vocab",
-                                snackPosition: SnackPosition.TOP,
-                                duration: const Duration(seconds: 1),
-                              );
-                            },
-                            child: Icon(
-                              isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                              color: isSaved ? const Color(0xFF00897B) : Colors.grey.shade400,
-                              size: 24,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 6.h),
-                      Text(
-                        word.meaning,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF4B5563),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      SizedBox(height: 10.h),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE0F2F1),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xFFB2DFDB)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              "Collocation: ",
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF004D40),
-                              ),
-                            ),
-                            Text(
-                              word.collocation,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF00695C),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10.h),
-                      Text(
-                        "Example: \"${word.example}\"",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontStyle: FontStyle.italic,
-                          color: Color(0xFF374151),
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+          // 3. Topic Sub-header Banner
+          Container(
+            width: double.infinity,
+            margin: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              gradient: const LinearGradient(
+                colors: [Color(0xFF004D40), Color(0xFF00695C)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
-          ],
-        ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${currentTopic.topicName} Word Families",
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      "Noun • Verb • Adjective • Adverb",
+                      style: TextStyle(
+                        fontSize: 11.5.sp,
+                        color: const Color(0xFFB2DFDB),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "${filteredWords.length} Sets",
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 4. Cards List
+          Expanded(
+            child: filteredWords.isEmpty
+                ? Center(
+                    child: Text(
+                      "No matching words found for \"$_searchQuery\"",
+                      style: TextStyle(fontSize: 13.sp, color: const Color(0xFF94A3B8)),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 20.h),
+                    itemCount: filteredWords.length,
+                    itemBuilder: (context, index) {
+                      final wf = filteredWords[index];
+                      return _buildWordFamilyCard(wf);
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWordFamilyCard(IeltsWordFamily wf) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 12.h),
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Noun Form (Blue Badge)
+              Expanded(
+                child: _buildFormCell(
+                  label: "Noun",
+                  value: wf.noun,
+                  badgeBg: const Color(0xFFE0F2FE),
+                  badgeColor: const Color(0xFF0369A1),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              // Verb Form (Green Badge)
+              Expanded(
+                child: _buildFormCell(
+                  label: "Verb",
+                  value: wf.verb,
+                  badgeBg: const Color(0xFFD1FAE5),
+                  badgeColor: const Color(0xFF047857),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Adjective Form (Amber Badge)
+              Expanded(
+                child: _buildFormCell(
+                  label: "Adjective",
+                  value: wf.adjective,
+                  badgeBg: const Color(0xFFFEF3C7),
+                  badgeColor: const Color(0xFFB45309),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              // Adverb Form (Purple Badge)
+              Expanded(
+                child: _buildFormCell(
+                  label: "Adverb",
+                  value: wf.adverb,
+                  badgeBg: const Color(0xFFEDE9FE),
+                  badgeColor: const Color(0xFF6D28D9),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormCell({
+    required String label,
+    required String value,
+    required Color badgeBg,
+    required Color badgeColor,
+  }) {
+    String cleanText = value.trim();
+    if (cleanText == "-" || cleanText == "—" || cleanText.isEmpty || cleanText.contains("â")) {
+      cleanText = "-";
+    }
+    final isNone = cleanText == "-";
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: badgeBg,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 9.5.sp,
+                fontWeight: FontWeight.w800,
+                color: badgeColor,
+              ),
+            ),
+          ),
+          SizedBox(height: 6.h),
+          Text(
+            cleanText,
+            style: TextStyle(
+              fontSize: 12.5.sp,
+              fontWeight: isNone ? FontWeight.normal : FontWeight.w700,
+              color: isNone ? const Color(0xFF94A3B8) : const Color(0xFF0F172A),
+              height: 1.25,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -8,7 +8,8 @@ import 'package:justtsham/core/widgets/coomon_button.dart';
 import 'package:justtsham/routes/routes.dart';
 
 class CandidateSetupScreen extends StatefulWidget {
-  const CandidateSetupScreen({super.key});
+  final bool isNewAccount;
+  const CandidateSetupScreen({super.key, this.isNewAccount = false});
 
   @override
   State<CandidateSetupScreen> createState() => _CandidateSetupScreenState();
@@ -28,8 +29,13 @@ class _CandidateSetupScreenState extends State<CandidateSetupScreen> {
     super.initState();
     if (Get.isRegistered<IeltsProgressController>()) {
       final ctrl = IeltsProgressController.to;
-      nameController.text = ctrl.candidateName.value == "IELTS Aspirant" ? "" : ctrl.candidateName.value;
-      selectedBand = ctrl.targetBand.value;
+      if (widget.isNewAccount) {
+        nameController.text = "";
+        selectedBand = 8.0;
+      } else {
+        nameController.text = ctrl.candidateName.value == "IELTS Aspirant" ? "" : ctrl.candidateName.value;
+        selectedBand = ctrl.targetBand.value;
+      }
     }
   }
 
@@ -46,9 +52,13 @@ class _CandidateSetupScreenState extends State<CandidateSetupScreen> {
 
     if (Get.isRegistered<IeltsProgressController>()) {
       final ctrl = IeltsProgressController.to;
-      await ctrl.updateCandidateName(name);
-      ctrl.setTargetBand(selectedBand);
-      ctrl.setExamModule(selectedModule);
+      if (widget.isNewAccount) {
+        await ctrl.resetUserData(newName: name, targetBandVal: selectedBand, module: selectedModule, clearHistory: true);
+      } else {
+        await ctrl.updateCandidateName(name);
+        ctrl.setTargetBand(selectedBand);
+        ctrl.setExamModule(selectedModule);
+      }
       ctrl.examDaysRemaining.value = selectedDays;
       await ctrl.saveToLocalStorage();
     }
