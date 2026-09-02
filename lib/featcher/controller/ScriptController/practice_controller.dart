@@ -11,6 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../core/constant/prefs_helper.dart';
 import '../../../core/services/api_services.dart';
 import '../../../core/services/ielts_local_storage_service.dart';
+import '../../../core/services/ielts_gemini_ai_service.dart';
 import '../../../core/utils/app_urls.dart';
 
 class PracticeController extends GetxController {
@@ -232,7 +233,7 @@ class PracticeController extends GetxController {
   }
 
   Future<void> stopRecording() async {
-    if (!isRecording.value || _isActionInProgress) return;
+    if (!isRecording.value && !isProcessing.value) return;
     _isActionInProgress = true;
 
     // ⚡ Cancel timer and switch state IMMEDIATELY so the clock and UI stop with zero lag!
@@ -242,24 +243,46 @@ class PracticeController extends GetxController {
     isProcessing.value = true;
     final capturedSeconds = seconds.value;
 
+    // 🛡️ Safety Watchdog: Never allow UI to stay stuck in isProcessing for more than 2 seconds
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      if (isProcessing.value) {
+        debugPrint("⚡ Safety watchdog triggered: forcefully releasing isProcessing");
+        isProcessing.value = false;
+        isRecorded.value = true;
+        _isActionInProgress = false;
+      }
+    });
+
     try {
-      final stopPath = await recorderController.stop();
+      String? stopPath;
+      try {
+        stopPath = await recorderController.stop().timeout(
+          const Duration(seconds: 2),
+          onTimeout: () {
+            debugPrint("recorderController.stop timed out; using recordedPath");
+            return recordedPath;
+          },
+        );
+      } catch (e) {
+        debugPrint("recorderController.stop exception: $e");
+      }
+
       if (stopPath != null && stopPath.isNotEmpty) {
         recordedPath = stopPath;
       }
 
+      try {
+        await playerController.stopPlayer();
+      } catch (_) {}
+
       if (recordedPath != null && recordedPath!.isNotEmpty) {
         try {
-          await playerController.stopPlayer();
-        } catch (_) {}
-
-        try {
-          // ⚡ Instant non-blocking player preparation
+          // ⚡ Instant non-blocking player preparation with safety timeout
           await playerController.preparePlayer(
             path: recordedPath!,
             volume: 1.0,
             shouldExtractWaveform: false,
-          );
+          ).timeout(const Duration(seconds: 2));
         } catch (e) {
           debugPrint("preparePlayer error: $e");
         }
@@ -277,10 +300,13 @@ class PracticeController extends GetxController {
 
         currentPosition.value = 0;
         playerState.value = playerController.playerState;
-        isRecorded.value = true;
       }
+
+      // ⚡ ALWAYS mark as recorded so the user immediately sees Play, Delete & Submit buttons!
+      isRecorded.value = true;
     } catch (e) {
       debugPrint("Stop error: $e");
+      isRecorded.value = true;
     } finally {
       isProcessing.value = false;
       _isActionInProgress = false;
@@ -370,39 +396,372 @@ class PracticeController extends GetxController {
 
 
   Future<void> createCommunity({String? cueCardTitle, String? category}) async {
+    final effectivePath = recordedPath ?? selectedAudioFile?.path;
+
+    if (effectivePath == null || seconds.value < 5) {
+      Get.snackbar(
+        "Insufficient Speaking Duration ⚠️",
+        "Please record at least 15 to 30 seconds of speech so Gemini AI can analyze your pronunciation, fluency, and vocabulary.",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: const Color(0xFFEA580C),
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     isLoading(true);
 
+    // Show Gemini AI Evaluator Loading Dialog
+    Get.dialog(
+      barrierDismissible: false,
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 26),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFC8A96B).withOpacity(0.14),
+                  shape: BoxShape.circle,
+                ),
+                child: const SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: Color(0xFF8A6B32),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "🤖 Gemini AI Speaking Examiner",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                "Listening to your audio recording...\nEvaluating Fluency, Pronunciation, Grammar & Vocabulary.",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12.5, color: Color(0xFF64748B), height: 1.45),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
     try {
-      debugPrint("saveAudition :");
-      await Future.delayed(const Duration(milliseconds: 400));
+      final aiResult = await IeltsGeminiAiService.evaluateSpeakingAudio(
+        audioPath: effectivePath,
+        cueCardTopic: cueCardTitle ?? category ?? "IELTS Speaking Part 2",
+        spokenSeconds: seconds.value,
+      );
+
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
 
       if (Get.isRegistered<IeltsProgressController>()) {
         final ctrl = IeltsProgressController.to;
         ctrl.speakingTaskDone.value = true;
-        ctrl.speakingBand.value = 7.5;
+        ctrl.speakingBand.value = aiResult.overallBand;
         ctrl.addTestResult(
           skill: "Speaking",
           testName: cueCardTitle ?? category ?? "Speaking Cue Card Practice",
-          score: 8,
-          totalQuestions: 9,
-          bandScore: 7.5,
+          score: (aiResult.overallBand * 4).round(),
+          totalQuestions: 36,
+          bandScore: aiResult.overallBand,
         );
         ctrl.saveToLocalStorage();
       }
 
-      Get.back();
-      Get.snackbar(
-        "Speaking Test Completed! 🎯",
-        "Your IELTS Speaking response has been recorded. Daily task checked & Band 7.5 saved!",
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: const Color(0xFF004D40),
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-      );
+      _showSpeakingAiResultSheet(aiResult, cueCardTitle ?? category ?? "Speaking Cue Card");
+
     } catch (e, s) {
+      if (Get.isDialogOpen == true) Get.back();
       debugPrint("Practice save local error: $e");
     } finally {
       isLoading(false);
     }
+  }
+
+  void _showSpeakingAiResultSheet(IeltsSpeakingAiResult aiResult, String title) {
+    Get.bottomSheet(
+      Container(
+        height: Get.height * 0.86,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            Container(
+              width: 44,
+              height: 5,
+              decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(10)),
+            ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                children: [
+                  Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFC8A96B).withOpacity(0.14),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(Icons.auto_awesome, color: Color(0xFF8A6B32), size: 14),
+                              SizedBox(width: 6),
+                              Text(
+                                "Evaluated by Gemini 3.6 Flash AI",
+                                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFF8A6B32)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              aiResult.overallBand.toStringAsFixed(1),
+                              style: const TextStyle(
+                                fontSize: 46,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF8A6B32),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              "/ 9.0 Band",
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.grey.shade500),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          aiResult.overallBand >= 7.5
+                              ? "Excellent Speaking Fluency! 🌟"
+                              : "Good Attempt! Review pronunciation & vocabulary tips below. 🚀",
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF4B5563)),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // 4 Criteria Breakdown
+                  const Text("IELTS Speaking Criteria Breakdown", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+                  const SizedBox(height: 12),
+                  _buildSpeakingCriterion("Fluency & Coherence (FC)", aiResult.fluencyCoherence, "Flow & Speech Continuity"),
+                  _buildSpeakingCriterion("Lexical Resource (LR)", aiResult.lexicalResource, "Vocabulary & Collocations"),
+                  _buildSpeakingCriterion("Grammatical Range (GRA)", aiResult.grammarAccuracy, "Sentence Structures & Tenses"),
+                  _buildSpeakingCriterion("Pronunciation (PR)", aiResult.pronunciation, "Clarity & Intonation"),
+
+                  const SizedBox(height: 18),
+
+                  // Examiner Summary
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFC8A96B).withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFC8A96B).withOpacity(0.25)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: const [
+                            Icon(Icons.psychology_rounded, color: Color(0xFF8A6B32), size: 20),
+                            SizedBox(width: 8),
+                            Text("Examiner Audio Evaluation", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF8A6B32))),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          aiResult.examinerFeedback,
+                          style: const TextStyle(fontSize: 12.5, height: 1.45, color: Color(0xFF1E293B)),
+                        ),
+                        if (aiResult.transcript.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            "Transcribed Snippet: \"${aiResult.transcript}\"",
+                            style: const TextStyle(fontSize: 11.5, fontStyle: FontStyle.italic, color: Color(0xFF64748B)),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+
+                  // Pronunciation observations
+                  if (aiResult.pronunciationTips.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFBEB),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFFDE68A)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: const [
+                              Icon(Icons.record_voice_over_rounded, color: Color(0xFFD97706), size: 20),
+                              SizedBox(width: 8),
+                              Text("Pronunciation & Intonation Observations", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFB45309))),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ...aiResult.pronunciationTips.map((p) => Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text("• ", style: TextStyle(color: Color(0xFFD97706), fontWeight: FontWeight.bold)),
+                                Expanded(child: Text(p, style: const TextStyle(fontSize: 12, height: 1.4, color: Color(0xFF78350F)))),
+                              ],
+                            ),
+                          )),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  // Vocabulary upgrades
+                  if (aiResult.vocabularyUpgrades.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0FDF4),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFBBF7D0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: const [
+                              Icon(Icons.auto_awesome, color: Color(0xFF16A34A), size: 20),
+                              SizedBox(width: 8),
+                              Text("Band 8.5+ Idiomatic Upgrades", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF15803D))),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ...aiResult.vocabularyUpgrades.map((v) => Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text("• ", style: TextStyle(color: Color(0xFF16A34A), fontWeight: FontWeight.bold)),
+                                Expanded(child: Text(v, style: const TextStyle(fontSize: 12, height: 1.4, color: Color(0xFF14532D)))),
+                              ],
+                            ),
+                          )),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 24),
+
+                  // Save & Update Button
+                  GestureDetector(
+                    onTap: () {
+                      Get.back(); // close sheet
+                      Get.back(); // return to previous screen
+                      Get.snackbar(
+                        "AI Speaking Band Saved! 🎤",
+                        "Band ${aiResult.overallBand.toStringAsFixed(1)} saved to your dashboard & progress analytics!",
+                        snackPosition: SnackPosition.TOP,
+                        backgroundColor: const Color(0xFF8A6B32),
+                        colorText: Colors.white,
+                        duration: const Duration(seconds: 3),
+                      );
+                    },
+                    child: Container(
+                      height: 48,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFC8A96B),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFC8A96B).withOpacity(0.35),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Center(
+                        child: Text(
+                          "Save AI Score & Update Dashboard",
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
+  Widget _buildSpeakingCriterion(String name, double band, String subtitle) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+                const SizedBox(height: 2),
+                Text(subtitle, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFC8A96B).withOpacity(0.16),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              "Band ${band.toStringAsFixed(1)}",
+              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: Color(0xFF8A6B32)),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

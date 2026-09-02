@@ -274,10 +274,10 @@ class _IeltsReadingPracticeScreenState extends State<IeltsReadingPracticeScreen>
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF3E5F5),
+                          color: const Color(0xFF91AE6E).withOpacity(0.14),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.timer_outlined, size: 18, color: Color(0xFF6A1B9A)),
+                        child: const Icon(Icons.timer_outlined, size: 18, color: Color(0xFF91AE6E)),
                       ),
                       SizedBox(width: 8.w),
                       Text(
@@ -285,7 +285,7 @@ class _IeltsReadingPracticeScreenState extends State<IeltsReadingPracticeScreen>
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF6A1B9A),
+                          color: Color(0xFF91AE6E),
                           fontFamily: 'monospace',
                         ),
                       ),
@@ -294,7 +294,7 @@ class _IeltsReadingPracticeScreenState extends State<IeltsReadingPracticeScreen>
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3E5F5),
+                      color: const Color(0xFF91AE6E).withOpacity(0.14),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -302,7 +302,7 @@ class _IeltsReadingPracticeScreenState extends State<IeltsReadingPracticeScreen>
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF6A1B9A),
+                        color: Color(0xFF91AE6E),
                       ),
                     ),
                   ),
@@ -416,10 +416,10 @@ class _IeltsReadingPracticeScreenState extends State<IeltsReadingPracticeScreen>
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
                           decoration: BoxDecoration(
-                            color: isChosen ? const Color(0xFFF3E5F5) : const Color(0xFFF9FAFB),
+                            color: isChosen ? const Color(0xFF91AE6E).withOpacity(0.14) : const Color(0xFFF9FAFB),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: isChosen ? const Color(0xFF6A1B9A) : const Color(0xFFE5E7EB),
+                              color: isChosen ? const Color(0xFF91AE6E) : const Color(0xFFE5E7EB),
                             ),
                           ),
                           child: Row(
@@ -427,7 +427,7 @@ class _IeltsReadingPracticeScreenState extends State<IeltsReadingPracticeScreen>
                               Icon(
                                 isChosen ? Icons.radio_button_checked : Icons.radio_button_off,
                                 size: 18,
-                                color: isChosen ? const Color(0xFF6A1B9A) : Colors.grey.shade400,
+                                color: isChosen ? const Color(0xFF91AE6E) : Colors.grey.shade400,
                               ),
                               SizedBox(width: 10.w),
                               Expanded(
@@ -436,7 +436,7 @@ class _IeltsReadingPracticeScreenState extends State<IeltsReadingPracticeScreen>
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: isChosen ? FontWeight.w700 : FontWeight.w500,
-                                    color: isChosen ? const Color(0xFF4A148C) : const Color(0xFF374151),
+                                    color: isChosen ? const Color(0xFF3F5529) : const Color(0xFF374151),
                                   ),
                                 ),
                               ),
@@ -487,6 +487,7 @@ class _IeltsReadingPracticeScreenState extends State<IeltsReadingPracticeScreen>
                       score: correctCount,
                       totalQuestions: _readingQuestions.length,
                       bandScore: band,
+                      isMockExam: widget.passageTitle.toLowerCase().contains("mock"),
                     );
                     ctrl.saveToLocalStorage();
                   }
@@ -494,7 +495,7 @@ class _IeltsReadingPracticeScreenState extends State<IeltsReadingPracticeScreen>
                     "Reading Practice Completed! 📖",
                     "Score: $correctCount / ${_readingQuestions.length} • Band $band saved & Dashboard checklist updated!",
                     snackPosition: SnackPosition.TOP,
-                    backgroundColor: const Color(0xFF4A148C),
+                    backgroundColor: const Color(0xFF4A6431),
                     colorText: Colors.white,
                   );
                 }
@@ -503,11 +504,11 @@ class _IeltsReadingPracticeScreenState extends State<IeltsReadingPracticeScreen>
                 height: 48.h,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6A1B9A),
+                  color: const Color(0xFF91AE6E),
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF6A1B9A).withOpacity(0.3),
+                      color: const Color(0xFF91AE6E).withOpacity(0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),

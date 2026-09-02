@@ -23,6 +23,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progressCtrl = Get.find<IeltsProgressController>();
+    progressCtrl.checkAndResetDailyChecklist();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -303,32 +304,32 @@ class HomeScreen extends StatelessWidget {
             ),
             SizedBox(height: 14.h),
 
-            // 2x2 Spacious Skill Cards
+            // 2x2 Spacious Skill Cards (Ordered: Speaking -> Listening -> Reading -> Writing)
             Obx(() => Column(
               children: [
                 Row(
                   children: [
                     Expanded(
                       child: _buildSpaciousSkillCard(
-                        title: "Listening",
-                        icon: Icons.headset_rounded,
-                        band: progressCtrl.listeningBand.value,
-                        accuracy: progressCtrl.listeningAccuracy.value,
-                        color: const Color(0xFF00695C),
-                        bgColor: const Color(0xFFE0F2F1),
-                        onTap: () => Get.find<NavBarController>().changeTab(1),
+                        title: "Speaking",
+                        icon: Icons.mic_rounded,
+                        band: progressCtrl.speakingBand.value,
+                        accuracy: progressCtrl.speakingAccuracy.value,
+                        color: const Color(0xFFC8A96B),
+                        bgColor: const Color(0xFFC8A96B).withOpacity(0.14),
+                        onTap: () => Get.find<NavBarController>().openSkill(0),
                       ),
                     ),
                     SizedBox(width: 12.w),
                     Expanded(
                       child: _buildSpaciousSkillCard(
-                        title: "Reading",
-                        icon: Icons.menu_book_rounded,
-                        band: progressCtrl.readingBand.value,
-                        accuracy: progressCtrl.readingAccuracy.value,
-                        color: const Color(0xFF6A1B9A),
-                        bgColor: const Color(0xFFF3E5F5),
-                        onTap: () => Get.find<NavBarController>().changeTab(1),
+                        title: "Listening",
+                        icon: Icons.headset_rounded,
+                        band: progressCtrl.listeningBand.value,
+                        accuracy: progressCtrl.listeningAccuracy.value,
+                        color: const Color(0xFF2E6FA0),
+                        bgColor: const Color(0xFF2E6FA0).withOpacity(0.12),
+                        onTap: () => Get.find<NavBarController>().openSkill(1),
                       ),
                     ),
                   ],
@@ -338,25 +339,25 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _buildSpaciousSkillCard(
-                        title: "Writing",
-                        icon: Icons.edit_note_rounded,
-                        band: progressCtrl.writingBand.value,
-                        accuracy: progressCtrl.writingAccuracy.value,
-                        color: const Color(0xFFE65100),
-                        bgColor: const Color(0xFFFFF3E0),
-                        onTap: () => Get.find<NavBarController>().changeTab(1),
+                        title: "Reading",
+                        icon: Icons.menu_book_rounded,
+                        band: progressCtrl.readingBand.value,
+                        accuracy: progressCtrl.readingAccuracy.value,
+                        color: const Color(0xFF91AE6E),
+                        bgColor: const Color(0xFF91AE6E).withOpacity(0.14),
+                        onTap: () => Get.find<NavBarController>().openSkill(2),
                       ),
                     ),
                     SizedBox(width: 12.w),
                     Expanded(
                       child: _buildSpaciousSkillCard(
-                        title: "Speaking",
-                        icon: Icons.mic_rounded,
-                        band: progressCtrl.speakingBand.value,
-                        accuracy: progressCtrl.speakingAccuracy.value,
-                        color: const Color(0xFF0284C7),
-                        bgColor: const Color(0xFFE0F2FE),
-                        onTap: () => Get.find<NavBarController>().changeTab(1),
+                        title: "Writing",
+                        icon: Icons.edit_note_rounded,
+                        band: progressCtrl.writingBand.value,
+                        accuracy: progressCtrl.writingAccuracy.value,
+                        color: const Color(0xFF325E6A),
+                        bgColor: const Color(0xFF325E6A).withOpacity(0.14),
+                        onTap: () => Get.find<NavBarController>().openSkill(3),
                       ),
                     ),
                   ],
@@ -412,46 +413,46 @@ class HomeScreen extends StatelessWidget {
               children: [
                 _buildChecklistTile(
                   icon: Icons.mic_rounded,
-                  iconColor: const Color(0xFF00695C),
-                  iconBg: const Color(0xFFE0F2F1),
+                  iconColor: const Color(0xFFC8A96B),
+                  iconBg: const Color(0xFFC8A96B).withOpacity(0.14),
                   title: "Speaking: Part 2 Cue Card",
                   subtitle: "1-min prep timer with voice recording",
                   isDone: progressCtrl.speakingTaskDone.value,
                   onToggle: () => progressCtrl.toggleSpeakingTask(),
-                  onAction: () => Get.find<NavBarController>().changeTab(1),
+                  onAction: () => Get.find<NavBarController>().openSkill(0),
                 ),
                 SizedBox(height: 10.h),
                 _buildChecklistTile(
                   icon: Icons.headset_rounded,
-                  iconColor: const Color(0xFF2E7D32),
-                  iconBg: const Color(0xFFE8F5E9),
-                  title: "Listening: Cambridge Section 2",
+                  iconColor: const Color(0xFF2E6FA0),
+                  iconBg: const Color(0xFF2E6FA0).withOpacity(0.12),
+                  title: "Listening: Practice Section 2",
                   subtitle: "Dialogue listening test with instant auto-scoring",
                   isDone: progressCtrl.listeningTaskDone.value,
                   onToggle: () => progressCtrl.toggleListeningTask(),
-                  onAction: () => Get.find<NavBarController>().changeTab(1),
+                  onAction: () => Get.find<NavBarController>().openSkill(1),
                 ),
                 SizedBox(height: 10.h),
                 _buildChecklistTile(
                   icon: Icons.menu_book_rounded,
-                  iconColor: const Color(0xFF6A1B9A),
-                  iconBg: const Color(0xFFF3E5F5),
+                  iconColor: const Color(0xFF91AE6E),
+                  iconBg: const Color(0xFF91AE6E).withOpacity(0.14),
                   title: "Reading: 20-Min Timed Passage",
                   subtitle: "Passage 1: Renewable Tech & True/False/NG",
                   isDone: progressCtrl.readingTaskDone.value,
                   onToggle: () => progressCtrl.toggleReadingTask(),
-                  onAction: () => Get.find<NavBarController>().changeTab(1),
+                  onAction: () => Get.find<NavBarController>().openSkill(2),
                 ),
                 SizedBox(height: 10.h),
                 _buildChecklistTile(
                   icon: Icons.edit_note_rounded,
-                  iconColor: const Color(0xFFE65100),
-                  iconBg: const Color(0xFFFFF3E0),
+                  iconColor: const Color(0xFF325E6A),
+                  iconBg: const Color(0xFF325E6A).withOpacity(0.14),
                   title: "Writing: Task 2 Essay Arena",
                   subtitle: "Opinion blueprint with live word counter",
                   isDone: progressCtrl.writingTaskDone.value,
                   onToggle: () => progressCtrl.toggleWritingTask(),
-                  onAction: () => Get.find<NavBarController>().changeTab(1),
+                  onAction: () => Get.find<NavBarController>().openSkill(3),
                 ),
               ],
             )),
@@ -487,113 +488,117 @@ class HomeScreen extends StatelessWidget {
             ),
             SizedBox(height: 14.h),
 
-            Row(
-              children: [
-                // Vocab Card
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => Get.to(() => const IeltsVocabularyScreen()),
-                    child: Container(
-                      padding: EdgeInsets.all(16.w),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF004D40), Color(0xFF00695C)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Vocab Card
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Get.to(() => const IeltsVocabularyScreen()),
+                      child: Container(
+                        padding: EdgeInsets.all(16.w),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF004D40), Color(0xFF00695C)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF00695C).withOpacity(0.2),
+                              blurRadius: 12,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF00695C).withOpacity(0.2),
-                            blurRadius: 12,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("📚", style: TextStyle(fontSize: 24)),
-                          SizedBox(height: 10.h),
-                          const Text(
-                            "Vocabulary Bank",
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
-                          ),
-                          SizedBox(height: 4.h),
-                          const Text(
-                            "Word Families & Collocations",
-                            style: TextStyle(fontSize: 11, color: Color(0xFF80CBC4), fontWeight: FontWeight.w500),
-                          ),
-                        ],
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text("📚", style: TextStyle(fontSize: 24)),
+                                SizedBox(height: 10.h),
+                                const Text(
+                                  "Vocabulary Bank",
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 6.h),
+                            const Text(
+                              "Word Families & Collocations",
+                              style: TextStyle(fontSize: 11, color: Color(0xFF80CBC4), fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(width: 14.w),
-                // Grammar Card
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => Get.to(() => const IeltsGrammarScreen()),
-                    child: Container(
-                      padding: EdgeInsets.all(16.w),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF4A148C), Color(0xFF6A1B9A)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                  SizedBox(width: 14.w),
+                  // Grammar Card
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Get.to(() => const IeltsGrammarScreen()),
+                      child: Container(
+                        padding: EdgeInsets.all(16.w),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF4A148C), Color(0xFF6A1B9A)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF6A1B9A).withOpacity(0.2),
+                              blurRadius: 12,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF6A1B9A).withOpacity(0.2),
-                            blurRadius: 12,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("📐", style: TextStyle(fontSize: 24)),
-                          SizedBox(height: 10.h),
-                          const Text(
-                            "Grammar Rules",
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
-                          ),
-                          SizedBox(height: 4.h),
-                          const Text(
-                            "Topic Rules & Examples",
-                            style: TextStyle(fontSize: 11, color: Color(0xFFE1BEE7), fontWeight: FontWeight.w500),
-                          ),
-                        ],
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text("📐", style: TextStyle(fontSize: 24)),
+                                SizedBox(height: 10.h),
+                                const Text(
+                                  "Grammar Rules",
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 6.h),
+                            const Text(
+                              "Topic Rules & Examples",
+                              style: TextStyle(fontSize: 11, color: Color(0xFFE1BEE7), fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
 
             SizedBox(height: 28.h),
 
             // 5. Recent Practice Activity Log (From Local Storage)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Expanded(
-                  child: Text(
-                    "Recent Practice History",
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F172A),
-                    ),
-                  ),
-                ),
-                const Text(
-                  "Saved locally",
-                  style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
-                ),
-              ],
+            const Text(
+              "Recent Practice History",
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF0F172A),
+              ),
             ),
             SizedBox(height: 14.h),
 
@@ -659,8 +664,14 @@ class HomeScreen extends StatelessWidget {
                           child: Icon(
                             item.skill == "Listening"
                                 ? Icons.headset_rounded
-                                : (item.skill == "Reading" ? Icons.menu_book_rounded : Icons.edit_note_rounded),
-                            color: const Color(0xFF00695C),
+                                : (item.skill == "Reading"
+                                    ? Icons.menu_book_rounded
+                                    : (item.skill == "Writing" ? Icons.edit_note_rounded : Icons.mic_rounded)),
+                            color: item.skill == "Listening"
+                                ? const Color(0xFF2E6FA0)
+                                : (item.skill == "Reading"
+                                    ? const Color(0xFF91AE6E)
+                                    : (item.skill == "Writing" ? const Color(0xFF325E6A) : const Color(0xFFC8A96B))),
                             size: 22,
                           ),
                         ),
@@ -686,12 +697,25 @@ class HomeScreen extends StatelessWidget {
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE0F2F1),
+                            color: (item.skill == "Listening"
+                                    ? const Color(0xFF2E6FA0)
+                                    : (item.skill == "Reading"
+                                        ? const Color(0xFF91AE6E)
+                                        : (item.skill == "Writing" ? const Color(0xFF325E6A) : const Color(0xFFC8A96B))))
+                                .withOpacity(0.14),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             "Band ${item.bandScore}",
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF00695C)),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: item.skill == "Listening"
+                                  ? const Color(0xFF2E6FA0)
+                                  : (item.skill == "Reading"
+                                      ? const Color(0xFF91AE6E)
+                                      : (item.skill == "Writing" ? const Color(0xFF325E6A) : const Color(0xFFC8A96B))),
+                            ),
                           ),
                         ),
                       ],
@@ -840,24 +864,28 @@ class HomeScreen extends StatelessWidget {
           ),
           SizedBox(width: 12.w),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF0F172A),
-                    decoration: isDone ? TextDecoration.lineThrough : null,
+            child: GestureDetector(
+              onTap: onAction,
+              behavior: HitTestBehavior.opaque,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF0F172A),
+                      decoration: isDone ? TextDecoration.lineThrough : null,
+                    ),
                   ),
-                ),
-                SizedBox(height: 2.h),
-                Text(
-                  subtitle,
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
-                ),
-              ],
+                  SizedBox(height: 2.h),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                  ),
+                ],
+              ),
             ),
           ),
           SizedBox(width: 8.w),

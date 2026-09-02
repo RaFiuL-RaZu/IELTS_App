@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/data/ielts_data.dart';
 import 'package:justtsham/core/services/ielts_local_storage_service.dart';
+import 'package:justtsham/featcher/controller/AuthController/navber_controller.dart';
 import 'package:justtsham/featcher/view/SkillsPracticeScreen/ielts_listening_practice_screen.dart';
 import 'package:justtsham/featcher/view/SkillsPracticeScreen/ielts_reading_practice_screen.dart';
 import 'package:justtsham/featcher/view/SkillsPracticeScreen/ielts_writing_practice_screen.dart';
@@ -16,7 +17,10 @@ class SkillsPracticeScreen extends StatefulWidget {
 }
 
 class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
-  int _activeSkillIndex = 0; // 0: Speaking, 1: Listening, 2: Reading, 3: Writing
+  NavBarController get _navBarCtrl => Get.isRegistered<NavBarController>()
+      ? Get.find<NavBarController>()
+      : Get.put(NavBarController());
+
   int _speakingSubTab = 0; // 0: Cue Cards, 1: Part 1 Topics, 2: Generator
   String _selectedCategory = "Technology & AI";
   final TextEditingController _customTopicController = TextEditingController();
@@ -117,14 +121,14 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                 color: const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(21),
               ),
-              child: Row(
+              child: Obx(() => Row(
                 children: [
                   _buildSkillTab("Speaking", 0),
                   _buildSkillTab("Listening", 1),
                   _buildSkillTab("Reading", 2),
                   _buildSkillTab("Writing", 3),
                 ],
-              ),
+              )),
             ),
           ),
 
@@ -133,7 +137,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 16.h, bottom: 100.h),
-              child: _buildActiveSkillView(progressCtrl),
+              child: Obx(() => _buildActiveSkillView(progressCtrl)),
             ),
           ),
         ],
@@ -142,13 +146,12 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
   }
 
   Widget _buildSkillTab(String title, int index) {
-    final isSelected = _activeSkillIndex == index;
+    final isSelected = _navBarCtrl.skillPracticeIndex.value == index;
+
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          setState(() {
-            _activeSkillIndex = index;
-          });
+          _navBarCtrl.skillPracticeIndex.value = index;
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -180,7 +183,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
   }
 
   Widget _buildActiveSkillView(IeltsProgressController progressCtrl) {
-    switch (_activeSkillIndex) {
+    switch (_navBarCtrl.skillPracticeIndex.value) {
       case 0:
         return _buildSpeakingSkillView(progressCtrl);
       case 1:
@@ -204,7 +207,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              _buildSubTabButton("Cambridge Cue Cards", 0),
+              _buildSubTabButton("Speaking Cue Cards", 0),
               SizedBox(width: 10.w),
               _buildSubTabButton("Part 1 Interview", 1),
               SizedBox(width: 10.w),
@@ -259,7 +262,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFE0F2F1),
+                                    color: const Color(0xFFC8A96B).withOpacity(0.14),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
@@ -267,7 +270,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                                     style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
-                                      color: Color(0xFF004D40),
+                                      color: Color(0xFF785B20),
                                     ),
                                   ),
                                 ),
@@ -298,7 +301,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                             onTap: () => progressCtrl.toggleCueCardBookmark(card.id),
                             child: Icon(
                               isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                              color: isBookmarked ? const Color(0xFF00695C) : Colors.grey.shade400,
+                              color: isBookmarked ? const Color(0xFFC8A96B) : Colors.grey.shade400,
                               size: 22,
                             ),
                           ),
@@ -320,7 +323,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text("• ", style: TextStyle(color: Color(0xFF00695C), fontWeight: FontWeight.w800, fontSize: 14)),
+                            const Text("• ", style: TextStyle(color: Color(0xFFC8A96B), fontWeight: FontWeight.w800, fontSize: 14)),
                             Expanded(
                               child: Text(
                                 bp,
@@ -344,7 +347,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                           children: [
                             const Text(
                               "Band 8.5+ Model Opening:",
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF00695C)),
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF785B20)),
                             ),
                             SizedBox(height: 4.h),
                             Text(
@@ -369,8 +372,15 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                           height: 44.h,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: prevResult != null ? const Color(0xFF004D40) : const Color(0xFF00695C),
+                            color: prevResult != null ? const Color(0xFF8A6B32) : const Color(0xFFC8A96B),
                             borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFC8A96B).withOpacity(0.28),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -560,14 +570,14 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF004D40), Color(0xFF00695C)],
+                        colors: [Color(0xFF8A6B32), Color(0xFFC8A96B)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF00695C).withOpacity(0.25),
+                          color: const Color(0xFFC8A96B).withOpacity(0.28),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -596,7 +606,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                     decoration: BoxDecoration(
                       color: const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFF00695C).withOpacity(0.3), width: 1.5),
+                      border: Border.all(color: const Color(0xFFC8A96B).withOpacity(0.35), width: 1.5),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -607,7 +617,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00695C),
+                                color: const Color(0xFFC8A96B),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: const Text("IELTS Speaking Part 2", style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white)),
@@ -616,10 +626,10 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE0F2F1),
+                                color: const Color(0xFFC8A96B).withOpacity(0.14),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Text("Band 8.5+ Ready", style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF004D40))),
+                              child: const Text("Band 8.5+ Ready", style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF785B20))),
                             ),
                           ],
                         ),
@@ -644,14 +654,14 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text("You should say:", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF00695C))),
+                              const Text("You should say:", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF785B20))),
                               SizedBox(height: 6.h),
                               ..._generatedCard!.bulletPoints.map((b) => Padding(
                                 padding: const EdgeInsets.only(bottom: 4),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text("• ", style: TextStyle(color: Color(0xFF00695C), fontWeight: FontWeight.bold)),
+                                    const Text("• ", style: TextStyle(color: Color(0xFFC8A96B), fontWeight: FontWeight.bold)),
                                     Expanded(child: Text(b, style: TextStyle(fontSize: 12.sp, color: const Color(0xFF334155), height: 1.3))),
                                   ],
                                 ),
@@ -669,7 +679,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                             const Text("Band 8.5+ Model Answer", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
                             GestureDetector(
                               onTap: () => setState(() => _showModelAnswer = !_showModelAnswer),
-                              child: Text(_showModelAnswer ? "Hide" : "Show", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF00695C))),
+                              child: Text(_showModelAnswer ? "Hide" : "Show", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF785B20))),
                             ),
                           ],
                         ),
@@ -680,13 +690,13 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                             width: double.infinity,
                             padding: EdgeInsets.all(12.w),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE0F2F1).withOpacity(0.5),
+                              color: const Color(0xFFC8A96B).withOpacity(0.12),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFFB2DFDB)),
+                              border: Border.all(color: const Color(0xFFC8A96B).withOpacity(0.3)),
                             ),
                             child: Text(
                               "\"${_generatedCard!.modelAnswer}\"",
-                              style: TextStyle(fontSize: 12.sp, fontStyle: FontStyle.italic, color: const Color(0xFF004D40), height: 1.45),
+                              style: TextStyle(fontSize: 12.sp, fontStyle: FontStyle.italic, color: const Color(0xFF45330D), height: 1.45),
                             ),
                           ),
                         ],
@@ -727,7 +737,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                             height: 46.h,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF00695C),
+                              color: const Color(0xFFC8A96B),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
@@ -870,12 +880,12 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE8F5E9),
+                              color: const Color(0xFF2E6FA0).withOpacity(0.12),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               sec["section"],
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF2E7D32)),
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF2E6FA0)),
                             ),
                           ),
                           if (prevResult != null)
@@ -938,8 +948,15 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                   child: Container(
                     height: 44.h,
                     decoration: BoxDecoration(
-                      color: prevResult != null ? const Color(0xFF004D40) : const Color(0xFF00695C),
+                      color: prevResult != null ? const Color(0xFF193B57) : const Color(0xFF2E6FA0),
                       borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF2E6FA0).withOpacity(0.28),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -1055,7 +1072,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                     decoration: BoxDecoration(
-                      color: isGeneral ? const Color(0xFF00695C) : const Color(0xFF6A1B9A),
+                      color: const Color(0xFF91AE6E),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -1085,7 +1102,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(22),
                     border: Border.all(
-                      color: prevResult != null ? const Color(0xFFCE93D8) : const Color(0xFFE2E8F0),
+                      color: prevResult != null ? const Color(0xFF91AE6E) : const Color(0xFFE2E8F0),
                       width: prevResult != null ? 1.5 : 1,
                     ),
                     boxShadow: [
@@ -1111,17 +1128,17 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                                   decoration: BoxDecoration(
-                                    color: isGeneral ? const Color(0xFFE0F2F1) : const Color(0xFFF3E5F5),
+                                    color: const Color(0xFF91AE6E).withOpacity(0.14),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
                                     pass["passage"],
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
-                                      color: isGeneral ? const Color(0xFF004D40) : const Color(0xFF6A1B9A),
+                                      color: Color(0xFF4A6431),
                                     ),
                                   ),
                                 ),
@@ -1129,18 +1146,18 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                                   Container(
                                     padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF3E5F5),
+                                      color: const Color(0xFF91AE6E).withOpacity(0.14),
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: const Color(0xFFCE93D8)),
+                                      border: Border.all(color: const Color(0xFF91AE6E).withOpacity(0.3)),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Icon(Icons.check_circle_rounded, size: 13, color: Color(0xFF6A1B9A)),
+                                        const Icon(Icons.check_circle_rounded, size: 13, color: Color(0xFF4A6431)),
                                         const SizedBox(width: 4),
                                         Text(
                                           "Completed (Band ${prevResult.bandScore})",
-                                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF6A1B9A)),
+                                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF4A6431)),
                                         ),
                                       ],
                                     ),
@@ -1152,17 +1169,17 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                             decoration: BoxDecoration(
-                              color: isGeneral ? const Color(0xFFF1F5F9) : const Color(0xFFEDE7F6),
+                              color: const Color(0xFF91AE6E).withOpacity(0.12),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               pass["difficulty"],
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: isGeneral ? const Color(0xFF0F172A) : const Color(0xFF4A148C),
+                                color: Color(0xFF4A6431),
                               ),
                             ),
                           ),
@@ -1190,8 +1207,15 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                         child: Container(
                           height: 44.h,
                           decoration: BoxDecoration(
-                            color: isGeneral ? const Color(0xFF00695C) : const Color(0xFF6A1B9A),
+                            color: prevResult != null ? const Color(0xFF5A7242) : const Color(0xFF91AE6E),
                             borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF91AE6E).withOpacity(0.28),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -1302,7 +1326,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                     decoration: BoxDecoration(
-                      color: isGeneral ? const Color(0xFF00695C) : const Color(0xFFE65100),
+                      color: const Color(0xFF325E6A),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -1332,7 +1356,7 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(22),
                     border: Border.all(
-                      color: prevResult != null ? const Color(0xFFFFCC80) : const Color(0xFFE2E8F0),
+                      color: prevResult != null ? const Color(0xFF325E6A) : const Color(0xFFE2E8F0),
                       width: prevResult != null ? 1.5 : 1,
                     ),
                     boxShadow: [
@@ -1358,17 +1382,17 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                                   decoration: BoxDecoration(
-                                    color: isGeneral ? const Color(0xFFE0F2F1) : const Color(0xFFFFF3E0),
+                                    color: const Color(0xFF325E6A).withOpacity(0.14),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
                                     ess["task"],
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
-                                      color: isGeneral ? const Color(0xFF004D40) : const Color(0xFFE65100),
+                                      color: Color(0xFF325E6A),
                                     ),
                                   ),
                                 ),
@@ -1376,18 +1400,18 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                                   Container(
                                     padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFFF3E0),
+                                      color: const Color(0xFF325E6A).withOpacity(0.14),
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: const Color(0xFFFFCC80)),
+                                      border: Border.all(color: const Color(0xFF325E6A).withOpacity(0.3)),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Icon(Icons.check_circle_rounded, size: 13, color: Color(0xFFE65100)),
+                                        const Icon(Icons.check_circle_rounded, size: 13, color: Color(0xFF325E6A)),
                                         const SizedBox(width: 4),
                                         Text(
                                           "Completed (Band ${prevResult.bandScore})",
-                                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFE65100)),
+                                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF325E6A)),
                                         ),
                                       ],
                                     ),
@@ -1399,14 +1423,14 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE0F2F1),
+                              color: const Color(0xFF325E6A).withOpacity(0.14),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               ess["band"],
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF00695C)),
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF325E6A)),
                             ),
                           ),
                         ],
@@ -1430,8 +1454,15 @@ class _SkillsPracticeScreenState extends State<SkillsPracticeScreen> {
                         child: Container(
                           height: 44.h,
                           decoration: BoxDecoration(
-                            color: isGeneral ? const Color(0xFF00695C) : const Color(0xFFE65100),
+                            color: prevResult != null ? const Color(0xFF1E3C45) : const Color(0xFF325E6A),
                             borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF325E6A).withOpacity(0.28),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,

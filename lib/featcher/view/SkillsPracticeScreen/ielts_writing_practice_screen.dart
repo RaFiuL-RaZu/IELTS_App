@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/services/ielts_local_storage_service.dart';
+import 'package:justtsham/core/services/ielts_gemini_ai_service.dart';
 
 class IeltsWritingPracticeScreen extends StatefulWidget {
   final String taskType;
@@ -66,7 +67,7 @@ class _IeltsWritingPracticeScreenState extends State<IeltsWritingPracticeScreen>
     return "$m:$s";
   }
 
-  void _evaluateAndShowResults() {
+  Future<void> _evaluateAndShowResults() async {
     final text = _essayController.text.trim();
     final targetWords = widget.taskType.contains("Task 1") ? 150 : 250;
     final words = text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
@@ -75,7 +76,7 @@ class _IeltsWritingPracticeScreenState extends State<IeltsWritingPracticeScreen>
     if (wordCount < 20) {
       Get.snackbar(
         "Insufficient Content ⚠️",
-        "Please write at least 20 words so the IELTS evaluation engine can analyze your grammar, vocabulary, and cohesion.",
+        "Please write at least 20 words so Gemini AI can analyze your grammar, vocabulary, and cohesion.",
         snackPosition: SnackPosition.TOP,
         backgroundColor: const Color(0xFFEA580C),
         colorText: Colors.white,
@@ -83,156 +84,82 @@ class _IeltsWritingPracticeScreenState extends State<IeltsWritingPracticeScreen>
       return;
     }
 
-    // 1. Gibberish & English Dictionary Sanity Check
-    final commonWords = {
-      "the", "be", "to", "of", "and", "a", "in", "that", "have", "i", "it", "for", "not", "on", "with",
-      "he", "as", "you", "do", "at", "this", "but", "his", "by", "from", "they", "we", "say", "her",
-      "she", "or", "an", "will", "my", "one", "all", "would", "there", "their", "what", "so", "up",
-      "out", "if", "about", "who", "get", "which", "go", "me", "when", "make", "can", "like", "time",
-      "no", "just", "him", "know", "take", "people", "into", "year", "your", "good", "some", "could",
-      "them", "see", "other", "than", "then", "now", "look", "only", "come", "its", "over", "think",
-      "also", "back", "after", "use", "two", "how", "our", "work", "first", "well", "way", "even",
-      "new", "want", "because", "any", "these", "give", "day", "most", "us", "write", "letter",
-      "refund", "error", "manager", "dear", "sincerely", "regards", "flight", "ticket", "service",
-      "issue", "situation", "request", "formal", "problem", "overcharged", "airline", "purchase"
-    };
+    // Show AI Evaluator Loading Dialog
+    Get.dialog(
+      barrierDismissible: false,
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 28.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF325E6A).withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: Color(0xFF325E6A),
+                  ),
+                ),
+              ),
+              SizedBox(height: 18.h),
+              Text(
+                "🤖 Gemini AI Senior Examiner",
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A)),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                "Analyzing Task Response, Cohesion, Lexical Resource & Grammar Accuracy...",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12.5.sp, color: const Color(0xFF64748B), height: 1.45),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
 
-    int validWordHits = 0;
-    for (final w in words) {
-      final clean = w.toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
-      if (commonWords.contains(clean) || clean.length >= 3 && RegExp(r'[aeiouy]').hasMatch(clean)) {
-        validWordHits++;
-      }
-    }
+    // Call Gemini AI
+    final aiResult = await IeltsGeminiAiService.evaluateWriting(
+      taskType: widget.taskType,
+      prompt: widget.prompt,
+      userEssay: text,
+    );
 
-    final double validWordRatio = words.isNotEmpty ? validWordHits / words.length : 0;
-    final bool isGibberish = validWordRatio < 0.45;
-
-    // 2. Coherence & Linkers Check
-    final linkers = [
-      "furthermore", "moreover", "however", "consequently", "therefore", "in addition",
-      "nevertheless", "on the other hand", "firstly", "secondly", "finally", "in conclusion",
-      "with regard to", "as a result", "subsequently", "specifically", "in summary", "overall"
-    ];
-    int linkerCount = 0;
-    final lowerText = text.toLowerCase();
-    for (final l in linkers) {
-      if (lowerText.contains(l)) linkerCount++;
-    }
-
-    // 3. Academic Vocabulary Check
-    final academicVocab = [
-      "demonstrate", "illustrate", "significant", "substantial", "approximately",
-      "predominantly", "perspective", "discrepancy", "compensate", "inconvenience",
-      "rectify", "correspondence", "expedite", "fundamental", "fluctuation", "correlation",
-      "paramount", "inevitable", "profound", "imperative", "infrastructure"
-    ];
-    int academicVocabHits = 0;
-    for (final v in academicVocab) {
-      if (lowerText.contains(v)) academicVocabHits++;
-    }
-
-    // 4. Paragraph & Structure Check
-    final paragraphs = text.split(RegExp(r'\n+')).where((p) => p.trim().isNotEmpty).length;
-
-    // Criterion Scores (out of 9.0)
-    double ta; // Task Achievement
-    double cc; // Coherence & Cohesion
-    double lr; // Lexical Resource
-    double gra; // Grammatical Range & Accuracy
-
-    if (isGibberish) {
-      ta = 3.5;
-      cc = 3.0;
-      lr = 3.0;
-      gra = 3.5;
-    } else {
-      // Task Achievement based on word count & length
-      if (wordCount >= targetWords) {
-        ta = wordCount >= (targetWords + 40) ? 8.5 : 8.0;
-      } else if (wordCount >= targetWords * 0.8) {
-        ta = 7.0;
-      } else {
-        ta = 5.5;
-      }
-
-      // Coherence & Cohesion based on paragraphs & linkers
-      if (paragraphs >= 3 && linkerCount >= 3) {
-        cc = 8.0;
-      } else if (paragraphs >= 2 && linkerCount >= 1) {
-        cc = 7.0;
-      } else {
-        cc = 6.0;
-      }
-
-      // Lexical Resource based on unique words & academic vocab
-      final uniqueWords = words.map((w) => w.toLowerCase()).toSet().length;
-      final lexicalDiversity = words.isNotEmpty ? uniqueWords / words.length : 0.0;
-      if (academicVocabHits >= 2 && lexicalDiversity > 0.55) {
-        lr = 8.5;
-      } else if (academicVocabHits >= 1 || lexicalDiversity > 0.48) {
-        lr = 7.5;
-      } else {
-        lr = 6.5;
-      }
-
-      // Grammatical Range & Accuracy
-      final hasPunctuation = text.contains('.') && text.contains(',');
-      final hasCaps = RegExp(r'[A-Z]').hasMatch(text);
-      if (hasPunctuation && hasCaps && wordCount >= targetWords) {
-        gra = 7.5;
-      } else if (hasPunctuation || hasCaps) {
-        gra = 6.5;
-      } else {
-        gra = 5.5;
-      }
-    }
-
-    // Cambridge Official Average
-    final double rawBand = (ta + cc + lr + gra) / 4.0;
-    final fractionalPart = rawBand - rawBand.floor();
-    double finalBand;
-    if (fractionalPart < 0.25) {
-      finalBand = rawBand.floorToDouble();
-    } else if (fractionalPart < 0.75) {
-      finalBand = rawBand.floorToDouble() + 0.5;
-    } else {
-      finalBand = (rawBand.floor() + 1).toDouble();
+    // Close loading dialog
+    if (Get.isDialogOpen == true) {
+      Get.back();
     }
 
     _showScoreEvaluationModal(
-      finalBand: finalBand,
-      ta: ta,
-      cc: cc,
-      lr: lr,
-      gra: gra,
+      aiResult: aiResult,
       wordCount: wordCount,
       targetWords: targetWords,
-      isGibberish: isGibberish,
-      linkerCount: linkerCount,
-      academicVocabHits: academicVocabHits,
     );
   }
 
   void _showScoreEvaluationModal({
-    required double finalBand,
-    required double ta,
-    required double cc,
-    required double lr,
-    required double gra,
+    required IeltsWritingAiResult aiResult,
     required int wordCount,
     required int targetWords,
-    required bool isGibberish,
-    required int linkerCount,
-    required int academicVocabHits,
   }) {
+    final finalBand = aiResult.overallBand;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         return Container(
-          height: MediaQuery.of(context).size.height * 0.85,
+          height: MediaQuery.of(context).size.height * 0.88,
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -254,23 +181,30 @@ class _IeltsWritingPracticeScreenState extends State<IeltsWritingPracticeScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header with Score
+                      // Header with Score & AI Badge
                       Center(
                         child: Column(
                           children: [
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+                              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
                               decoration: BoxDecoration(
-                                color: finalBand >= 7.0 ? const Color(0xFFE0F2F1) : const Color(0xFFFFF3E0),
+                                color: const Color(0xFF325E6A).withOpacity(0.12),
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Text(
-                                isGibberish ? "⚠️ Low Coherence Detected" : "Official Cambridge Rubric Evaluator",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: finalBand >= 7.0 ? const Color(0xFF00695C) : const Color(0xFFE65100),
-                                ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.auto_awesome, color: Color(0xFF325E6A), size: 14),
+                                  SizedBox(width: 6.w),
+                                  const Text(
+                                    "Evaluated by Gemini 3.6 Flash AI",
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF325E6A),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             SizedBox(height: 12.h),
@@ -281,10 +215,10 @@ class _IeltsWritingPracticeScreenState extends State<IeltsWritingPracticeScreen>
                               children: [
                                 Text(
                                   finalBand.toStringAsFixed(1),
-                                  style: TextStyle(
-                                    fontSize: 44,
+                                  style: const TextStyle(
+                                    fontSize: 46,
                                     fontWeight: FontWeight.w900,
-                                    color: finalBand >= 7.0 ? const Color(0xFF00695C) : const Color(0xFFE65100),
+                                    color: Color(0xFF325E6A),
                                   ),
                                 ),
                                 SizedBox(width: 4.w),
@@ -295,9 +229,7 @@ class _IeltsWritingPracticeScreenState extends State<IeltsWritingPracticeScreen>
                               ],
                             ),
                             Text(
-                              isGibberish
-                                  ? "Unrecognizable words detected. Practice real English syntax."
-                                  : (finalBand >= 7.5 ? "Excellent Academic Demonstration! 🌟" : "Good Attempt. Review tips to reach 8.0+! 🚀"),
+                              finalBand >= 7.5 ? "Excellent Academic Demonstration! 🌟" : "Good Attempt. Review AI feedback to reach 8.0+! 🚀",
                               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF4B5563)),
                             ),
                           ],
@@ -313,59 +245,174 @@ class _IeltsWritingPracticeScreenState extends State<IeltsWritingPracticeScreen>
                       ),
                       SizedBox(height: 12.h),
 
-                      _buildCriterionRow("Task Achievement (TA)", ta, "$wordCount / $targetWords Words"),
-                      _buildCriterionRow("Coherence & Cohesion (CC)", cc, "$linkerCount Logical Linkers"),
-                      _buildCriterionRow("Lexical Resource (LR)", lr, "$academicVocabHits Academic Collocations"),
-                      _buildCriterionRow("Grammatical Range (GRA)", gra, "Syntax & Punctuation"),
+                      _buildCriterionRow("Task Achievement (TA)", aiResult.taskAchievement, "$wordCount / $targetWords Words"),
+                      _buildCriterionRow("Coherence & Cohesion (CC)", aiResult.coherenceCohesion, "Structure & Flow"),
+                      _buildCriterionRow("Lexical Resource (LR)", aiResult.lexicalResource, "Academic Collocations"),
+                      _buildCriterionRow("Grammatical Range (GRA)", aiResult.grammarAccuracy, "Syntax & Variety"),
 
-                      SizedBox(height: 20.h),
+                      SizedBox(height: 18.h),
 
-                      // Examiner Detailed Feedback Box
+                      // AI Examiner Summary
                       Container(
                         padding: EdgeInsets.all(16.w),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF9FAFB),
+                          color: const Color(0xFF325E6A).withOpacity(0.06),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                          border: Border.all(color: const Color(0xFF325E6A).withOpacity(0.18)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: const [
-                                Icon(Icons.psychology_outlined, color: Color(0xFF00695C), size: 20),
+                                Icon(Icons.psychology_rounded, color: Color(0xFF325E6A), size: 20),
                                 SizedBox(width: 8),
                                 Text(
-                                  "Examiner Feedback & Suggestions",
-                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF00695C)),
+                                  "Examiner Evaluation Summary",
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF325E6A)),
                                 ),
                               ],
                             ),
                             SizedBox(height: 8.h),
-                            if (isGibberish) ...[
-                              const Text(
-                                "• The submitted response contains repetitive non-standard English words. IELTS examiners assess communicative clarity and standard vocabulary.",
-                                style: TextStyle(fontSize: 12, height: 1.45, color: Color(0xFF374151)),
-                              ),
-                            ] else ...[
-                              Text(
-                                "• Word Count: ${wordCount >= targetWords ? 'Met requirement ($wordCount words) with no length penalty.' : 'Underlength penalty applied ($wordCount / $targetWords words).'}",
-                                style: const TextStyle(fontSize: 12, height: 1.45, color: Color(0xFF374151)),
-                              ),
-                              SizedBox(height: 4.h),
-                              Text(
-                                "• Cohesion: Identified $linkerCount discourse markers. Use varied paragraph transitions like 'Furthermore' and 'In contrast'.",
-                                style: const TextStyle(fontSize: 12, height: 1.45, color: Color(0xFF374151)),
-                              ),
-                              SizedBox(height: 4.h),
-                              const Text(
-                                "• Recommendation: Check the Band 9.0 model essay below to compare structural paragraphing.",
-                                style: TextStyle(fontSize: 12, height: 1.45, color: Color(0xFF374151)),
-                              ),
-                            ],
+                            Text(
+                              aiResult.examinerSummary,
+                              style: const TextStyle(fontSize: 12.5, height: 1.45, color: Color(0xFF1E293B)),
+                            ),
                           ],
                         ),
                       ),
+
+                      // Grammar & Sentence Corrections
+                      if (aiResult.grammarCorrections.isNotEmpty) ...[
+                        SizedBox(height: 14.h),
+                        Container(
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFFBEB),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFFDE68A)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: const [
+                                  Icon(Icons.spellcheck_rounded, color: Color(0xFFD97706), size: 20),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Grammar & Sentence Corrections",
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFB45309)),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8.h),
+                              ...aiResult.grammarCorrections.map((g) => Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text("• ", style: TextStyle(color: Color(0xFFD97706), fontWeight: FontWeight.bold)),
+                                    Expanded(
+                                      child: Text(
+                                        g,
+                                        style: const TextStyle(fontSize: 12, height: 1.4, color: Color(0xFF78350F)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )),
+                            ],
+                          ),
+                        ),
+                      ],
+
+                      // Academic Vocabulary Upgrades
+                      if (aiResult.vocabularyUpgrades.isNotEmpty) ...[
+                        SizedBox(height: 14.h),
+                        Container(
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF0FDF4),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFBBF7D0)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: const [
+                                  Icon(Icons.auto_stories_rounded, color: Color(0xFF16A34A), size: 20),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Band 8.5+ Academic Vocabulary Upgrades",
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF15803D)),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8.h),
+                              ...aiResult.vocabularyUpgrades.map((v) => Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text("• ", style: TextStyle(color: Color(0xFF16A34A), fontWeight: FontWeight.bold)),
+                                    Expanded(
+                                      child: Text(
+                                        v,
+                                        style: const TextStyle(fontSize: 12, height: 1.4, color: Color(0xFF14532D)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )),
+                            ],
+                          ),
+                        ),
+                      ],
+
+                      // Actionable Improvement Tips
+                      if (aiResult.actionableTips.isNotEmpty) ...[
+                        SizedBox(height: 14.h),
+                        Container(
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: const [
+                                  Icon(Icons.tips_and_updates_outlined, color: Color(0xFF325E6A), size: 20),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Actionable Tips to Increase Score",
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF325E6A)),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8.h),
+                              ...aiResult.actionableTips.map((t) => Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text("• ", style: TextStyle(color: Color(0xFF325E6A), fontWeight: FontWeight.bold)),
+                                    Expanded(
+                                      child: Text(
+                                        t,
+                                        style: const TextStyle(fontSize: 12, height: 1.4, color: Color(0xFF334155)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )),
+                            ],
+                          ),
+                        ),
+                      ],
 
                       SizedBox(height: 24.h),
 
@@ -388,10 +435,10 @@ class _IeltsWritingPracticeScreenState extends State<IeltsWritingPracticeScreen>
                           Navigator.pop(ctx);
                           Get.back();
                           Get.snackbar(
-                            "Writing Graded & Saved! 📝",
-                            "Band $finalBand saved to dashboard and daily checklist updated!",
+                            "AI Evaluation Saved! 🤖",
+                            "Band ${finalBand.toStringAsFixed(1)} saved to dashboard and daily checklist updated!",
                             snackPosition: SnackPosition.TOP,
-                            backgroundColor: const Color(0xFF004D40),
+                            backgroundColor: const Color(0xFF325E6A),
                             colorText: Colors.white,
                             duration: const Duration(seconds: 3),
                           );
@@ -400,11 +447,11 @@ class _IeltsWritingPracticeScreenState extends State<IeltsWritingPracticeScreen>
                           height: 48.h,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00695C),
+                            color: const Color(0xFF325E6A),
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF00695C).withOpacity(0.3),
+                                color: const Color(0xFF325E6A).withOpacity(0.3),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
@@ -418,6 +465,7 @@ class _IeltsWritingPracticeScreenState extends State<IeltsWritingPracticeScreen>
                           ),
                         ),
                       ),
+                      SizedBox(height: 10.h),
                       SizedBox(height: 10.h),
                     ],
                   ),

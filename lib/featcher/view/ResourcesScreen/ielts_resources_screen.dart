@@ -168,7 +168,7 @@ class _IeltsResourcesScreenState extends State<IeltsResourcesScreen> {
         _buildExpandableSheetCard(
           title: "Band 8.5+ Linking Words & Cohesive Devices",
           badge: "Writing & Speaking",
-          badgeColor: const Color(0xFF0284C7),
+          badgeColor: const Color(0xFF2E6FA0),
           icon: Icons.link_rounded,
           content: [
             {
@@ -200,7 +200,7 @@ class _IeltsResourcesScreenState extends State<IeltsResourcesScreen> {
         _buildExpandableSheetCard(
           title: "Writing Task 1: Academic Graph & Chart Vocabulary",
           badge: "Task 1 Academic",
-          badgeColor: const Color(0xFF059669),
+          badgeColor: const Color(0xFF91AE6E),
           icon: Icons.show_chart_rounded,
           content: [
             {
@@ -228,7 +228,7 @@ class _IeltsResourcesScreenState extends State<IeltsResourcesScreen> {
         _buildExpandableSheetCard(
           title: "Writing Task 2: Band 9 Structural Skeletons",
           badge: "Task 2 Essay",
-          badgeColor: const Color(0xFFD97706),
+          badgeColor: const Color(0xFF325E6A),
           icon: Icons.article_rounded,
           content: [
             {
@@ -248,7 +248,7 @@ class _IeltsResourcesScreenState extends State<IeltsResourcesScreen> {
         _buildExpandableSheetCard(
           title: "Speaking: Natural Delay Phrases & Fillers",
           badge: "Fluency Hack",
-          badgeColor: const Color(0xFF7C3AED),
+          badgeColor: const Color(0xFFC8A96B),
           icon: Icons.record_voice_over_rounded,
           content: [
             {
@@ -325,15 +325,19 @@ class _IeltsResourcesScreenState extends State<IeltsResourcesScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              section["category"]!,
-                              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w800, color: const Color(0xFF00695C)),
+                            Expanded(
+                              child: Text(
+                                section["category"]!,
+                                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w800, color: badgeColor),
+                              ),
                             ),
+                            SizedBox(width: 8.w),
                             GestureDetector(
                               onTap: () => _copyToClipboard(section["items"]!, section["category"]!),
                               child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const Icon(Icons.copy_rounded, size: 13, color: Color(0xFF64748B)),
                                   SizedBox(width: 4.w),
@@ -393,7 +397,7 @@ class _IeltsResourcesScreenState extends State<IeltsResourcesScreen> {
         "title": "The Economist & Scientific American",
         "category": "📖 Academic Reading Section 3",
         "desc": "Analytical long-form articles on economics, environment, and history.",
-        "why": "Cambridge IELTS Reading passages are directly adapted from these publications.",
+        "why": "Official IELTS Reading passages are directly adapted from these publications.",
       },
       {
         "title": "National Geographic & Nature Journal",

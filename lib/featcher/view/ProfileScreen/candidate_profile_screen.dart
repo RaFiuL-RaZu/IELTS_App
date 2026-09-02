@@ -3,14 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:justtsham/core/constant/prefs_helper.dart';
 import 'package:justtsham/core/services/ielts_local_storage_service.dart';
-import 'package:justtsham/featcher/view/HomeScreen/ielts_band_calculator_modal.dart';
 import 'package:justtsham/featcher/view/ProfileScreen/ielts_band_descriptors_screen.dart';
 import 'package:justtsham/featcher/view/ProfileScreen/ielts_question_bank_screen.dart';
 import 'package:justtsham/featcher/view/ProfileScreen/ielts_study_plan_screen.dart';
-import 'package:justtsham/featcher/view/ProfileScreen/privacy_screen.dart';
-import 'package:justtsham/featcher/view/ProfileScreen/terms_conditions.dart';
 import 'package:justtsham/featcher/view/authentication/candidate_setup_screen.dart';
-import 'package:justtsham/routes/routes.dart';
 
 class CandidateProfileScreen extends StatelessWidget {
   const CandidateProfileScreen({super.key});
@@ -26,7 +22,7 @@ class CandidateProfileScreen extends StatelessWidget {
         elevation: 0,
         toolbarHeight: 65.h,
         title: const Text(
-          "Candidate Profile & Analytics",
+          "Profile & Analytics",
           style: TextStyle(
             color: Color(0xFF0F172A),
             fontSize: 18,
@@ -34,6 +30,14 @@ class CandidateProfileScreen extends StatelessWidget {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout_rounded, color: Color(0xFFDC2626), size: 22),
+            tooltip: "Log Out",
+            onPressed: () => _showLogoutDialog(context, progressCtrl),
+          ),
+          SizedBox(width: 8.w),
+        ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -158,73 +162,16 @@ class CandidateProfileScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _buildSkillProgressRow("🎧 Listening", progressCtrl.listeningBand.value, progressCtrl.listeningAccuracy.value, const Color(0xFF00695C)),
+                  _buildSkillProgressRow("🗣️ Speaking", progressCtrl.speakingBand.value, progressCtrl.speakingAccuracy.value, const Color(0xFFC8A96B)),
                   const Divider(height: 24),
-                  _buildSkillProgressRow("📖 Reading", progressCtrl.readingBand.value, progressCtrl.readingAccuracy.value, const Color(0xFF6A1B9A)),
+                  _buildSkillProgressRow("🎧 Listening", progressCtrl.listeningBand.value, progressCtrl.listeningAccuracy.value, const Color(0xFF2E6FA0)),
                   const Divider(height: 24),
-                  _buildSkillProgressRow("✍️ Writing", progressCtrl.writingBand.value, progressCtrl.writingAccuracy.value, const Color(0xFFE65100)),
+                  _buildSkillProgressRow("📖 Reading", progressCtrl.readingBand.value, progressCtrl.readingAccuracy.value, const Color(0xFF91AE6E)),
                   const Divider(height: 24),
-                  _buildSkillProgressRow("🗣️ Speaking", progressCtrl.speakingBand.value, progressCtrl.speakingAccuracy.value, const Color(0xFF0284C7)),
+                  _buildSkillProgressRow("✍️ Writing", progressCtrl.writingBand.value, progressCtrl.writingAccuracy.value, const Color(0xFF325E6A)),
                 ],
               ),
             )),
-
-            SizedBox(height: 28.h),
-
-            // Target Band Setting
-            const Text(
-              "Goal & Target Band Settings",
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF0F172A),
-              ),
-            ),
-            SizedBox(height: 14.h),
-
-            Container(
-              padding: EdgeInsets.all(20.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("Select Desired Target Band:", style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
-                  SizedBox(height: 14.h),
-                  Obx(() {
-                    final current = progressCtrl.targetBand.value;
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [6.5, 7.0, 7.5, 8.0, 8.5, 9.0].map((b) {
-                        final isSel = current == b;
-                        return GestureDetector(
-                          onTap: () => progressCtrl.setTargetBand(b),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 150),
-                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                            decoration: BoxDecoration(
-                              color: isSel ? const Color(0xFF00695C) : const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: Text(
-                              "$b",
-                              style: TextStyle(
-                                fontSize: 13.5,
-                                fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
-                                color: isSel ? Colors.white : const Color(0xFF475569),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  }),
-                ],
-              ),
-            ),
 
             SizedBox(height: 28.h),
 
@@ -260,33 +207,9 @@ class CandidateProfileScreen extends StatelessWidget {
                   ),
                   const Divider(height: 1),
                   _buildMenuTile(
-                    icon: Icons.calculate_outlined,
-                    title: "Cambridge Band Score Calculator",
-                    onTap: () => IeltsBandCalculatorModal.show(context),
-                  ),
-                  const Divider(height: 1),
-                  _buildMenuTile(
                     icon: Icons.description_outlined,
                     title: "Official IELTS Band Descriptors",
                     onTap: () => Get.to(() => const IeltsBandDescriptorsScreen()),
-                  ),
-                  const Divider(height: 1),
-                  _buildMenuTile(
-                    icon: Icons.track_changes_rounded,
-                    title: "Update Target Band & Profile",
-                    onTap: () => Get.to(() => const CandidateSetupScreen()),
-                  ),
-                  const Divider(height: 1),
-                  _buildMenuTile(
-                    icon: Icons.privacy_tip_outlined,
-                    title: "Privacy Policy",
-                    onTap: () => Get.to(() => const PrivacyScreen()),
-                  ),
-                  const Divider(height: 1),
-                  _buildMenuTile(
-                    icon: Icons.article_outlined,
-                    title: "Terms & Conditions",
-                    onTap: () => Get.to(() => const TermsOfUseScreen()),
                   ),
                 ],
               ),
@@ -337,45 +260,23 @@ class CandidateProfileScreen extends StatelessWidget {
                   ),
                   const Divider(height: 1),
 
-                  // Reset Candidate Profile & Target
+                  // Log Out Candidate Account & Switch Profile
                   ListTile(
-                    onTap: () => _showResetConfirmation(context),
-                    leading: Container(
-                      padding: const EdgeInsets.all(9),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.restart_alt_rounded, color: Color(0xFF00695C), size: 20),
-                    ),
-                    title: const Text(
-                      "Reset Profile & Goals",
-                      style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-                    ),
-                    subtitle: const Text(
-                      "Reconfigure name, exam module & target band",
-                      style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF94A3B8), size: 14),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-                  ),
-                  // Create New Candidate Account & Full Reset
-                  ListTile(
-                    onTap: () => _showNewAccountConfirmation(context),
+                    onTap: () => _showLogoutDialog(context, progressCtrl),
                     leading: Container(
                       padding: const EdgeInsets.all(9),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFEF2F2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.person_add_alt_1_rounded, color: Color(0xFFDC2626), size: 20),
+                      child: const Icon(Icons.logout_rounded, color: Color(0xFFDC2626), size: 20),
                     ),
                     title: const Text(
-                      "Create New Account / Reset All",
+                      "Log Out / Switch Account",
                       style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFFDC2626)),
                     ),
                     subtitle: const Text(
-                      "Clear previous history and setup a fresh candidate profile",
+                      "Safely log out and switch to another candidate profile",
                       style: TextStyle(fontSize: 11.5, color: Color(0xFF94A3B8)),
                     ),
                     trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFFCA5A5), size: 14),
@@ -529,48 +430,7 @@ class CandidateProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showResetConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.restart_alt_rounded, color: Color(0xFF00695C), size: 24),
-            SizedBox(width: 10),
-            Text(
-              "Reset Profile & Goals",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
-            ),
-          ],
-        ),
-        content: const Text(
-          "Do you want to reconfigure your candidate name, target band score, and exam module?",
-          style: TextStyle(fontSize: 13.5, color: Color(0xFF475569)),
-        ),
-        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cancel", style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00695C),
-              elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await PrefsHelper.setBool("hasSetupCandidate", false);
-              Get.to(() => const CandidateSetupScreen());
-            },
-            child: const Text("Reconfigure", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   void _showResetHistoryConfirmation(BuildContext context, IeltsProgressController progressCtrl) {
     showDialog(
@@ -621,24 +481,32 @@ class CandidateProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showNewAccountConfirmation(BuildContext context) {
+  void _showLogoutDialog(BuildContext context, IeltsProgressController progressCtrl) {
+    final candidateName = progressCtrl.candidateName.value;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.person_add_alt_1_rounded, color: Color(0xFFDC2626), size: 24),
-            SizedBox(width: 10),
-            Text(
-              "Create New Account",
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF2F2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.logout_rounded, color: Color(0xFFDC2626), size: 22),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              "Log Out Account?",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
             ),
           ],
         ),
-        content: const Text(
-          "Do you want to reset all test history and create a fresh candidate profile with a new name and target score?",
-          style: TextStyle(fontSize: 13.5, color: Color(0xFF475569)),
+        content: Text(
+          "Are you sure you want to log out of '$candidateName'?\n\nYour test scores, analytics, and history will remain securely preserved on this device. You can log back in anytime by picking your name.",
+          style: const TextStyle(fontSize: 13.5, color: Color(0xFF475569), height: 1.5),
         ),
         actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         actions: [
@@ -654,16 +522,11 @@ class CandidateProfileScreen extends StatelessWidget {
             ),
             onPressed: () async {
               Navigator.pop(ctx);
-              await PrefsHelper.removeAllPrefData();
+              await progressCtrl.saveToLocalStorage();
               await PrefsHelper.setBool("hasSetupCandidate", false);
-              await PrefsHelper.setString("candidate_name", "");
-              await PrefsHelper.setString("myName", "");
-              if (Get.isRegistered<IeltsProgressController>()) {
-                await IeltsProgressController.to.resetUserData(newName: "", clearHistory: true);
-              }
               Get.offAll(() => const CandidateSetupScreen(isNewAccount: true));
             },
-            child: const Text("Create New Profile", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+            child: const Text("Log Out", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
           ),
         ],
       ),

@@ -22,7 +22,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       "isUnread": true,
     },
     {
-      "title": "Cambridge Reading Tip",
+      "title": "IELTS Reading Tip",
       "body": "Remember to skim the topic sentence of each paragraph first before attempting 'List of Headings' questions.",
       "time": "2 hours ago",
       "icon": Icons.menu_book_rounded,

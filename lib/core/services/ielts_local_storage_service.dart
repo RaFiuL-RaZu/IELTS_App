@@ -13,6 +13,7 @@ class IeltsTestResult {
   final double accuracy;
   final double bandScore;
   final String date;
+  final bool isMockExam;
 
   IeltsTestResult({
     required this.id,
@@ -23,6 +24,7 @@ class IeltsTestResult {
     required this.accuracy,
     required this.bandScore,
     required this.date,
+    this.isMockExam = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -34,6 +36,7 @@ class IeltsTestResult {
     'accuracy': accuracy,
     'bandScore': bandScore,
     'date': date,
+    'isMockExam': isMockExam,
   };
 
   factory IeltsTestResult.fromJson(Map<String, dynamic> json) => IeltsTestResult(
@@ -45,6 +48,7 @@ class IeltsTestResult {
     accuracy: (json['accuracy'] ?? 0.0).toDouble(),
     bandScore: (json['bandScore'] ?? 0.0).toDouble(),
     date: json['date'] ?? '',
+    isMockExam: json['isMockExam'] ?? (json['testName']?.toString().toLowerCase().contains('mock') ?? false),
   );
 }
 
@@ -112,12 +116,63 @@ class IeltsProgressController extends GetxController {
   var savedCueCardIds = <String>{}.obs;
   var savedVocabWords = <String>{}.obs;
 
-  String _userKey(String baseKey) {
-    final email = PrefsHelper.myEmail.trim().toLowerCase();
-    if (email.isNotEmpty) {
-      return 'user_${email}_$baseKey';
+  String _userKey(String baseKey, {String? customName}) {
+    final raw = customName ?? (PrefsHelper.myEmail.isNotEmpty ? PrefsHelper.myEmail : candidateName.value);
+    final sanitized = raw.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9_]'), '_');
+    if (sanitized.isNotEmpty && sanitized != "ielts_aspirant") {
+      return 'cand_${sanitized}_$baseKey';
     }
     return baseKey;
+  }
+
+  Future<List<String>> getRegisteredCandidates() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getStringList('registered_candidates_list') ?? [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<bool> doesCandidateExist(String name) async {
+    final sanitized = name.trim().toLowerCase();
+    if (sanitized.isEmpty) return false;
+    final list = await getRegisteredCandidates();
+    return list.any((e) => e.trim().toLowerCase() == sanitized);
+  }
+
+  Future<Map<String, dynamic>?> getCandidateProfileSummary(String name) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final prefix = _userKey('', customName: name);
+      final savedName = prefs.getString('${prefix}candidate_name') ?? prefs.getString('candidate_name');
+      if (savedName == null || savedName.isEmpty) return null;
+      final target = prefs.getDouble('${prefix}target_band') ?? prefs.getDouble('target_band') ?? 8.0;
+      final module = prefs.getString('${prefix}exam_module') ?? prefs.getString('exam_module') ?? "Academic";
+      final historyJson = prefs.getString('${prefix}test_history') ?? prefs.getString('test_history');
+      int testCount = 0;
+      if (historyJson != null) {
+        try {
+          final List d = jsonDecode(historyJson);
+          testCount = d.length;
+        } catch (_) {}
+      }
+      return {
+        'name': savedName,
+        'targetBand': target,
+        'module': module,
+        'testCount': testCount,
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> switchCandidate(String name) async {
+    await saveToLocalStorage();
+    await PrefsHelper.setString("candidate_name", name);
+    await PrefsHelper.setString("myName", name);
+    await loadFromLocalStorage(candidateNameOverride: name);
   }
 
   @override
@@ -130,11 +185,34 @@ class IeltsProgressController extends GetxController {
     await loadFromLocalStorage(userEmail: email);
   }
 
-  Future<void> loadFromLocalStorage({String? userEmail}) async {
+  Future<void> checkAndResetDailyChecklist() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final effectiveEmail = (userEmail ?? PrefsHelper.myEmail).trim().toLowerCase();
-      final keyPrefix = effectiveEmail.isNotEmpty ? 'user_${effectiveEmail}_' : '';
+      final keyPrefix = _userKey('');
+      final now = DateTime.now();
+      final todayStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+      final lastChecklistDate = prefs.getString('${keyPrefix}last_checklist_date') ?? prefs.getString('last_checklist_date') ?? "";
+
+      if (lastChecklistDate.isNotEmpty && lastChecklistDate != todayStr) {
+        speakingTaskDone.value = false;
+        listeningTaskDone.value = false;
+        readingTaskDone.value = false;
+        writingTaskDone.value = false;
+
+        await prefs.setString('${keyPrefix}last_checklist_date', todayStr);
+        await prefs.setBool('${keyPrefix}speaking_task_done', false);
+        await prefs.setBool('${keyPrefix}listening_task_done', false);
+        await prefs.setBool('${keyPrefix}reading_task_done', false);
+        await prefs.setBool('${keyPrefix}writing_task_done', false);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> loadFromLocalStorage({String? userEmail, String? candidateNameOverride}) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final targetName = candidateNameOverride ?? (PrefsHelper.myName.isNotEmpty ? PrefsHelper.myName : candidateName.value);
+      final keyPrefix = _userKey('', customName: targetName);
 
       candidateName.value = prefs.getString('${keyPrefix}candidate_name') ??
           prefs.getString('candidate_name') ??
@@ -171,10 +249,32 @@ class IeltsProgressController extends GetxController {
       writingAccuracy.value = prefs.getDouble('${keyPrefix}writing_acc') ?? prefs.getDouble('writing_acc') ?? 0.0;
       speakingAccuracy.value = prefs.getDouble('${keyPrefix}speaking_acc') ?? prefs.getDouble('speaking_acc') ?? 0.0;
 
-      speakingTaskDone.value = prefs.getBool('${keyPrefix}speaking_task_done') ?? prefs.getBool('speaking_task_done') ?? false;
-      listeningTaskDone.value = prefs.getBool('${keyPrefix}listening_task_done') ?? prefs.getBool('listening_task_done') ?? false;
-      readingTaskDone.value = prefs.getBool('${keyPrefix}reading_task_done') ?? prefs.getBool('reading_task_done') ?? false;
-      writingTaskDone.value = prefs.getBool('${keyPrefix}writing_task_done') ?? prefs.getBool('writing_task_done') ?? false;
+      // Automatic Daily Checklist Reset on New Day
+      final now = DateTime.now();
+      final todayStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+      final lastChecklistDate = prefs.getString('${keyPrefix}last_checklist_date') ?? prefs.getString('last_checklist_date') ?? "";
+
+      if (lastChecklistDate.isNotEmpty && lastChecklistDate != todayStr) {
+        // Next day arrived! Reset daily checklist so candidate gets a fresh 0/4 daily goal
+        speakingTaskDone.value = false;
+        listeningTaskDone.value = false;
+        readingTaskDone.value = false;
+        writingTaskDone.value = false;
+
+        await prefs.setString('${keyPrefix}last_checklist_date', todayStr);
+        await prefs.setBool('${keyPrefix}speaking_task_done', false);
+        await prefs.setBool('${keyPrefix}listening_task_done', false);
+        await prefs.setBool('${keyPrefix}reading_task_done', false);
+        await prefs.setBool('${keyPrefix}writing_task_done', false);
+      } else {
+        if (lastChecklistDate.isEmpty) {
+          await prefs.setString('${keyPrefix}last_checklist_date', todayStr);
+        }
+        speakingTaskDone.value = prefs.getBool('${keyPrefix}speaking_task_done') ?? prefs.getBool('speaking_task_done') ?? false;
+        listeningTaskDone.value = prefs.getBool('${keyPrefix}listening_task_done') ?? prefs.getBool('listening_task_done') ?? false;
+        readingTaskDone.value = prefs.getBool('${keyPrefix}reading_task_done') ?? prefs.getBool('reading_task_done') ?? false;
+        writingTaskDone.value = prefs.getBool('${keyPrefix}writing_task_done') ?? prefs.getBool('writing_task_done') ?? false;
+      }
 
       final historyJson = prefs.getString('${keyPrefix}test_history') ?? (keyPrefix.isEmpty ? prefs.getString('test_history') : null);
       if (historyJson != null) {
@@ -209,6 +309,10 @@ class IeltsProgressController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       final keyPrefix = _userKey('');
 
+      final now = DateTime.now();
+      final todayStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+      await prefs.setString('${keyPrefix}last_checklist_date', todayStr);
+
       await prefs.setString('${keyPrefix}candidate_name', candidateName.value);
       await prefs.setDouble('${keyPrefix}target_band', targetBand.value);
       await prefs.setInt('${keyPrefix}exam_days_remaining', examDaysRemaining.value);
@@ -242,6 +346,15 @@ class IeltsProgressController extends GetxController {
       await prefs.setInt('exam_days_remaining', examDaysRemaining.value);
       await prefs.setString('exam_module', examModule.value);
       await prefs.setString('test_history', historyJson);
+
+      // Register candidate in profile accounts registry
+      if (candidateName.value.isNotEmpty && candidateName.value != "IELTS Aspirant") {
+        final currentList = prefs.getStringList('registered_candidates_list') ?? [];
+        if (!currentList.any((e) => e.trim().toLowerCase() == candidateName.value.trim().toLowerCase())) {
+          currentList.add(candidateName.value.trim());
+          await prefs.setStringList('registered_candidates_list', currentList);
+        }
+      }
     } catch (e) {
       debugPrint("Error saving IELTS local storage: $e");
     }
@@ -279,14 +392,24 @@ class IeltsProgressController extends GetxController {
     await saveToLocalStorage();
   }
 
+  List<IeltsTestResult> get mockTestHistory => testHistory.where((e) {
+    return e.isMockExam || e.testName.toLowerCase().contains("mock");
+  }).toList();
+
+  List<IeltsTestResult> get practiceHistory => testHistory.where((e) {
+    return !e.isMockExam && !e.testName.toLowerCase().contains("mock");
+  }).toList();
+
   void addTestResult({
     required String skill,
     required String testName,
     required int score,
     required int totalQuestions,
     required double bandScore,
+    bool isMockExam = false,
   }) {
     final accuracy = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0.0;
+    final bool effectiveMock = isMockExam || testName.toLowerCase().contains("mock");
     final newResult = IeltsTestResult(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       skill: skill,
@@ -296,12 +419,30 @@ class IeltsProgressController extends GetxController {
       accuracy: double.parse(accuracy.toStringAsFixed(1)),
       bandScore: bandScore,
       date: "Just now",
+      isMockExam: effectiveMock,
     );
 
     testHistory.insert(0, newResult);
     testHistory.refresh();
     _recalculateStats();
     saveToLocalStorage();
+  }
+
+  IeltsTestResult? getLatestMockResult(String skill, {String? testQuery}) {
+    for (var t in testHistory) {
+      final isMock = t.isMockExam || t.testName.toLowerCase().contains("mock");
+      if (!isMock) continue;
+      if (testQuery != null && testQuery.isNotEmpty) {
+        final cleanQuery = testQuery.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), ' ').trim();
+        final cleanName = t.testName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), ' ').trim();
+        if (cleanName.contains(cleanQuery) || cleanQuery.contains(cleanName)) {
+          return t;
+        }
+      } else if (t.skill.toLowerCase() == skill.toLowerCase()) {
+        return t;
+      }
+    }
+    return null;
   }
 
   IeltsTestResult? getLatestTestResult(String query) {

@@ -21,6 +21,9 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -51,7 +54,7 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
         ),
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(105.h),
+          preferredSize: Size.fromHeight(115.h),
           child: Column(
             children: [
               // Search Field
@@ -87,21 +90,25 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
                 ),
               ),
 
-              // 4-Skill Tabs
-              TabBar(
-                controller: _tabController,
-                indicatorColor: const Color(0xFF00695C),
-                indicatorWeight: 3,
-                labelColor: const Color(0xFF00695C),
-                unselectedLabelColor: const Color(0xFF64748B),
-                labelStyle: TextStyle(fontSize: 12.5.sp, fontWeight: FontWeight.w800),
-                unselectedLabelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
-                tabs: const [
-                  Tab(text: "Speaking"),
-                  Tab(text: "Writing"),
-                  Tab(text: "Reading"),
-                  Tab(text: "Listening"),
-                ],
+              // 4-Skill Compact Segmented Pill Bar (Matching other screens!)
+              Padding(
+                padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 4.h, bottom: 8.h),
+                child: Container(
+                  height: 42.h,
+                  padding: EdgeInsets.all(3.5.w),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(21),
+                  ),
+                  child: Row(
+                    children: [
+                      _buildSkillTab("Speaking", 0),
+                      _buildSkillTab("Listening", 1),
+                      _buildSkillTab("Reading", 2),
+                      _buildSkillTab("Writing", 3),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -111,10 +118,49 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
         controller: _tabController,
         children: [
           _buildSpeakingBank(),
-          _buildWritingBank(),
-          _buildReadingBank(),
           _buildListeningBank(),
+          _buildReadingBank(),
+          _buildWritingBank(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSkillTab(String title, int index) {
+    final isSelected = _tabController.index == index;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _tabController.animateTo(index);
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF00695C) : Colors.transparent,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF00695C).withOpacity(0.25),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 12.5.sp,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+              color: isSelected ? Colors.white : const Color(0xFF64748B),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -169,7 +215,7 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
     return ListView(
       padding: EdgeInsets.all(16.w),
       children: [
-        _buildSectionHeader("Part 1: Real Cambridge Topic Drills", Icons.forum_rounded),
+        _buildSectionHeader("Part 1: IELTS Topic Drills", Icons.forum_rounded, const Color(0xFF8A6B32)),
         SizedBox(height: 10.h),
         ...part1Topics.where((t) {
           final q = _searchQuery.toLowerCase();
@@ -178,7 +224,7 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
         }).map((t) => _buildPart1Card(t)),
 
         SizedBox(height: 20.h),
-        _buildSectionHeader("Part 2 & 3: High-Yield Cue Cards", Icons.mic_rounded),
+        _buildSectionHeader("Part 2 & 3: High-Yield Cue Cards", Icons.mic_rounded, const Color(0xFF8A6B32)),
         SizedBox(height: 10.h),
         ...cueCards.where((c) {
           final q = _searchQuery.toLowerCase();
@@ -208,10 +254,10 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE0F2FE),
+                  color: const Color(0xFFC8A96B).withOpacity(0.16),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Text("Part 1", style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF0284C7))),
+                child: const Text("Part 1", style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF8A6B32))),
               ),
               SizedBox(width: 8.w),
               Expanded(
@@ -228,7 +274,7 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("• ", style: TextStyle(color: Color(0xFF00695C), fontWeight: FontWeight.bold)),
+                const Text("• ", style: TextStyle(color: Color(0xFF8A6B32), fontWeight: FontWeight.bold)),
                 Expanded(child: Text(q, style: TextStyle(fontSize: 12.5.sp, color: const Color(0xFF334155), height: 1.35))),
               ],
             ),
@@ -242,7 +288,7 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
             ),
             child: Row(
               children: [
-                const Icon(Icons.lightbulb_outline_rounded, color: Color(0xFFD97706), size: 16),
+                const Icon(Icons.lightbulb_outline_rounded, color: Color(0xFFC8A96B), size: 16),
                 SizedBox(width: 6.w),
                 Expanded(
                   child: Text(
@@ -275,13 +321,13 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE0F2F1),
+                  color: const Color(0xFFC8A96B).withOpacity(0.16),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text(card.topicCategory, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF004D40))),
+                child: Text(card.topicCategory, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF8A6B32))),
               ),
               const Spacer(),
-              const Text("Band 8.5 Model", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF00695C))),
+              const Text("Band 8.5 Model", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF8A6B32))),
             ],
           ),
           SizedBox(height: 8.h),
@@ -303,13 +349,20 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
               ));
             },
             child: Container(
-              height: 38.h,
+              height: 40.h,
               decoration: BoxDecoration(
-                color: const Color(0xFF00695C),
-                borderRadius: BorderRadius.circular(10),
+                color: const Color(0xFFC8A96B),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFC8A96B).withOpacity(0.28),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: const Center(
-                child: Text("🎙️ Practice Speaking on this Cue Card", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
+                child: Text("🎙️ Practice Speaking on this Cue Card", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12.5)),
               ),
             ),
           ),
@@ -362,7 +415,7 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
     return ListView(
       padding: EdgeInsets.all(16.w),
       children: [
-        _buildSectionHeader("Cambridge Writing Task 1 & Task 2 Pool", Icons.edit_note_rounded),
+        _buildSectionHeader("Writing Task 1 & Task 2 Pool", Icons.edit_note_rounded, const Color(0xFF325E6A)),
         SizedBox(height: 10.h),
         ...essayPrompts.where((e) {
           final q = _searchQuery.toLowerCase();
@@ -385,13 +438,21 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
+                      color: const Color(0xFF325E6A).withOpacity(0.14),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Text(e["type"]!, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFFB45309))),
+                    child: Text(e["type"]!, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF325E6A))),
                   ),
-                  const Spacer(),
-                  Text(e["topic"]!, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Text(
+                      e["topic"]!,
+                      textAlign: TextAlign.end,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                    ),
+                  ),
                 ],
               ),
               SizedBox(height: 8.h),
@@ -410,13 +471,20 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
                   ));
                 },
                 child: Container(
-                  height: 38.h,
+                  height: 40.h,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF00695C),
-                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xFF325E6A),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF325E6A).withOpacity(0.28),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
                   child: const Center(
-                    child: Text("✍️ Open Writing Arena & Model Essay", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
+                    child: Text("✍️ Open Writing Arena & Model Essay", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12.5)),
                   ),
                 ),
               ),
@@ -456,7 +524,7 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
     return ListView(
       padding: EdgeInsets.all(16.w),
       children: [
-        _buildSectionHeader("Cambridge Reading Question Types & Strategies", Icons.menu_book_rounded),
+        _buildSectionHeader("Reading Question Types & Strategies", Icons.menu_book_rounded, const Color(0xFF91AE6E)),
         SizedBox(height: 10.h),
         ...readingQuestions.map((r) => Container(
           margin: EdgeInsets.only(bottom: 14.h),
@@ -472,10 +540,10 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEDE9FE),
+                  color: const Color(0xFF91AE6E).withOpacity(0.14),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text(r["type"]!, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF6D28D9))),
+                child: Text(r["type"]!, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF4A6431))),
               ),
               SizedBox(height: 10.h),
               Text("Rule & Strategy: ${r["tip"]}", style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A), height: 1.35)),
@@ -490,7 +558,7 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
                     SizedBox(height: 6.h),
                     Text("Question: ${r["question"]}", style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
                     SizedBox(height: 4.h),
-                    Text("Answer Explanation: ${r["answer"]}", style: TextStyle(fontSize: 11.5.sp, fontWeight: FontWeight.w700, color: const Color(0xFF00695C))),
+                    Text("Answer Explanation: ${r["answer"]}", style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF4A6431))),
                   ],
                 ),
               ),
@@ -524,7 +592,7 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
     return ListView(
       padding: EdgeInsets.all(16.w),
       children: [
-        _buildSectionHeader("Cambridge Listening Question Types & Traps", Icons.headset_rounded),
+        _buildSectionHeader("Listening Question Types & Traps", Icons.headset_rounded, const Color(0xFF2E6FA0)),
         SizedBox(height: 10.h),
         ...listeningTypes.map((l) => Container(
           margin: EdgeInsets.only(bottom: 14.h),
@@ -540,10 +608,10 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFD1FAE5),
+                  color: const Color(0xFF2E6FA0).withOpacity(0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text(l["type"]!, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF047857))),
+                child: Text(l["type"]!, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF2E6FA0))),
               ),
               SizedBox(height: 10.h),
               Text("Key Exam Strategy: ${l["tip"]}", style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A), height: 1.35)),
@@ -561,14 +629,16 @@ class _IeltsQuestionBankScreenState extends State<IeltsQuestionBankScreen> with 
     );
   }
 
-  Widget _buildSectionHeader(String title, IconData icon) {
+  Widget _buildSectionHeader(String title, IconData icon, [Color? iconColor]) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFF00695C), size: 20),
+        Icon(icon, color: iconColor ?? const Color(0xFF00695C), size: 20),
         SizedBox(width: 8.w),
-        Text(
-          title,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+          ),
         ),
       ],
     );

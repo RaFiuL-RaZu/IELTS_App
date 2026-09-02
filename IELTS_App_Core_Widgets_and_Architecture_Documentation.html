@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IELTS App - Core Coding & Widget Architecture Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00695C;
+      --primary-dark: #004D40;
+      --primary-light: #E0F2F1;
+      --speaking: #C8A96B;
+      --listening: #2E6FA0;
+      --reading: #91AE6E;
+      --writing: #325E6A;
+      --dark: #0F172A;
+      --slate: #475569;
+      --light-bg: #F8FAFC;
+      --border: #E2E8F0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif;
+    }
+
+    body {
+      background: #F1F5F9;
+      color: var(--dark);
+      padding: 30px 20px 80px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    /* Top Action Bar */
+    .action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 16px 24px;
+      border-radius: 18px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      border: 1px solid var(--border);
+    }
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+      border-radius: 30px;
+    }
+    .btn-print {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0, 105, 92, 0.3);
+      transition: all 0.2s;
+    }
+    .btn-print:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(0, 105, 92, 0.4);
+    }
+
+    /* Header */
+    .header-card {
+      background: linear-gradient(135deg, #0F172A, #1E293B);
+      color: white;
+      padding: 36px 32px;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+    }
+    .header-card h1 {
+      font-size: 30px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    .header-card p {
+      color: #94A3B8;
+      font-size: 15px;
+      max-width: 850px;
+    }
+
+    /* Tech Stack Summary Cards */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+    .tech-card {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    .tech-card-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .tech-card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 4px;
+    }
+    .tech-card-desc {
+      font-size: 12.5px;
+      color: var(--slate);
+    }
+
+    /* Section Heading */
+    .section-title {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--dark);
+      margin: 32px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-tag {
+      background: #E2E8F0;
+      color: var(--slate);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    /* Screen Breakdown Card */
+    .screen-card {
+      background: white;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+      margin-bottom: 24px;
+      overflow: hidden;
+      page-break-inside: avoid;
+    }
+
+    .screen-header {
+      padding: 16px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .screen-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .file-path {
+      font-family: monospace;
+      font-size: 12px;
+      background: #F1F5F9;
+      color: #334155;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .screen-content {
+      padding: 20px 22px;
+    }
+
+    .screen-purpose {
+      font-size: 14px;
+      color: #334155;
+      margin-bottom: 18px;
+      line-height: 1.6;
+      background: #F8FAFC;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border-left: 4px solid var(--primary);
+    }
+
+    /* Widgets Table */
+    .widget-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    .widget-table th {
+      background: #F8FAFC;
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #64748B;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .widget-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid #F1F5F9;
+      color: #334155;
+      vertical-align: top;
+    }
+    .widget-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .widget-tag {
+      display: inline-block;
+      background: #EEF2FF;
+      color: #4F46E5;
+      font-weight: 700;
+      font-family: monospace;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin: 2px;
+    }
+    .state-tag {
+      display: inline-block;
+      background: #ECFDF5;
+      color: #059669;
+      font-weight: 700;
+      font-family: monospace;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin: 2px;
+    }
+    .pkg-tag {
+      display: inline-block;
+      background: #FEF3C7;
+      color: #B45309;
+      font-weight: 700;
+      font-family: monospace;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin: 2px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      color: #94A3B8;
+      font-size: 13px;
+      margin-top: 50px;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        color: black;
+      }
+      .action-bar, .btn-print {
+        display: none !important;
+      }
+      .header-card {
+        background: #0F172A !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .screen-card, .tech-card {
+        box-shadow: none !important;
+        border: 1px solid #CBD5E1 !important;
+        page-break-inside: avoid;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .widget-tag, .state-tag, .pkg-tag, .screen-purpose {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <div class="badge-pill">
+        <span>📦</span> Flutter Core Architecture & Screen Widget Breakdown
+      </div>
+      <button class="btn-print" onclick="window.print()">
+        <span>🖨️</span> Save as PDF / Print Document
+      </button>
+    </div>
+
+    <!-- Header Card -->
+    <div class="header-card">
+      <h1>IELTS Master Preparation App</h1>
+      <p>
+        সম্পূর্ণ অ্যাপ্লিকেশনটির কোডিং আর্কিটেকচার, স্টেট ম্যানেজমেন্ট, প্লাগিন্স এবং প্রতিটি স্ক্রিনে ব্যবহৃত Flutter Core ও Custom Widgets-এর বিস্তারিত প্রযুক্তিগত রেফারেন্স ও ডকুমেন্টেশন।
+      </p>
+    </div>
+
+    <!-- Tech Stack Summary -->
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="tech-card-icon">⚡</div>
+        <div class="tech-card-title">State Management & DI</div>
+        <div class="tech-card-desc"><b>GetX (4.7.3)</b>: <code>GetxController</code>, রিঅ্যাক্টিভ ভ্যারিয়েবল (<code>RxBool</code>, <code>RxDouble</code>, <code>Obx</code>) এবং <code>Get.find()</code> ডিপেন্ডেন্সি ইনজেকশন।</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-icon">📱</div>
+        <div class="tech-card-title">Responsive UI Engine</div>
+        <div class="tech-card-desc"><b>flutter_screenutil (5.9.3)</b>: সকল সাইজিং ডাইনামিক স্ক্রিন স্কেলিং দিয়ে তৈরি (<code>.w</code>, <code>.h</code>, <code>.sp</code>, <code>.r</code>)।</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-icon">🎙️</div>
+        <div class="tech-card-title">Audio & Multimodal AI</div>
+        <div class="tech-card-desc"><b>audio_waveforms & Gemini 3.6 Flash</b>: রিয়েল-টাইম ভয়েস ওয়েভফর্ম রেকর্ডিং, সেফটি ওয়াচডগ এবং মাল্টিমোডাল অডিও ইভ্যালুয়েশন।</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-icon">💾</div>
+        <div class="tech-card-title">Local Persistence</div>
+        <div class="tech-card-desc"><b>SharedPreferences</b>: স্বয়ংক্রিয় মিডনাইট চেকলিস্ট রিসেট, স্থায়ী টেস্ট হিস্ট্রি ও ইউজার প্রোগ্রেস ট্র্যাকিং।</div>
+      </div>
+    </div>
+
+    <!-- Section: Screen-by-Screen Widget Breakdown -->
+    <div class="section-title">
+      <span>📱</span> Screen-by-Screen Widgets & Code Architecture
+      <span class="section-tag">Core Modules</span>
+    </div>
+
+    <!-- 1. Home Dashboard Screen -->
+    <div class="screen-card">
+      <div class="screen-header">
+        <div class="screen-title">
+          <span>🏠</span> 1. Home Dashboard Screen
+        </div>
+        <div class="file-path">lib/featcher/view/HomeScreen/home_screen.dart</div>
+      </div>
+      <div class="screen-content">
+        <div class="screen-purpose">
+          <b>কাজের উদ্দেশ্য:</b> অ্যাপের মূল ড্যাশবোর্ড—প্রার্থীর নাম, টার্গেট ব্যান্ড, পরীক্ষার বাকি দিন সংখ্যা (Countdown), প্রতিদিনের ৪টি স্কিলের লাইভ চেকলিস্ট (Daily Habit Reset), এবং একিউরেসি ও ব্যান্ডের বাস্তব রিয়েল-টাইম পরিসংখ্যান প্রদর্শন করে।
+        </div>
+        <table class="widget-table">
+          <thead>
+            <tr>
+              <th style="width: 25%;">ক্যাটাগরি</th>
+              <th style="width: 45%;">ব্যবহৃত Widgets / কোড কম্পোনেন্ট</th>
+              <th style="width: 30%;">কার্যপ্রণালী ও বিবরণ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Layout & Scroll</b></td>
+              <td>
+                <span class="widget-tag">Scaffold</span>
+                <span class="widget-tag">CustomScrollView</span>
+                <span class="widget-tag">SingleChildScrollView</span>
+                <span class="widget-tag">SafeArea</span>
+              </td>
+              <td>স্মুথ স্ক্রলিং এবং স্ট্যাটাস বার সেফটি হ্যান্ডলিং।</td>
+            </tr>
+            <tr>
+              <td><b>Reactivity & State</b></td>
+              <td>
+                <span class="state-tag">Obx()</span>
+                <span class="state-tag">Get.find&lt;IeltsProgressController&gt;()</span>
+                <span class="state-tag">checkAndResetDailyChecklist()</span>
+              </td>
+              <td>নতুন দিন আসা মাত্র চেকলিস্ট অটো-ক্লিন করে ০/৪ করে দেওয়া এবং প্রার্থীর লাইভ স্কোর আপডেট।</td>
+            </tr>
+            <tr>
+              <td><b>Custom UI Cards</b></td>
+              <td>
+                <span class="widget-tag">LinearProgressIndicator</span>
+                <span class="widget-tag">CircleAvatar</span>
+                <span class="widget-tag">CheckboxListTile</span>
+                <span class="widget-tag">Card</span>
+                <span class="widget-tag">AnimatedContainer</span>
+              </td>
+              <td>টার্গেট দিন গণনা বার, চেকলিস্ট টিকবক্স এবং ৪টি স্কিল কার্ড (Speaking, Listening, Reading, Writing)।</td>
+            </tr>
+            <tr>
+              <td><b>Navigation Trigger</b></td>
+              <td>
+                <span class="state-tag">navCtrl.jumpToTab(1)</span>
+                <span class="widget-tag">InkWell</span>
+                <span class="widget-tag">GestureDetector</span>
+              </td>
+              <td>ড্যাশবোর্ডের অ্যাকুরেসি বা চেকলিস্ট থেকে ট্যাপ করলে সরাসরি নির্দিষ্ট প্র্যাকটিস ট্যাবে জাম্প করা।</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2. Skills Practice Hub -->
+    <div class="screen-card">
+      <div class="screen-header">
+        <div class="screen-title">
+          <span>🎯</span> 2. Skills Practice Hub
+        </div>
+        <div class="file-path">lib/featcher/view/SkillsPracticeScreen/skills_practice_screen.dart</div>
+      </div>
+      <div class="screen-content">
+        <div class="screen-purpose">
+          <b>কাজের উদ্দেশ্য:</b> ৪টি মূল আইইএলটিএস স্কিলের সমন্বিত প্ল্যাটফর্ম। আন্তর্জাতিক স্ট্যান্ডার্ড অনুযায়ী <b>Speaking ➔ Listening ➔ Reading ➔ Writing</b> সিরিয়াল ও নির্দিষ্ট কালার কোডে বিভক্ত।
+        </div>
+        <table class="widget-table">
+          <thead>
+            <tr>
+              <th>ক্যাটাগরি</th>
+              <th>ব্যবহৃত Widgets / কোড কম্পোনেন্ট</th>
+              <th>কার্যপ্রণালী ও বিবরণ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Tab System</b></td>
+              <td>
+                <span class="widget-tag">DefaultTabController</span>
+                <span class="widget-tag">TabBar</span>
+                <span class="widget-tag">TabBarView</span>
+                <span class="widget-tag">BoxDecoration</span>
+              </td>
+              <td>পিল সেগমেন্টেড ট্যাব বার (Dark Teal <code>#00695C</code> সিলেক্টর, শ্যাডো ও রাউন্ডেড কর্নার)।</td>
+            </tr>
+            <tr>
+              <td><b>Nested Views</b></td>
+              <td>
+                <span class="widget-tag">PracticeScreen() [Speaking]</span>
+                <span class="widget-tag">IeltsListeningPracticeScreen()</span>
+                <span class="widget-tag">IeltsReadingPracticeScreen()</span>
+                <span class="widget-tag">IeltsWritingPracticeScreen()</span>
+              </td>
+              <td>একই স্ক্রিনের ভেতরে ৪টি আলাদা ডেডিকেটেড স্কিল অ্যারেনা হোস্ট করা।</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. Speaking Practice & AI Examiner -->
+    <div class="screen-card">
+      <div class="screen-header">
+        <div class="screen-title">
+          <span>🎤</span> 3. Speaking Practice & AI Examiner
+        </div>
+        <div class="file-path">lib/featcher/view/SkillsPracticeScreen/practice_screen.dart</div>
+      </div>
+      <div class="screen-content">
+        <div class="screen-purpose">
+          <b>কাজের উদ্দেশ্য:</b> পার্ট-২ কিউ কার্ডের ২ মিনিটের স্পিচ রেকর্ড করা, লাইভ অডিও ওয়েভফর্ম রেন্ডার করা এবং সিনিয়র এক্সামিনার AI-এর মাধ্যমে অডিও শুনে ৪টি ক্রাইটেরিয়ায় ব্যান্ড ও প্রোনাউনসিয়েশন মূল্যায়ন।
+        </div>
+        <table class="widget-table">
+          <thead>
+            <tr>
+              <th>ক্যাটাগরি</th>
+              <th>ব্যবহৃত Widgets / কোড কম্পোনেন্ট</th>
+              <th>কার্যপ্রণালী ও বিবরণ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Live Audio Waveform</b></td>
+              <td>
+                <span class="pkg-tag">AudioWaveforms</span>
+                <span class="pkg-tag">WaveformController</span>
+                <span class="widget-tag">AnimatedBuilder</span>
+              </td>
+              <td>কথা বলার সময় মাইক্রোফোনের ফ্রিকোয়েন্সি অনুযায়ী লাইভ অডিও বার উঠানামা করা।</td>
+            </tr>
+            <tr>
+              <td><b>Watchdog & Safety</b></td>
+              <td>
+                <span class="state-tag">Timer(2 sec Watchdog)</span>
+                <span class="state-tag">recorderController.stop().timeout()</span>
+              </td>
+              <td>রেকর্ডিং শেষ করার সময় কোনো অবস্থাতেই বাটন আটকে থাকা বা "Finalizing audio response..." হ্যাং হতে না দেওয়া।</td>
+            </tr>
+            <tr>
+              <td><b>Examiner Sheet</b></td>
+              <td>
+                <span class="widget-tag">showModalBottomSheet</span>
+                <span class="widget-tag">CircularProgressIndicator</span>
+                <span class="widget-tag">Chip</span>
+                <span class="widget-tag">ExpansionTile</span>
+              </td>
+              <td>AI এক্সামিনারের ৪টি সাব-স্কোর (FC, LR, GRA, PR), অডিও ট্রান্সক্রিপ্ট এবং Band 8.5+ ভোকাবুলারি আপগ্রেড প্রদর্শন।</td>
+            </tr>
+            <tr>
+              <td><b>Cue Card Tutor</b></td>
+              <td>
+                <span class="widget-tag">showDialog</span>
+                <span class="widget-tag">RichText</span>
+                <span class="state-tag">IeltsGeminiAiService.getCueCardIdeas()</span>
+              </td>
+              <td>কিউ কার্ডের জন্য Band 9 ওপেনিং হুকস, আইডিয়া ও কোলকেশন টিউটর পপআপ।</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. Writing Practice & AI Essay Evaluation -->
+    <div class="screen-card">
+      <div class="screen-header">
+        <div class="screen-title">
+          <span>✍️</span> 4. Writing Practice & AI Essay Evaluation
+        </div>
+        <div class="file-path">lib/featcher/view/SkillsPracticeScreen/ielts_writing_practice_screen.dart</div>
+      </div>
+      <div class="screen-content">
+        <div class="screen-purpose">
+          <b>কাজের উদ্দেশ্য:</b> Task 1 ও Task 2 রচনা লেখার অ্যারেনা। লাইভ শব্দ গণনা (Word Counter), সাবমিট করার পর Gemini AI এক্সামিনারের বিস্তারিত বাক্যভিত্তিক ভুল সংশোধন ও ব্যান্ড স্কোর প্রদান।
+        </div>
+        <table class="widget-table">
+          <thead>
+            <tr>
+              <th>ক্যাটাগরি</th>
+              <th>ব্যবহৃত Widgets / কোড কম্পোনেন্ট</th>
+              <th>কার্যপ্রণালী ও বিবরণ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Text Editor</b></td>
+              <td>
+                <span class="widget-tag">TextField (maxLines: 16)</span>
+                <span class="widget-tag">TextEditingController</span>
+                <span class="widget-tag">InputDecoration</span>
+              </td>
+              <td>ফোকাস বর্ডার, পরিষ্কার কার্সর ও স্মুথ কিবোর্ড টাইপিং ইনপুট ফিল্ড।</td>
+            </tr>
+            <tr>
+              <td><b>Live Counter</b></td>
+              <td>
+                <span class="state-tag">essayText.split(' ').length</span>
+                <span class="widget-tag">LinearProgressIndicator</span>
+                <span class="widget-tag">Badge</span>
+              </td>
+              <td>১৫০ শব্দ (Task 1) বা ২৫০ শব্দের (Task 2) বিপরীতে রিয়েল-টাইম শব্দ গণনা ট্র্যাকার।</td>
+            </tr>
+            <tr>
+              <td><b>Correction Report</b></td>
+              <td>
+                <span class="widget-tag">ListView.builder</span>
+                <span class="widget-tag">Card</span>
+                <span class="widget-tag">Row / Column</span>
+              </td>
+              <td>লাল রঙে শিক্ষার্থীর ভুল বাক্য এবং সবুজ রঙে এক্সামিনারের সঠিক রূপের তুলনা।</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. Listening Practice Screen -->
+    <div class="screen-card">
+      <div class="screen-header">
+        <div class="screen-title">
+          <span>🎧</span> 5. Listening Practice Screen
+        </div>
+        <div class="file-path">lib/featcher/view/SkillsPracticeScreen/ielts_listening_practice_screen.dart</div>
+      </div>
+      <div class="screen-content">
+        <div class="screen-purpose">
+          <b>কাজের উদ্দেশ্য:</b> ক্যামব্রিজ স্ট্যান্ডার্ড অডিও প্যাসেজ প্লেয়ার, স্পিড কন্ট্রোলার (1.0x, 1.25x, 1.5x) এবং শুনার সাথে সাথে অপশন সিলেক্ট বা ব্ল্যাঙ্কস পূরণ করে টেস্ট দেওয়া।
+        </div>
+        <table class="widget-table">
+          <thead>
+            <tr>
+              <th>ক্যাটাগরি</th>
+              <th>ব্যবহৃত Widgets / কোড কম্পোনেন্ট</th>
+              <th>কার্যপ্রণালী ও বিবরণ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Audio Controller</b></td>
+              <td>
+                <span class="pkg-tag">just_audio / flutter_tts</span>
+                <span class="widget-tag">Slider</span>
+                <span class="widget-tag">IconButton</span>
+                <span class="widget-tag">PopupMenuButton</span>
+              </td>
+              <td>অডিও ট্র্যাকিং সিকবার, প্লে/পজ বাটন এবং স্পিড অ্যাডজাস্টার।</td>
+            </tr>
+            <tr>
+              <td><b>Interactive MCQs</b></td>
+              <td>
+                <span class="widget-tag">RadioListTile</span>
+                <span class="widget-tag">TextFormField (Fill Blanks)</span>
+                <span class="widget-tag">ElevatedButton</span>
+              </td>
+              <td>প্রশ্ন নির্বাচন এবং ক্যামব্রিজ ৪০-মার্কস কনভার্সন ফর্মুলায় স্বয়ংক্রিয় ব্যান্ড হিসাব।</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 6. Reading Practice Screen -->
+    <div class="screen-card">
+      <div class="screen-header">
+        <div class="screen-title">
+          <span>📖</span> 6. Reading Practice Screen
+        </div>
+        <div class="file-path">lib/featcher/view/SkillsPracticeScreen/ielts_reading_practice_screen.dart</div>
+      </div>
+      <div class="screen-content">
+        <div class="screen-purpose">
+          <b>কাজের উদ্দেশ্য:</b> ২০ মিনিটের টাইমিং প্যাসেজ রিডিং, ফন্ট সাইজ অ্যাডজাস্টার (A- / A+), True / False / Not Given অপশন সিলেক্টর এবং তাৎক্ষণিক রেজাল্ট জেনারেশন।
+        </div>
+        <table class="widget-table">
+          <thead>
+            <tr>
+              <th>ক্যাটাগরি</th>
+              <th>ব্যবহৃত Widgets / কোড কম্পোনেন্ট</th>
+              <th>কার্যপ্রণালী ও বিবরণ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Passage Reader</b></td>
+              <td>
+                <span class="widget-tag">SelectableText</span>
+                <span class="widget-tag">SingleChildScrollView</span>
+                <span class="widget-tag">DropdownButton</span>
+              </td>
+              <td>টেক্সট হাইলাইট ও সিলেক্ট করার সুবিধা এবং চোখের স্বাচ্ছন্দ্যে ফন্ট সাইজ পরিবর্তন।</td>
+            </tr>
+            <tr>
+              <td><b>Exam Countdown</b></td>
+              <td>
+                <span class="widget-tag">TweenAnimationBuilder</span>
+                <span class="widget-tag">CircularProgressIndicator</span>
+              </td>
+              <td>পরীক্ষার ২০ মিনিটের রিভার্স টাইমার কাউন্টডাউন।</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 7. Profile & Analytics Screen -->
+    <div class="screen-card">
+      <div class="screen-header">
+        <div class="screen-title">
+          <span>📊</span> 7. Profile & Analytics Screen
+        </div>
+        <div class="file-path">lib/featcher/view/ProfileScreen/candidate_profile_screen.dart</div>
+      </div>
+      <div class="screen-content">
+        <div class="screen-purpose">
+          <b>কাজের উদ্দেশ্য:</b> শিক্ষার্থীর সম্পূর্ণ প্রোগ্রেস অ্যানালিটিক্স—টার্গেট ব্যান্ড বনাম বর্তমান ব্যান্ডের তুলনা, ৪টি স্কিলের একিউরেসি প্রোগ্রেস বার, এবং আজ পর্যন্ত দেওয়া সমস্ত টেস্ট হিস্ট্রির তালিকা।
+        </div>
+        <table class="widget-table">
+          <thead>
+            <tr>
+              <th>ক্যাটাগরি</th>
+              <th>ব্যবহৃত Widgets / কোড কম্পোনেন্ট</th>
+              <th>কার্যপ্রণালী ও বিবরণ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Profile Card</b></td>
+              <td>
+                <span class="widget-tag">Container (LinearGradient)</span>
+                <span class="widget-tag">CircleAvatar</span>
+                <span class="widget-tag">Row / Column</span>
+              </td>
+              <td>প্রার্থীর নাম, মডিউল (Academic / General) ও স্ট্যাটাস ব্যাজ।</td>
+            </tr>
+            <tr>
+              <td><b>Skill Breakdown</b></td>
+              <td>
+                <span class="widget-tag">LinearPercentIndicator / LinearProgressIndicator</span>
+                <span class="widget-tag">RichText</span>
+              </td>
+              <td>Speaking, Listening, Reading, Writing-এর অর্জিত নির্ভুলতা ও ব্যান্ড প্রোগ্রেস।</td>
+            </tr>
+            <tr>
+              <td><b>Test History</b></td>
+              <td>
+                <span class="widget-tag">ListView.separated</span>
+                <span class="widget-tag">ListTile</span>
+                <span class="widget-tag">Divider</span>
+              </td>
+              <td>পূর্বের টেস্টগুলোর তারিখ, র’ স্কোর এবং অফিসিয়াল ব্যান্ডের স্থায়ী হিস্ট্রি।</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 8. Question Bank Screen -->
+    <div class="screen-card">
+      <div class="screen-header">
+        <div class="screen-title">
+          <span>📚</span> 8. IELTS Question Bank Screen
+        </div>
+        <div class="file-path">lib/featcher/view/ProfileScreen/ielts_question_bank_screen.dart</div>
+      </div>
+      <div class="screen-content">
+        <div class="screen-purpose">
+          <b>কাজের উদ্দেশ্য:</b> ৪টি স্কিলের শত শত প্রমিত প্রশ্ন ও মডেল উত্তর সংগ্রহশালা। পিল সেগমেন্টেড ট্যাব বার এবং টেক্সট ওভারফ্লো ফিক্সড রেসপনসিভ লেআউট।
+        </div>
+        <table class="widget-table">
+          <thead>
+            <tr>
+              <th>ক্যাটাগরি</th>
+              <th>ব্যবহৃত Widgets / কোড কম্পোনেন্ট</th>
+              <th>কার্যপ্রণালী ও বিবরণ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Responsive Tab Bar</b></td>
+              <td>
+                <span class="widget-tag">TabBar</span>
+                <span class="widget-tag">Flexible</span>
+                <span class="widget-tag">Text (overflow: ellipsis)</span>
+              </td>
+              <td>১৪ পিক্সেল টেক্সট ওভারফ্লো সমস্যার স্থায়ী সমাধান ও স্মুথ ট্যাব সিলেক্টর।</td>
+            </tr>
+            <tr>
+              <td><b>Accordion Items</b></td>
+              <td>
+                <span class="widget-tag">ExpansionTile</span>
+                <span class="widget-tag">IconButton (Bookmark)</span>
+                <span class="widget-tag">SelectableText</span>
+              </td>
+              <td>প্রশ্ন ড্রপডাউন করে Band 9 স্যাম্পল উত্তর পড়া এবং পছন্দের কিউ কার্ড বুকমার্ক করা।</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      Generated for <b>IELTS Master Preparation App</b> • Built with Flutter, GetX & Google Gemini 3.6 Flash
+    </footer>
+
+  </div>
+
+</body>
+</html>

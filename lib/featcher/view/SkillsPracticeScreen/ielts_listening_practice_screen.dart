@@ -314,13 +314,13 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF00382E), Color(0xFF005A4E), Color(0xFF00796B)],
+                  colors: [Color(0xFF193B57), Color(0xFF24537B), Color(0xFF2E6FA0)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF004D40).withOpacity(0.28),
+                    color: const Color(0xFF2E6FA0).withOpacity(0.28),
                     blurRadius: 16,
                     offset: const Offset(0, 8),
                   ),
@@ -341,11 +341,11 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                         child: Row(
                           children: [
                             const Text(
-                              "🔊 AUDIBLE CAMBRIDGE TRACK (EN-GB)",
+                              "🔊 AUDIBLE EXAM TRACK (EN-GB)",
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF80CBC4),
+                                color: Color(0xFF90C1E5),
                                 letterSpacing: 0.5,
                               ),
                             ),
@@ -354,7 +354,7 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                               const SizedBox(
                                 height: 8,
                                 width: 8,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF80CBC4)),
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF90C1E5)),
                               ),
                             ],
                           ],
@@ -401,7 +401,7 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                         height: _isPlaying ? (h * (0.6 + (index % 3) * 0.2)) : h * 0.5,
                         width: 3.5,
                         decoration: BoxDecoration(
-                          color: active ? const Color(0xFF80CBC4) : Colors.white.withOpacity(0.3),
+                          color: active ? const Color(0xFF90C1E5) : Colors.white.withOpacity(0.3),
                           borderRadius: BorderRadius.circular(3),
                         ),
                       );
@@ -414,7 +414,7 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
                       overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
                       trackHeight: 4,
-                      activeTrackColor: const Color(0xFF80CBC4),
+                      activeTrackColor: const Color(0xFF90C1E5),
                       inactiveTrackColor: Colors.white.withOpacity(0.25),
                       thumbColor: Colors.white,
                     ),
@@ -435,11 +435,11 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                       children: [
                         Text(
                           _formatDuration(_position),
-                          style: const TextStyle(color: Color(0xFFB2DFDB), fontSize: 11, fontWeight: FontWeight.w600),
+                          style: const TextStyle(color: Color(0xFFB0D5EE), fontSize: 11, fontWeight: FontWeight.w600),
                         ),
                         Text(
                           _formatDuration(_duration),
-                          style: const TextStyle(color: Color(0xFFB2DFDB), fontSize: 11, fontWeight: FontWeight.w600),
+                          style: const TextStyle(color: Color(0xFFB0D5EE), fontSize: 11, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -464,7 +464,7 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                           ),
                           child: Icon(
                             _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                            color: const Color(0xFF00695C),
+                            color: const Color(0xFF2E6FA0),
                             size: 34,
                           ),
                         ),
@@ -491,7 +491,7 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
               initiallyExpanded: true,
               title: const Text(
                 "📜 Spoken Audio Transcript / Tapescript",
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF00695C)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF2E6FA0)),
               ),
               children: [
                 Padding(
@@ -569,10 +569,10 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                           decoration: BoxDecoration(
-                            color: isChosen ? const Color(0xFFE0F2F1) : const Color(0xFFF8FAFC),
+                            color: isChosen ? const Color(0xFF2E6FA0).withOpacity(0.12) : const Color(0xFFF8FAFC),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: isChosen ? const Color(0xFF00695C) : const Color(0xFFE2E8F0),
+                              color: isChosen ? const Color(0xFF2E6FA0) : const Color(0xFFE2E8F0),
                             ),
                           ),
                           child: Row(
@@ -580,7 +580,7 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                               Icon(
                                 isChosen ? Icons.radio_button_checked : Icons.radio_button_off,
                                 size: 18,
-                                color: isChosen ? const Color(0xFF00695C) : Colors.grey.shade400,
+                                color: isChosen ? const Color(0xFF2E6FA0) : Colors.grey.shade400,
                               ),
                               SizedBox(width: 10.w),
                               Expanded(
@@ -589,7 +589,7 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: isChosen ? FontWeight.w700 : FontWeight.w500,
-                                    color: isChosen ? const Color(0xFF004D40) : const Color(0xFF334155),
+                                    color: isChosen ? const Color(0xFF193B57) : const Color(0xFF334155),
                                   ),
                                 ),
                               ),
@@ -640,6 +640,7 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                       score: correctCount,
                       totalQuestions: _questions.length,
                       bandScore: band,
+                      isMockExam: widget.sectionTitle.toLowerCase().contains("mock") || widget.sectionNumber.toLowerCase().contains("mock"),
                     );
                     ctrl.saveToLocalStorage();
                   }
@@ -647,7 +648,7 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                     "Listening Test Evaluated! 🎯",
                     "Score: $correctCount / ${_questions.length} • Band $band saved & Dashboard checklist updated!",
                     snackPosition: SnackPosition.TOP,
-                    backgroundColor: const Color(0xFF004D40),
+                    backgroundColor: const Color(0xFF193B57),
                     colorText: Colors.white,
                   );
                 }
@@ -656,11 +657,11 @@ class _IeltsListeningPracticeScreenState extends State<IeltsListeningPracticeScr
                 height: 48.h,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00695C),
+                  color: const Color(0xFF2E6FA0),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF00695C).withOpacity(0.28),
+                      color: const Color(0xFF2E6FA0).withOpacity(0.28),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),

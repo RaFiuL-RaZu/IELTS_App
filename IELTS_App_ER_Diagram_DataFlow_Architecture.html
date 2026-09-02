@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IELTS App - ER Diagram & Data Flow Architecture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00695C;
+      --primary-dark: #004D40;
+      --primary-light: #E0F2F1;
+      --speaking: #C8A96B;
+      --speaking-dark: #8A6B32;
+      --speaking-light: #FFFBEB;
+      --listening: #2E6FA0;
+      --listening-dark: #1E4E73;
+      --listening-light: #EFF6FF;
+      --reading: #91AE6E;
+      --reading-dark: #4A6431;
+      --reading-light: #F0FDF4;
+      --writing: #325E6A;
+      --writing-dark: #1E3B43;
+      --writing-light: #F0FDF9;
+      --ai-purple: #7C3AED;
+      --ai-purple-light: #F5F3FF;
+      --dark: #0F172A;
+      --slate: #475569;
+      --light-bg: #F8FAFC;
+      --card-border: #E2E8F0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif;
+    }
+
+    body {
+      background: #F1F5F9;
+      color: var(--dark);
+      padding: 30px 20px 80px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Print & Action Bar */
+    .action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 16px 24px;
+      border-radius: 18px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      border: 1px solid var(--card-border);
+    }
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+      border-radius: 30px;
+    }
+    .btn-print {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0, 105, 92, 0.3);
+      transition: all 0.2s;
+    }
+    .btn-print:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(0, 105, 92, 0.4);
+    }
+
+    /* Header */
+    .header-card {
+      background: linear-gradient(135deg, #0F172A, #1E293B);
+      color: white;
+      padding: 40px 36px;
+      border-radius: 24px;
+      margin-bottom: 36px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    .header-card h1 {
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+    .header-card p {
+      font-size: 16px;
+      color: #94A3B8;
+      max-width: 800px;
+      line-height: 1.7;
+    }
+
+    /* Section Title */
+    .section-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-title span.tag {
+      background: #E2E8F0;
+      color: var(--slate);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    /* Visual Architecture Flowchart */
+    .flowchart-container {
+      background: white;
+      padding: 36px 28px;
+      border-radius: 24px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.03);
+      margin-bottom: 40px;
+      overflow-x: auto;
+    }
+
+    /* Step Pipeline */
+    .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+    }
+
+    .pipeline-step {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 24px;
+      background: var(--light-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 24px;
+      transition: all 0.2s;
+    }
+    .pipeline-step:hover {
+      border-color: var(--primary);
+      box-shadow: 0 6px 18px rgba(0, 105, 92, 0.08);
+      background: white;
+    }
+
+    .step-badge {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      border-right: 2px dashed #CBD5E1;
+      padding-right: 16px;
+    }
+    .step-num {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+    .step-name {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--dark);
+    }
+    .step-entity-tag {
+      display: inline-block;
+      margin-top: 8px;
+      background: #E2E8F0;
+      color: #334155;
+      font-size: 11px;
+      font-family: monospace;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .step-details {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .step-desc {
+      font-size: 14.5px;
+      color: #334155;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+    .flow-arrow-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      padding: 6px 14px;
+      border-radius: 10px;
+      border: 1px solid #E2E8F0;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      width: fit-content;
+    }
+
+    /* ER Table Cards Grid */
+    .er-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .entity-card {
+      background: white;
+      border-radius: 20px;
+      border: 1px solid var(--card-border);
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+      transition: transform 0.2s;
+    }
+    .entity-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+    }
+
+    .entity-header {
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      font-weight: 900;
+      font-size: 16px;
+    }
+    .header-user { background: linear-gradient(135deg, #0F172A, #334155); }
+    .header-checklist { background: linear-gradient(135deg, #00695C, #004D40); }
+    .header-question { background: linear-gradient(135deg, #2E6FA0, #1E4E73); }
+    .header-test { background: linear-gradient(135deg, #325E6A, #1E3B43); }
+    .header-ai { background: linear-gradient(135deg, #7C3AED, #5B21B6); }
+    .header-skill { background: linear-gradient(135deg, #8A6B32, #C8A96B); }
+    .header-audio { background: linear-gradient(135deg, #C8A96B, #8A6B32); }
+
+    .entity-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .entity-table th {
+      background: #F8FAFC;
+      text-align: left;
+      padding: 10px 16px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748B;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .entity-table td {
+      padding: 11px 16px;
+      border-bottom: 1px solid #F1F5F9;
+      color: #334155;
+    }
+    .entity-table tr:last-child td {
+      border-bottom: none;
+    }
+    .field-key {
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-pk {
+      background: #FEE2E2;
+      color: #DC2626;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .badge-fk {
+      background: #EFF6FF;
+      color: #2563EB;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .field-type {
+      font-family: monospace;
+      color: #64748B;
+      font-size: 11.5px;
+    }
+
+    /* Relationship Summary Matrix */
+    .matrix-card {
+      background: white;
+      padding: 28px;
+      border-radius: 20px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+      margin-bottom: 40px;
+    }
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    .matrix-table th {
+      background: #F8FAFC;
+      text-align: left;
+      padding: 14px 18px;
+      font-weight: 800;
+      color: var(--dark);
+      border-bottom: 2px solid var(--card-border);
+    }
+    .matrix-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid #F1F5F9;
+      color: #334155;
+    }
+    .cardinality-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-weight: 800;
+      background: #F1F5F9;
+      color: #0F172A;
+      font-size: 12px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      color: #94A3B8;
+      font-size: 13px;
+      margin-top: 40px;
+    }
+
+    /* PRINT STYLES */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        color: black;
+      }
+      .action-bar, .btn-print {
+        display: none !important;
+      }
+      .header-card {
+        background: #0F172A !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .pipeline-step, .entity-card, .matrix-card, .flowchart-container {
+        box-shadow: none !important;
+        page-break-inside: avoid;
+        border: 1px solid #CBD5E1 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .entity-header {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Action Bar / Print Button -->
+    <div class="action-bar">
+      <div class="badge-pill">
+        <span>📑</span> Official IELTS App Software Architecture
+      </div>
+      <button class="btn-print" onclick="window.print()">
+        <span>🖨️</span> Save as PDF / Print Document
+      </button>
+    </div>
+
+    <!-- Header Card -->
+    <div class="header-card">
+      <h1>IELTS Master Preparation App</h1>
+      <p>
+        সম্পূর্ণ সিস্টেম আর্কিটেকচার, ডেটাবেস এনটিটি রিলেশনশিপ (ER Diagram) এবং স্টেপ-বাই-স্টেপ ডেটা ফ্লো প্রসেস—লোকাল স্টেট ম্যানেজমেন্ট থেকে শুরু করে লাইভ Gemini 3.6 Flash Multimodal AI মূল্যায়ন পর্যন্ত।
+      </p>
+    </div>
+
+    <!-- Section 1: Step-by-Step Data Flow Pipeline -->
+    <div class="section-title">
+      <span>🔄</span> Step-by-Step Data Flow Architecture
+      <span class="tag">Process Pipeline</span>
+    </div>
+
+    <div class="flowchart-container">
+      <div class="pipeline">
+
+        <!-- Step 1 -->
+        <div class="pipeline-step">
+          <div class="step-badge">
+            <div class="step-num">Step 01</div>
+            <div class="step-name">User Auth & Profile</div>
+            <div class="step-entity-tag">CANDIDATE_PROFILE</div>
+          </div>
+          <div class="step-details">
+            <div class="step-desc">
+              ইউজার লগইন বা সাইন আপ করলে প্রার্থীর প্রোফাইল স্টেট ইনিশিয়ালাইজ হয়। এখানে প্রার্থীর নাম, টার্গেট ব্যান্ড (যেমন 8.0), পরীক্ষার মডিউল (Academic / General), এবং পরীক্ষার বাকি দিন সংখ্যা সংরক্ষিত থাকে।
+            </div>
+            <div class="flow-arrow-box">
+              <span>➡️ Flow Next:</span> <b>DAILY_CHECKLIST</b> এবং <b>SKILL_PERFORMANCE</b> ইনিশিয়ালাইজেশন
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="pipeline-step">
+          <div class="step-badge">
+            <div class="step-num">Step 02</div>
+            <div class="step-name">Daily Habit Reset</div>
+            <div class="step-entity-tag">DAILY_CHECKLIST</div>
+          </div>
+          <div class="step-details">
+            <div class="step-desc">
+              প্রতিদিন অ্যাপ ওপেন করলে <code>checkAndResetDailyChecklist()</code> মেথড চালিত হয়। যদি ক্যালেন্ডারের তারিখ পরিবর্তিত হয়, তবে ৪টি চেকলিস্ট টাস্ক (Speaking, Listening, Reading, Writing) ফ্রেশভাবে রিসেট হয়ে <code>0 / 4 Completed</code> হয়ে যায়। একই দিনে থাকলে প্রোগ্রেস সংরক্ষিত থাকে।
+            </div>
+            <div class="flow-arrow-box">
+              <span>➡️ Flow Next:</span> ইউজার কোয়েশ্চেন ব্যাংক বা মডিউলে গিয়ে প্র্যাকটিস শুরু করে (<b>QUESTION_BANK</b>)
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="pipeline-step">
+          <div class="step-badge">
+            <div class="step-num">Step 03</div>
+            <div class="step-name">Question Repository</div>
+            <div class="step-entity-tag">QUESTION_BANK</div>
+          </div>
+          <div class="step-details">
+            <div class="step-desc">
+              ৪টি প্রমিত মডিউলের জন্য ডেডিকেটেড প্রশ্ন সংগ্রহশালা:
+              <br>• 🎤 <b>Speaking:</b> Part 1, 2 (Cue Cards with Bullet points) & Part 3
+              <br>• 🎧 <b>Listening:</b> Section 1–4 Audio Passages, Question audio timestamps
+              <br>• 📖 <b>Reading:</b> 20-min timed passages with True/False/Not Given & Fill blanks
+              <br>• ✍️ <b>Writing:</b> Task 1 Report & Task 2 Discursive prompts with Band 9 models
+            </div>
+            <div class="flow-arrow-box">
+              <span>➡️ Flow Next:</span> পরীক্ষা প্রদান ও উত্তর সাবমিশন (<b>TEST_RESULT</b>)
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="pipeline-step">
+          <div class="step-badge">
+            <div class="step-num">Step 04</div>
+            <div class="step-name">Exam Execution</div>
+            <div class="step-entity-tag">TEST_RESULT</div>
+          </div>
+          <div class="step-details">
+            <div class="step-desc">
+              প্রার্থী পরীক্ষা সম্পন্ন করলে রেন্ডারিং ইঞ্জিন র’ স্কোর ও একিউরেসি গণনা করে। 
+              <br>• Listening & Reading: অফিসিয়াল ক্যামব্রিজ ৪০-কোয়েশ্চেন কনভার্সন টেবিল অনুযায়ী স্বয়ংক্রিয়ভাবে ব্যান্ড হিসাব হয়।
+              <br>• Speaking & Writing: সাবমিট করা টেক্সট অথবা রেকর্ড করা অডিও ফাইলটি মূল্যায়নের জন্য AI ইঞ্জিনে পাস হয়।
+            </div>
+            <div class="flow-arrow-box">
+              <span>➡️ Flow Next:</span> AI মূল্যায়নের জন্য প্রেরণ (<b>AI_EVALUATION_LOG</b>)
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="pipeline-step">
+          <div class="step-badge">
+            <div class="step-num">Step 05</div>
+            <div class="step-name">Gemini AI Engine</div>
+            <div class="step-entity-tag">AI_EVALUATION_LOG</div>
+          </div>
+          <div class="step-details">
+            <div class="step-desc">
+              <b>Google Gemini 3.6 Flash</b> মডেল সিনিয়র ক্যামব্রিজ আইইএলটিএস এক্সামিনার হিসেবে ৪টি ক্রাইটেরিয়া বিশ্লেষণ করে:
+              <br>• <b>Writing:</b> Task Achievement (TA), Coherence & Cohesion (CC), Lexical Resource (LR), Grammar (GRA) এবং বাক্যভিত্তিক ভুল সংশোধন ও উন্নত কোলোকেশন প্রদান।
+              <br>• <b>Speaking (Multimodal Audio):</b> রেকর্ডকৃত <code>.m4a</code> অডিও শুনে Fluency & Coherence, Pronunciation, Grammar, ও Vocabulary বিশ্লেষণ করে রিয়েল ব্যান্ড ও অডিও ট্রান্সক্রিপ্ট প্রদান করে।
+            </div>
+            <div class="flow-arrow-box">
+              <span>➡️ Flow Next:</span> অ্যানালিটিক্স আপডেট ও ড্যাশবোর্ড সিঙ্ক (<b>SKILL_PERFORMANCE</b>)
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="pipeline-step">
+          <div class="step-badge">
+            <div class="step-num">Step 06</div>
+            <div class="step-name">Analytics Aggregation</div>
+            <div class="step-entity-tag">SKILL_PERFORMANCE</div>
+          </div>
+          <div class="step-details">
+            <div class="step-desc">
+              AI থেকে প্রাপ্ত স্কোর এবং লিসেনিং/রিডিংয়ের ফলাফল একত্রিত হয়ে প্রার্থীর স্কিল প্রোগ্রেসে আপডেট হয়। ওভারঅল আইইএলটিএস ব্যান্ডের রাউন্ডিং রুল (Cambridge Rounding to nearest 0.5) কার্যকর হয়ে হোমস্ক্রিন ড্যাশবোর্ড ও প্রোফাইল অ্যানালিটিক্সে চিরস্থায়ীভাবে সংরক্ষিত হয়।
+            </div>
+            <div class="flow-arrow-box">
+              <span>✅ Final State:</span> হোমস্ক্রিন চেকলিস্টে টিক চিহ্ন এবং কমপ্লিট অ্যানালিটিক্স হিস্ট্রি আপডেট
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Section 2: Entity Relationship Tables -->
+    <div class="section-title">
+      <span>📐</span> Database Entities & Schema Definitions
+      <span class="tag">7 Core Models</span>
+    </div>
+
+    <div class="er-grid">
+
+      <!-- 1. CANDIDATE_PROFILE -->
+      <div class="entity-card">
+        <div class="entity-header header-user">
+          <span>👤 CANDIDATE_PROFILE</span>
+          <span style="font-size: 11px; opacity: 0.8;">Parent Entity</span>
+        </div>
+        <table class="entity-table">
+          <thead>
+            <tr><th>Field Name</th><th>Data Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="field-key"><span class="badge-pk">PK</span> user_id</span></td>
+              <td class="field-type">VARCHAR(64)</td>
+              <td>প্রার্থীর ইউনিক আইডি / UUID</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">candidate_name</span></td>
+              <td class="field-type">VARCHAR(100)</td>
+              <td>প্রার্থীর সম্পূর্ণ নাম</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">email</span></td>
+              <td class="field-type">VARCHAR(150)</td>
+              <td>রেজিস্টার্ড ইমেইল অ্যাড্রেস</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">target_band</span></td>
+              <td class="field-type">DECIMAL(2,1)</td>
+              <td>টার্গেট ব্যান্ড স্কোর (e.g., 8.0)</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">exam_date</span></td>
+              <td class="field-type">DATE</td>
+              <td>আইইএলটিএস পরীক্ষার সম্ভাব্য তারিখ</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">exam_module</span></td>
+              <td class="field-type">VARCHAR(20)</td>
+              <td>Academic অথবা General Training</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">overall_band</span></td>
+              <td class="field-type">DECIMAL(2,1)</td>
+              <td>গড় অফিসিয়াল ক্যামব্রিজ ব্যান্ড</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 2. DAILY_CHECKLIST -->
+      <div class="entity-card">
+        <div class="entity-header header-checklist">
+          <span>📅 DAILY_CHECKLIST</span>
+          <span style="font-size: 11px; opacity: 0.8;">Auto Daily Reset</span>
+        </div>
+        <table class="entity-table">
+          <thead>
+            <tr><th>Field Name</th><th>Data Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="field-key"><span class="badge-pk">PK</span> checklist_id</span></td>
+              <td class="field-type">VARCHAR(64)</td>
+              <td>ইউনিক চেকলিস্ট লগ আইডি</td>
+            </tr>
+            <tr>
+              <td><span class="field-key"><span class="badge-fk">FK</span> user_id</span></td>
+              <td class="field-type">VARCHAR(64)</td>
+              <td>রেফারেন্স CANDIDATE_PROFILE</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">checklist_date</span></td>
+              <td class="field-type">DATE</td>
+              <td>ট্র্যাকিং তারিখ (YYYY-MM-DD)</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">speaking_done</span></td>
+              <td class="field-type">BOOLEAN</td>
+              <td>স্পিকিং কিউ কার্ড সম্পন্ন হয়েছে কিনা</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">listening_done</span></td>
+              <td class="field-type">BOOLEAN</td>
+              <td>লিসেনিং অডিও টেস্ট সম্পন্ন হয়েছে কিনা</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">reading_done</span></td>
+              <td class="field-type">BOOLEAN</td>
+              <td>রিডিং প্যাসেজ টেস্ট সম্পন্ন হয়েছে কিনা</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">writing_done</span></td>
+              <td class="field-type">BOOLEAN</td>
+              <td>রাইটিং টাস্ক সম্পন্ন হয়েছে কিনা</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 3. QUESTION_BANK -->
+      <div class="entity-card">
+        <div class="entity-header header-question">
+          <span>📚 QUESTION_BANK</span>
+          <span style="font-size: 11px; opacity: 0.8;">Content Engine</span>
+        </div>
+        <table class="entity-table">
+          <thead>
+            <tr><th>Field Name</th><th>Data Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="field-key"><span class="badge-pk">PK</span> question_id</span></td>
+              <td class="field-type">VARCHAR(64)</td>
+              <td>প্রশ্নের ইউনিক আইডি</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">skill</span></td>
+              <td class="field-type">ENUM</td>
+              <td>Speaking, Listening, Reading, Writing</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">topic</span></td>
+              <td class="field-type">VARCHAR(100)</td>
+              <td>টপিক / বিষয়বস্তু</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">part_section</span></td>
+              <td class="field-type">VARCHAR(30)</td>
+              <td>Part 1/2/3, Section 1/2/3/4, Task 1/2</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">prompt_text</span></td>
+              <td class="field-type">TEXT</td>
+              <td>প্রশ্নের বিস্তারিত প্রম্পট / কিউ কার্ড</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">media_url</span></td>
+              <td class="field-type">VARCHAR(255)</td>
+              <td>অডিও ফাইল পাথ / প্যাসেজ টেক্সট</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">model_answer</span></td>
+              <td class="field-type">TEXT</td>
+              <td>Band 9.0 অফিসিয়াল স্যাম্পল উত্তর</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4. TEST_RESULT -->
+      <div class="entity-card">
+        <div class="entity-header header-test">
+          <span>📝 TEST_RESULT</span>
+          <span style="font-size: 11px; opacity: 0.8;">Exam Records</span>
+        </div>
+        <table class="entity-table">
+          <thead>
+            <tr><th>Field Name</th><th>Data Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="field-key"><span class="badge-pk">PK</span> result_id</span></td>
+              <td class="field-type">VARCHAR(64)</td>
+              <td>টেস্ট ফলাফলের ইউনিক আইডি</td>
+            </tr>
+            <tr>
+              <td><span class="field-key"><span class="badge-fk">FK</span> user_id</span></td>
+              <td class="field-type">VARCHAR(64)</td>
+              <td>রেফারেন্স CANDIDATE_PROFILE</td>
+            </tr>
+            <tr>
+              <td><span class="field-key"><span class="badge-fk">FK</span> question_id</span></td>
+              <td class="field-type">VARCHAR(64)</td>
+              <td>রেফারেন্স QUESTION_BANK (Optional)</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">skill</span></td>
+              <td class="field-type">VARCHAR(20)</td>
+              <td>টেস্ট স্কিল ক্যাটাগরি</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">score</span></td>
+              <td class="field-type">INT</td>
+              <td>র’ স্কোর অথবা লিখিত শব্দ সংখ্যা</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">accuracy</span></td>
+              <td class="field-type">DECIMAL(4,1)</td>
+              <td>অর্জিত একিউরেসি শতকরা হার (%)</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">band_score</span></td>
+              <td class="field-type">DECIMAL(2,1)</td>
+              <td>অর্জিত অফিসিয়াল ব্যান্ড (1.0 - 9.0)</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">is_mock_exam</span></td>
+              <td class="field-type">BOOLEAN</td>
+              <td>প্র্যাকটিস নাকি পূর্ণাঙ্গ মক টেস্ট</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 5. AI_EVALUATION_LOG -->
+      <div class="entity-card">
+        <div class="entity-header header-ai">
+          <span>🤖 AI_EVALUATION_LOG</span>
+          <span style="font-size: 11px; opacity: 0.8;">Gemini 3.6 Flash</span>
+        </div>
+        <table class="entity-table">
+          <thead>
+            <tr><th>Field Name</th><th>Data Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="field-key"><span class="badge-pk">PK</span> eval_id</span></td>
+              <td class="field-type">VARCHAR(64)</td>
+              <td>AI মূল্যায়ন লগের ইউনিক আইডি</td>
+            </tr>
+            <tr>
+              <td><span class="field-key"><span class="badge-fk">FK</span> result_id</span></td>
+              <td class="field-type">VARCHAR(64)</td>
+              <td>রেফারেন্স TEST_RESULT</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">model_used</span></td>
+              <td class="field-type">VARCHAR(50)</td>
+              <td>gemini-3.6-flash</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">media_type</span></td>
+              <td class="field-type">VARCHAR(30)</td>
+              <td>text / audio_m4a</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">overall_band</span></td>
+              <td class="field-type">DECIMAL(2,1)</td>
+              <td>AI সিনিয়র এক্সামিনার ব্যান্ড</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">criterion_scores</span></td>
+              <td class="field-type">JSON</td>
+              <td>TA/FC, CC/LR, LR/GRA, GRA/PR ব্যান্ড</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">examiner_summary</span></td>
+              <td class="field-type">TEXT</td>
+              <td>এক্সামিনারের পর্যবেক্ষণ মন্তব্য</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">corrections_json</span></td>
+              <td class="field-type">JSON</td>
+              <td>ব্যাকরণগত ভুল ও বাক্যের সঠিক রূপ</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">upgrades_json</span></td>
+              <td class="field-type">JSON</td>
+              <td>Band 8.5+ একাডেমিক কোলোকেশন</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 6. SKILL_PERFORMANCE -->
+      <div class="entity-card">
+        <div class="entity-header header-skill">
+          <span>📊 SKILL_PERFORMANCE</span>
+          <span style="font-size: 11px; opacity: 0.8;">Analytics Aggregator</span>
+        </div>
+        <table class="entity-table">
+          <thead>
+            <tr><th>Field Name</th><th>Data Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="field-key"><span class="badge-pk">PK</span> perf_id</span></td>
+              <td class="field-type">VARCHAR(64)</td>
+              <td>ইউনিক স্কিল পারফরম্যান্স আইডি</td>
+            </tr>
+            <tr>
+              <td><span class="field-key"><span class="badge-fk">FK</span> user_id</span></td>
+              <td class="field-type">VARCHAR(64)</td>
+              <td>রেফারেন্স CANDIDATE_PROFILE</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">skill_type</span></td>
+              <td class="field-type">ENUM</td>
+              <td>Speaking, Listening, Reading, Writing</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">current_band</span></td>
+              <td class="field-type">DECIMAL(2,1)</td>
+              <td>সর্বশেষ অর্জিত স্কিল ব্যান্ড</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">accuracy_pct</span></td>
+              <td class="field-type">DECIMAL(4,1)</td>
+              <td>গড় নির্ভুলতা শতকরা হার (%)</td>
+            </tr>
+            <tr>
+              <td><span class="field-key">tests_taken</span></td>
+              <td class="field-type">INT</td>
+              <td>মোট সম্পন্ন করা টেস্ট সংখ্যা</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Section 3: Cardinality & Relationships Matrix -->
+    <div class="section-title">
+      <span>🔗</span> Cardinality & Relationship Matrix
+      <span class="tag">Mapping Rules</span>
+    </div>
+
+    <div class="matrix-card">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>উৎস সত্তা (Source)</th>
+            <th>সম্পর্ক (Relation)</th>
+            <th>টার্গেট সত্তা (Target)</th>
+            <th>কার্ডিনালিটি</th>
+            <th>কার্যপ্রণালী ও বিবরণ (Business Logic)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>CANDIDATE_PROFILE</b></td>
+            <td>tracks daily</td>
+            <td><b>DAILY_CHECKLIST</b></td>
+            <td><span class="cardinality-badge">1 : 1</span></td>
+            <td>প্রতিটি প্রার্থীর জন্য প্রতিদিন একটি সক্রিয় চেকলিস্ট রেকর্ড থাকে, যা নতুন ক্যালেন্ডার ডে-তে স্বয়ংক্রিয়ভাবে ক্লিন হয়ে রিসেট হয়।</td>
+          </tr>
+          <tr>
+            <td><b>CANDIDATE_PROFILE</b></td>
+            <td>maintains</td>
+            <td><b>SKILL_PERFORMANCE</b></td>
+            <td><span class="cardinality-badge">1 : 4</span></td>
+            <td>প্রতিটি ইউজারের ৪টি নির্দিষ্ট আইইএলটিএস স্কিলের (Speaking, Listening, Reading, Writing) ব্যান্ড স্কোর ও অ্যানালিটিক্স হিসেব রাখে।</td>
+          </tr>
+          <tr>
+            <td><b>CANDIDATE_PROFILE</b></td>
+            <td>submits</td>
+            <td><b>TEST_RESULT</b></td>
+            <td><span class="cardinality-badge">1 : N</span></td>
+            <td>একজন প্রার্থী পুরো প্রস্তুতি পর্বে অসংখ্য প্র্যাকটিস সেশন এবং মক টেস্ট দিতে পারে।</td>
+          </tr>
+          <tr>
+            <td><b>TEST_RESULT</b></td>
+            <td>evaluated by</td>
+            <td><b>AI_EVALUATION_LOG</b></td>
+            <td><span class="cardinality-badge">1 : 1</span></td>
+            <td>প্রতিটি Writing বা Speaking সাবমিশনের বিপরীতে Gemini AI একটি বিস্তারিত এক্সামিনার ইভ্যালুয়েশন শিট তৈরি করে রেজাল্টের সাথে লিঙ্ক করে।</td>
+          </tr>
+          <tr>
+            <td><b>QUESTION_BANK</b></td>
+            <td>utilized in</td>
+            <td><b>TEST_RESULT</b></td>
+            <td><span class="cardinality-badge">1 : N</span></td>
+            <td>কোয়েশ্চেন ব্যাংকের একটি প্রশ্ন বা কিউ কার্ড একাধিকবার প্র্যাকটিস বা রি-টেস্ট হিসেবে ব্যবহৃত হতে পারে।</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer>
+      Generated for <b>IELTS Master Preparation & AI Examiner App</b> • Built with Google Gemini 3.6 Flash & Flutter
+    </footer>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IELTS App - Interactive ER Diagram</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #F8F9FA;
+      background-image: radial-gradient(#CBD5E1 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
+      color: #1E293B;
+      min-height: 100vh;
+      overflow-x: auto;
+      overflow-y: auto;
+      padding-bottom: 80px;
+      user-select: auto !important;
+    }
+
+    /* Clean Action Bar (No Miro branding) */
+    .top-action-bar {
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 58px;
+      background: white;
+      border-bottom: 1px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .action-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+    }
+    .action-logo-badge {
+      background: #00695C;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+    .action-right {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-act {
+      background: white;
+      border: 1px solid #CBD5E1;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .btn-act:hover { background: #F1F5F9; border-color: #94A3B8; }
+    .btn-add {
+      background: #4262FF;
+      color: white;
+      border-color: #4262FF;
+    }
+    .btn-add:hover { background: #334ECC; }
+    .btn-print {
+      background: #0F172A;
+      color: white;
+      border-color: #0F172A;
+    }
+    .btn-print:hover { background: #1E293B; }
+
+    /* Main Canvas Board */
+    .canvas-board {
+      position: relative;
+      width: 1440px;
+      height: 980px;
+      margin: 25px auto;
+      background: white;
+      border-radius: 24px;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.05);
+      padding: 40px;
+    }
+
+    /* Top Center Pill Title Banner */
+    .top-banner-title {
+      position: absolute;
+      top: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #FFD580;
+      color: #1E293B;
+      font-size: 18px;
+      font-weight: 800;
+      padding: 10px 36px;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(255, 213, 128, 0.4);
+      letter-spacing: -0.2px;
+      z-index: 20;
+      border: none;
+      text-align: center;
+      outline: none;
+    }
+
+    /* SVG Layer for Crow's Foot Connector Lines */
+    .svg-connections {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* 3-Column Entity Cards */
+    .entity-card {
+      position: absolute;
+      width: 300px;
+      border-radius: 16px;
+      border: 2px solid;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+      overflow: hidden;
+      z-index: 10;
+      background: white;
+      transition: box-shadow 0.15s;
+    }
+    .entity-card.dragging {
+      opacity: 0.95;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+
+    /* Color Themes */
+    /* 1. Orange Theme (Candidate Profile) */
+    .theme-orange {
+      background: #FFEDD5;
+      border-color: #F97316;
+    }
+    .theme-orange .card-header {
+      border-bottom: 2px solid #F97316;
+      color: #7C2D12;
+    }
+    .theme-orange .cell-border {
+      border-right: 1.5px solid #F97316;
+    }
+    .theme-orange .row-border {
+      border-bottom: 1px solid rgba(249, 115, 22, 0.25);
+    }
+
+    /* 2. Violet Theme (Test Result) */
+    .theme-violet {
+      background: #E0E7FF;
+      border-color: #6366F1;
+    }
+    .theme-violet .card-header {
+      border-bottom: 2px solid #6366F1;
+      color: #312E81;
+    }
+    .theme-violet .cell-border {
+      border-right: 1.5px solid #6366F1;
+    }
+    .theme-violet .row-border {
+      border-bottom: 1px solid rgba(99, 102, 241, 0.25);
+    }
+
+    /* 3. Purple Theme (Question Bank) */
+    .theme-purple {
+      background: #EDE9FE;
+      border-color: #8B5CF6;
+    }
+    .theme-purple .card-header {
+      border-bottom: 2px solid #8B5CF6;
+      color: #4C1D95;
+    }
+    .theme-purple .cell-border {
+      border-right: 1.5px solid #8B5CF6;
+    }
+    .theme-purple .row-border {
+      border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+    }
+
+    /* 4. Teal Theme (Daily Checklist) */
+    .theme-teal {
+      background: #CCFBF1;
+      border-color: #0D9488;
+    }
+    .theme-teal .card-header {
+      border-bottom: 2px solid #0D9488;
+      color: #134E4A;
+    }
+    .theme-teal .cell-border {
+      border-right: 1.5px solid #0D9488;
+    }
+    .theme-teal .row-border {
+      border-bottom: 1px solid rgba(13, 148, 136, 0.25);
+    }
+
+    /* 5. Pink Theme (AI Evaluation Log) */
+    .theme-pink {
+      background: #FFE4EC;
+      border-color: #F43F5E;
+    }
+    .theme-pink .card-header {
+      border-bottom: 2px solid #F43F5E;
+      color: #881337;
+    }
+    .theme-pink .cell-border {
+      border-right: 1.5px solid #F43F5E;
+    }
+    .theme-pink .row-border {
+      border-bottom: 1px solid rgba(244, 63, 94, 0.25);
+    }
+
+    /* 6. Amber Theme (Skill Performance) */
+    .theme-amber {
+      background: #FEF3C7;
+      border-color: #D97706;
+    }
+    .theme-amber .card-header {
+      border-bottom: 2px solid #D97706;
+      color: #78350F;
+    }
+    .theme-amber .cell-border {
+      border-right: 1.5px solid #D97706;
+    }
+    .theme-amber .row-border {
+      border-bottom: 1px solid rgba(217, 119, 6, 0.25);
+    }
+
+    /* Card Header */
+    .card-header {
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .drag-handle {
+      cursor: grab;
+      font-size: 16px;
+      color: #64748B;
+      padding: 0 4px;
+      user-select: none;
+    }
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+    .title-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      text-align: center;
+      font-size: 15.5px;
+      font-weight: 800;
+      color: inherit;
+      cursor: text;
+    }
+
+    /* 3-Column Rows */
+    .entity-body {
+      display: flex;
+      flex-direction: column;
+    }
+    .entity-row {
+      display: grid;
+      grid-template-columns: 130px 105px 65px;
+      font-size: 12px;
+      min-height: 28px;
+      align-items: center;
+      position: relative;
+    }
+    .entity-row:last-child {
+      border-bottom: none !important;
+    }
+    .entity-row:hover .row-delete-btn {
+      opacity: 1;
+    }
+
+    /* Direct Inputs for Guaranteed Easy Editing */
+    .table-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 12px;
+      padding: 4px 8px;
+      color: #1E293B;
+      font-weight: 600;
+      cursor: text;
+    }
+    .input-field {
+      font-weight: 700;
+    }
+    .input-type {
+      color: #475569;
+      font-weight: 500;
+    }
+    .input-key {
+      text-align: center;
+      font-weight: 900;
+    }
+    .input-key.pk { color: #DC2626; }
+    .input-key.fk { color: #2563EB; }
+
+    /* Delete Row Button */
+    .row-delete-btn {
+      opacity: 0;
+      position: absolute;
+      right: 2px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #FEE2E2;
+      color: #EF4444;
+      border: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.15s;
+    }
+    .row-delete-btn:hover { background: #EF4444; color: white; }
+
+    /* Add Row Button */
+    .btn-add-field {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.6);
+      border: none;
+      border-top: 1px dashed rgba(0,0,0,0.15);
+      padding: 6px 0;
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-add-field:hover {
+      background: white;
+      color: #0F172A;
+    }
+
+    /* Bottom Info Bar */
+    .bottom-info-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border-radius: 30px;
+      padding: 8px 24px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border: 1px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 500;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: white !important;
+        background-image: none !important;
+        padding: 0 !important;
+      }
+      .top-action-bar, .bottom-info-bar, .btn-add-field, .row-delete-btn, .drag-handle {
+        display: none !important;
+      }
+      .canvas-board {
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+      }
+      .entity-card {
+        box-shadow: none !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Action Bar (Clean Header) -->
+  <div class="top-action-bar">
+    <div class="action-left">
+      <span class="action-logo-badge">ERD</span>
+      <span>IELTS App Database Architecture</span>
+    </div>
+    <div class="action-right">
+      <button class="btn-act btn-add" onclick="addNewTable()">+ Add Entity</button>
+      <button class="btn-act" onclick="saveBoardToLocal()">💾 Save Edits</button>
+      <button class="btn-act" onclick="resetBoard()">🔄 Reset Board</button>
+      <button class="btn-act btn-print" onclick="window.print()">🖨️ Export PDF</button>
+    </div>
+  </div>
+
+  <!-- Canvas Board -->
+  <div class="canvas-board" id="canvas-board">
+
+    <!-- Top Banner Title (Matches Screenshot) -->
+    <input type="text" class="top-banner-title" value="IELTS Master Preparation & Assessment System" />
+
+    <!-- SVG Layer for Dynamic Crow's Foot / ER Connector Lines -->
+    <svg class="svg-connections" id="svg-connections" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Single crossbar for 'One' (Matches user screenshot) -->
+        <marker id="one-bar" viewBox="0 0 10 20" refX="5" refY="10" markerWidth="6" markerHeight="12" orient="auto">
+          <line x1="5" y1="2" x2="5" y2="18" stroke="#1E293B" stroke-width="2.5" />
+        </marker>
+
+        <!-- Triangle Arrow for Target (Matches user screenshot exactly!) -->
+        <marker id="triangle-arrow" viewBox="0 0 16 16" refX="14" refY="8" markerWidth="12" markerHeight="12" orient="auto">
+          <polygon points="2,2 14,8 2,14" fill="none" stroke="#1E293B" stroke-width="2.2" />
+        </marker>
+
+        <!-- Crow's Foot (Many) Right -->
+        <marker id="crows-foot-right" viewBox="0 0 20 20" refX="18" refY="10" markerWidth="14" markerHeight="14" orient="auto">
+          <line x1="2" y1="2" x2="18" y2="10" stroke="#1E293B" stroke-width="2" />
+          <line x1="2" y1="10" x2="18" y2="10" stroke="#1E293B" stroke-width="2" />
+          <line x1="2" y1="18" x2="18" y2="10" stroke="#1E293B" stroke-width="2" />
+          <line x1="2" y1="2" x2="2" y2="18" stroke="#1E293B" stroke-width="2" />
+        </marker>
+
+        <!-- Crow's Foot (Many) Left -->
+        <marker id="crows-foot-left" viewBox="0 0 20 20" refX="2" refY="10" markerWidth="14" markerHeight="14" orient="auto">
+          <line x1="18" y1="2" x2="2" y2="10" stroke="#1E293B" stroke-width="2" />
+          <line x1="18" y1="10" x2="2" y2="10" stroke="#1E293B" stroke-width="2" />
+          <line x1="18" y1="18" x2="2" y2="10" stroke="#1E293B" stroke-width="2" />
+          <line x1="18" y1="2" x2="18" y2="18" stroke="#1E293B" stroke-width="2" />
+        </marker>
+      </defs>
+
+      <!-- Pre-drawn Dynamic Connectors (Always visible immediately) -->
+      <path id="conn-candidate-test" d="M 340 220 C 430 220, 430 220, 520 220" fill="none" stroke="#1E293B" stroke-width="2" marker-start="url(#one-bar)" marker-end="url(#triangle-arrow)" />
+      <path id="conn-question-test" d="M 1000 220 C 860 220, 860 220, 820 220" fill="none" stroke="#1E293B" stroke-width="2" marker-start="url(#one-bar)" marker-end="url(#triangle-arrow)" />
+      <path id="conn-candidate-checklist" d="M 190 310 C 190 395, 190 395, 190 480" fill="none" stroke="#1E293B" stroke-width="2" marker-start="url(#one-bar)" marker-end="url(#triangle-arrow)" />
+      <path id="conn-checklist-perf" d="M 340 590 C 670 590, 670 590, 1000 590" fill="none" stroke="#1E293B" stroke-width="2" marker-start="url(#one-bar)" marker-end="url(#triangle-arrow)" />
+      <path id="conn-test-ai" d="M 670 410 C 670 445, 670 445, 670 480" fill="none" stroke="#1E293B" stroke-width="2" marker-start="url(#one-bar)" marker-end="url(#triangle-arrow)" />
+    </svg>
+
+    <!-- ENTITY 1: Candidate_Profile (Orange Theme) -->
+    <!-- Matches User Request: Strictly Name, Target Score, Exam Module -->
+    <div class="entity-card theme-orange" id="card-candidate" style="top: 130px; left: 40px;">
+      <div class="card-header">
+        <span class="drag-handle" title="Drag to move card">⋮⋮</span>
+        <input type="text" class="title-input" value="Candidate_Profile" oninput="updateConnections()" />
+      </div>
+      <div class="entity-body">
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="UserID" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key pk" value="PK" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="CandidateName" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="TargetScore" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Decimal" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="ExamModule" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add-field" onclick="addRow(this)">+ Add Field</button>
+    </div>
+
+    <!-- ENTITY 2: Test_Result (Violet Theme) -->
+    <div class="entity-card theme-violet" id="card-test" style="top: 130px; left: 520px;">
+      <div class="card-header">
+        <span class="drag-handle" title="Drag to move card">⋮⋮</span>
+        <input type="text" class="title-input" value="Test_Result" oninput="updateConnections()" />
+      </div>
+      <div class="entity-body">
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="ResultID" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Integer" /></div>
+          <div><input type="text" class="table-input input-key pk" value="PK" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="UserID" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key fk" value="FK" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="QuestionID" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Integer" /></div>
+          <div><input type="text" class="table-input input-key fk" value="FK" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="SkillType" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="Score" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Integer" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="BandScore" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Decimal" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="IsMockExam" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Boolean" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add-field" onclick="addRow(this)">+ Add Field</button>
+    </div>
+
+    <!-- ENTITY 3: Question_Bank (Purple Theme) -->
+    <div class="entity-card theme-purple" id="card-question" style="top: 130px; left: 1000px;">
+      <div class="card-header">
+        <span class="drag-handle" title="Drag to move card">⋮⋮</span>
+        <input type="text" class="title-input" value="Question_Bank" oninput="updateConnections()" />
+      </div>
+      <div class="entity-body">
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="QuestionID" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Integer" /></div>
+          <div><input type="text" class="table-input input-key pk" value="PK" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="Skill" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="Topic" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="PromptText" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="ModelAnswer" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add-field" onclick="addRow(this)">+ Add Field</button>
+    </div>
+
+    <!-- ENTITY 4: Daily_Checklist (Teal Theme) -->
+    <div class="entity-card theme-teal" id="card-checklist" style="top: 480px; left: 40px;">
+      <div class="card-header">
+        <span class="drag-handle" title="Drag to move card">⋮⋮</span>
+        <input type="text" class="title-input" value="Daily_Checklist" oninput="updateConnections()" />
+      </div>
+      <div class="entity-body">
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="ChecklistID" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Integer" /></div>
+          <div><input type="text" class="table-input input-key pk" value="PK" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="UserID" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key fk" value="FK" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="ChecklistDate" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Date" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="SpeakingDone" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Boolean" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="ListeningDone" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Boolean" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="WritingDone" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Boolean" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add-field" onclick="addRow(this)">+ Add Field</button>
+    </div>
+
+    <!-- ENTITY 5: AI_Evaluation_Log (Pink Theme) -->
+    <div class="entity-card theme-pink" id="card-ai" style="top: 480px; left: 520px;">
+      <div class="card-header">
+        <span class="drag-handle" title="Drag to move card">⋮⋮</span>
+        <input type="text" class="title-input" value="AI_Evaluation_Log" oninput="updateConnections()" />
+      </div>
+      <div class="entity-body">
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="EvalID" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Integer" /></div>
+          <div><input type="text" class="table-input input-key pk" value="PK" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="ResultID" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Integer" /></div>
+          <div><input type="text" class="table-input input-key fk" value="FK" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="MediaType" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="OverallBand" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Decimal" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="ExaminerFeedback" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="Corrections" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add-field" onclick="addRow(this)">+ Add Field</button>
+    </div>
+
+    <!-- ENTITY 6: Skill_Performance (Amber Theme) -->
+    <div class="entity-card theme-amber" id="card-perf" style="top: 480px; left: 1000px;">
+      <div class="card-header">
+        <span class="drag-handle" title="Drag to move card">⋮⋮</span>
+        <input type="text" class="title-input" value="Skill_Performance" oninput="updateConnections()" />
+      </div>
+      <div class="entity-body">
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="PerfID" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Integer" /></div>
+          <div><input type="text" class="table-input input-key pk" value="PK" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="UserID" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key fk" value="FK" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="SkillType" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="CurrentBand" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Decimal" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+        <div class="entity-row row-border">
+          <div class="cell-border"><input type="text" class="table-input input-field" value="AccuracyPct" /></div>
+          <div class="cell-border"><input type="text" class="table-input input-type" value="Decimal" /></div>
+          <div><input type="text" class="table-input input-key" value="" /></div>
+          <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add-field" onclick="addRow(this)">+ Add Field</button>
+    </div>
+
+  </div>
+
+  <!-- Bottom Info Bar -->
+  <div class="bottom-info-bar">
+    <span>💡 Click any text directly to type</span>
+    <span>•</span>
+    <span>Drag cards by the (⋮⋮) icon</span>
+    <span>•</span>
+    <span>Lines auto-follow</span>
+  </div>
+
+  <script>
+    function updateConnections() {
+      const canvas = document.getElementById('canvas-board');
+      const canvasRect = canvas.getBoundingClientRect();
+
+      function getAnchor(elementId) {
+        const el = document.getElementById(elementId);
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return {
+          left: r.left - canvasRect.left,
+          right: r.right - canvasRect.left,
+          top: r.top - canvasRect.top,
+          bottom: r.bottom - canvasRect.top,
+          centerX: (r.left + r.right) / 2 - canvasRect.left,
+          centerY: (r.top + r.bottom) / 2 - canvasRect.top,
+        };
+      }
+
+      function setCurvedPath(pathId, a, b, sideA, sideB) {
+        const path = document.getElementById(pathId);
+        if (!path || !a || !b) return;
+
+        let startX, startY, endX, endY;
+
+        if (sideA === 'right') { startX = a.right; startY = a.centerY; }
+        else if (sideA === 'left') { startX = a.left; startY = a.centerY; }
+        else if (sideA === 'bottom') { startX = a.centerX; startY = a.bottom; }
+        else { startX = a.centerX; startY = a.top; }
+
+        if (sideB === 'left') { endX = b.left; endY = b.centerY; }
+        else if (sideB === 'right') { endX = b.right; endY = b.centerY; }
+        else if (sideB === 'top') { endX = b.centerX; endY = b.top; }
+        else { endX = b.centerX; endY = b.bottom; }
+
+        const deltaX = Math.abs(endX - startX) / 2;
+        const deltaY = Math.abs(endY - startY) / 2;
+
+        let d = '';
+        if (sideA === 'right' && sideB === 'left') {
+          d = `M ${startX} ${startY} C ${startX + deltaX} ${startY}, ${endX - deltaX} ${endY}, ${endX} ${endY}`;
+        } else if (sideA === 'bottom' && sideB === 'top') {
+          d = `M ${startX} ${startY} C ${startX} ${startY + deltaY}, ${endX} ${endY - deltaY}, ${endX} ${endY}`;
+        } else {
+          d = `M ${startX} ${startY} L ${endX} ${endY}`;
+        }
+
+        path.setAttribute('d', d);
+      }
+
+      const cCandidate = getAnchor('card-candidate');
+      const cTest = getAnchor('card-test');
+      const cQuestion = getAnchor('card-question');
+      const cChecklist = getAnchor('card-checklist');
+      const cPerf = getAnchor('card-perf');
+      const cAi = getAnchor('card-ai');
+
+      // 1. Candidate (1) -> Test (N)
+      setCurvedPath('conn-candidate-test', cCandidate, cTest, 'right', 'left');
+
+      // 2. Question (1) -> Test (N)
+      setCurvedPath('conn-question-test', cQuestion, cTest, 'left', 'right');
+
+      // 3. Candidate (1) -> Checklist (1:1)
+      setCurvedPath('conn-candidate-checklist', cCandidate, cChecklist, 'bottom', 'top');
+
+      // 4. Checklist (1) -> Skill Perf (1:4)
+      setCurvedPath('conn-checklist-perf', cChecklist, cPerf, 'right', 'left');
+
+      // 5. Test (1) -> AI Log (1:1)
+      setCurvedPath('conn-test-ai', cTest, cAi, 'bottom', 'top');
+    }
+
+    // Drag & Drop Engine
+    let draggedElement = null;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    function initDrag(card) {
+      const handle = card.querySelector('.drag-handle');
+      if (!handle) return;
+
+      handle.addEventListener('mousedown', (e) => {
+        draggedElement = card;
+        card.classList.add('dragging');
+        const cardRect = card.getBoundingClientRect();
+        offsetX = e.clientX - cardRect.left;
+        offsetY = e.clientY - cardRect.top;
+        e.preventDefault();
+      });
+    }
+
+    document.querySelectorAll('.entity-card').forEach(initDrag);
+
+    document.addEventListener('mousemove', (e) => {
+      if (!draggedElement) return;
+      const canvas = document.getElementById('canvas-board');
+      const canvasRect = canvas.getBoundingClientRect();
+
+      let newX = e.clientX - canvasRect.left - offsetX;
+      let newY = e.clientY - canvasRect.top - offsetY;
+
+      newX = Math.max(10, Math.min(canvasRect.width - draggedElement.offsetWidth - 10, newX));
+      newY = Math.max(10, Math.min(canvasRect.height - draggedElement.offsetHeight - 10, newY));
+
+      draggedElement.style.left = `${newX}px`;
+      draggedElement.style.top = `${newY}px`;
+
+      requestAnimationFrame(updateConnections);
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (draggedElement) {
+        draggedElement.classList.remove('dragging');
+        draggedElement = null;
+        updateConnections();
+      }
+    });
+
+    // Row Operations
+    function addRow(btn) {
+      const container = btn.previousElementSibling;
+      const row = document.createElement('div');
+      row.className = 'entity-row row-border';
+      row.innerHTML = `
+        <div class="cell-border"><input type="text" class="table-input input-field" value="NewField" /></div>
+        <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+        <div><input type="text" class="table-input input-key" value="" /></div>
+        <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+      `;
+      container.appendChild(row);
+      updateConnections();
+    }
+
+    function deleteRow(btn) {
+      const row = btn.parentElement;
+      row.remove();
+      updateConnections();
+    }
+
+    function addNewTable() {
+      const canvas = document.getElementById('canvas-board');
+      const card = document.createElement('div');
+      card.className = 'entity-card theme-purple';
+      card.style.top = '300px';
+      card.style.left = '450px';
+      card.innerHTML = `
+        <div class="card-header">
+          <span class="drag-handle" title="Drag to move card">⋮⋮</span>
+          <input type="text" class="title-input" value="Custom_Entity" oninput="updateConnections()" />
+        </div>
+        <div class="entity-body">
+          <div class="entity-row row-border">
+            <div class="cell-border"><input type="text" class="table-input input-field" value="ID" /></div>
+            <div class="cell-border"><input type="text" class="table-input input-type" value="Integer" /></div>
+            <div><input type="text" class="table-input input-key pk" value="PK" /></div>
+            <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+          </div>
+          <div class="entity-row row-border">
+            <div class="cell-border"><input type="text" class="table-input input-field" value="Name" /></div>
+            <div class="cell-border"><input type="text" class="table-input input-type" value="String" /></div>
+            <div><input type="text" class="table-input input-key" value="" /></div>
+            <button class="row-delete-btn" onclick="deleteRow(this)">✕</button>
+          </div>
+        </div>
+        <button class="btn-add-field" onclick="addRow(this)">+ Add Field</button>
+      `;
+      canvas.appendChild(card);
+      initDrag(card);
+      updateConnections();
+    }
+
+    function saveBoardToLocal() {
+      const canvas = document.getElementById('canvas-board');
+      // Save values of inputs into attributes so innerHTML captures user changes
+      canvas.querySelectorAll('input').forEach(input => {
+        input.setAttribute('value', input.value);
+      });
+      localStorage.setItem('saved_clean_erd_v3', canvas.innerHTML);
+      alert("✅ Board edits saved! Your changes are stored in the browser.");
+    }
+
+    function resetBoard() {
+      if (confirm("Reset board back to initial clean layout?")) {
+        localStorage.removeItem('saved_clean_erd_v3');
+        location.reload();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('saved_clean_erd_v3');
+      if (saved) {
+        document.getElementById('canvas-board').innerHTML = saved;
+        document.querySelectorAll('.entity-card').forEach(initDrag);
+      }
+      setTimeout(updateConnections, 100);
+    });
+
+    window.addEventListener('resize', updateConnections);
+  </script>
+
+</body>
+</html>

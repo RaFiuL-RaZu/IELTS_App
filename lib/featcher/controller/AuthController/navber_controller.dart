@@ -8,9 +8,18 @@ import 'package:justtsham/featcher/view/ProfileScreen/candidate_profile_screen.d
 
 class NavBarController extends GetxController {
   var selectedIndex = 0.obs;
+  var skillPracticeIndex = 0.obs; // 0: Speaking, 1: Listening, 2: Reading, 3: Writing
 
-  void changeTab(int index) {
+  void changeTab(int index, {int skillIndex = -1}) {
     selectedIndex.value = index;
+    if (skillIndex >= 0) {
+      skillPracticeIndex.value = skillIndex;
+    }
+  }
+
+  void openSkill(int skillIndex) {
+    skillPracticeIndex.value = skillIndex;
+    selectedIndex.value = 1; // Switch to 4 Skills tab
   }
 
   final List<Widget> pages = [
